@@ -33,7 +33,7 @@ class Node {
         if (neighbor.value == 1) continue;
         const tentativeDistanceToNeighbor = currentMinDistanceNode.distanceFromStart + 1;
   
-        // skip nodes with large F
+        // skip nodes with large G
         if (tentativeDistanceToNeighbor >= neighbor.distanceFromStart) continue;
   
         neighbor.cameFrom = currentMinDistanceNode;
