@@ -1,8 +1,8 @@
 class Node {
     constructor(row, col, value) {
       this.id = row.toString() + '-' + col.toString();
-      this.row = row;
-      this.col = col;
+      this.row = row; // "y" location of grid
+      this.col = col; // "x" location of grid
       this.value = value;
       this.distanceFromStart = Infinity; // G
       this.estimatedDistanceToEnd = Infinity; // F = G + H
@@ -89,7 +89,8 @@ class Node {
   
     const row = node.row;
     const col = node.col;
-  
+    
+    // 4 positions of neighbours
     if (row < numRows - 1){ 
       // DOWN
       neighbors.push(nodes[row + 1][col]);
@@ -228,8 +229,9 @@ class Node {
     }
     
   }
-  
-// Test Case below:
+
+/*
+// Test Case below: (Can exclude this part)
 startRow = 0;
 startCol = 1;
 endRow = 4;
@@ -243,4 +245,10 @@ graph = [
 ]
 
 console.log(aStarAlgorithm(startRow, startCol, endRow, endCol, graph));
-  
+
+// The path should be:
+//    [
+//        [0, 1], [0, 0], [1, 0], [2, 0], [2, 1], [3, 1], [4, 1], [4, 2], [4, 3]
+//    ]
+
+*/
