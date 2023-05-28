@@ -1,4 +1,4 @@
-module EdgeDetection (
+module sobelFilter (
   input clk,
   input reset,
   input [7:0] image_in,   // Input pixel data from the camera
