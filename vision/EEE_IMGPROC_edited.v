@@ -76,8 +76,7 @@ wire         sop, eop, in_valid, out_ready;
 ////////////////////////////////////////////////////////////////////////
 
 /*
-RGB -> HSV conversion:
-
+// RGB -> HSV conversion:
 // H: 0 - 360, S: 0 - 255, V: 0 - 255
 
 wire [7:0] cmax, cmin, delta, sat, val;
@@ -95,28 +94,36 @@ assign hue = (hue_temp < 0) ? hue_temp + 360 : hue_temp;
 assign sat = (cmax == 0) ? 0 : 255 * delta / cmax;
 assign val = cmax; 
 
-*/
+// HSV + RGB:
+
+wire red_detect, blue_detect, yellow_detect, white_detect;
+assign red_detect = red[7] & ~green[7] & ~blue[7] & hue >= 5 & hue <= 15 & sat >= 180 & sat <= 230 & val >= 120 & val <= 210;
+assign blue_detect = ~red[7] & ~green[7] & blue[7] & hue >= 205 & hue <= 215 & sat >= 140 & sat <= 220 & val >= 50 & val <= 120;
+assign yellow_detect = red[7] & green[7] & ~blue[7] & hue >= 80 & hue <= 100 & sat >= 90 & sat <= 140 & val >= 150 & val <= 220;
+assign white_detect = (red[7:4] == 4'b1111) & (green[7:4] == 4'b1111) & (blue[7:4] == 4'b1111);
 
 
 // RGB values
-// 1. Detect red, blue, yellow, white areas
+// Detect red, blue, yellow, white areas
 
+/*
 wire red_detect, blue_detect, yellow_detect, white_detect;
 assign red_detect = red[7] & ~green[7] & ~blue[7];
 assign blue_detect = ~red[7] & ~green[7] & blue[7];
 assign yellow_detect = red[7] & green[7] & ~blue[7] & red[6] & green[6];
 assign white_detect = (red[7:4] == 4'b1111) & (green[7:4] == 4'b1111) & (blue[7:4] == 4'b1111);
-
+*/
+*/
 // Find boundary of cursor box
 
 // Highlight detected areas
 wire [23:0] red_high, blue_high, yellow_high, white_high;
 assign grey = green[7:1] + red[7:2] + blue[7:2]; // Grey = green/2 + red/4 + blue/4
 
-assign red_high  =  red_detect ? {8'hff, 8'h0, 8'h0} : {grey, grey, grey};
-assign blue_high = blue_detect ? {8'h0, 8'h0, 8'hff} : red_high;
-assign yellow_high = yellow_detect ? {8'hff, 8'hff, 8'h0} : blue_high;
-assign white_high = white_detect ? {8'hff, 8'hff, 8'hff} : yellow_high;
+assign red_high  =  red_detect ? bb_col_r : {grey, grey, grey};
+assign blue_high = blue_detect ? bb_col_b : red_high;
+assign yellow_high = yellow_detect ? bb_col_y : blue_high;
+assign white_high = white_detect ? bb_col_w : yellow_high;
 
 
 // Show bounding box
@@ -129,7 +136,7 @@ assign bb_active_wall = (x == left_wall) | (x == right_wall) | (y == top_wall) |
 
 // assign bb_active = (x == left) | (x == right) | (y == top) | (y == bottom);
 
-assign new_image = bb_active_wall ? bb_col : bb_active_red ? {8'hff, 8'h0, 8'h0} : bb_active_blue ? {8'h0, 8'h0, 8'hff} : bb_active_yellow ? {8'hff, 8'ha5, 8'h0} : yellow_high;
+assign new_image = bb_active_wall ? bb_col_w : bb_active_red ? bb_col_r : bb_active_blue ? bb_col_b : bb_active_yellow ? bb_col_y : yellow_high;
 
 // Switch output pixels depending on mode switch
 // Don't modify the start-of-packet word - it's a packet discriptor
@@ -327,7 +334,7 @@ always@(*) begin	// Write words to FIFO as state machine advances
 		end
 
 		3'b001: begin
-			msg_buf_in = {`RED_BOX_MSG_ID, 5'h0, ;	// Message ID
+			msg_buf_in = {`RED_BOX_MSG_ID, 5'h0};	// Message ID
 			msg_buf_wr = 1'b1;
 		end
 		3'b010: begin
@@ -400,13 +407,17 @@ STREAM_REG #(.DATA_WIDTH(26)) out_reg (
 // Process write
 
 reg  [7:0]   reg_status;
-reg	[23:0]	bb_col;
+reg	[23:0]	bb_col, bb_col_r, bb_col_y, bb_col_b, bb_col_w;
 
 always @ (posedge clk)
 begin
 	if (~reset_n)
 	begin
 		reg_status <= 8'b0;
+		bb_col_r <= 24'hff0000;
+		bb_col_y <= 24'hffff00;
+		bb_col_b <= 24'h0000ff;
+		bb_col_w <= 24'hffffff;
 		bb_col <= BB_COL_DEFAULT;
 	end
 	else begin
