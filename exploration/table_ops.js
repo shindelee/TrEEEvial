@@ -1,22 +1,25 @@
 //Create DynamoDB table
 
 import { DeleteTableCommand, CreateTableCommand, DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import { PutCommand, DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 
 const client = new DynamoDBClient({});
+const docClient = DynamoDBDocumentClient.from(client);
+const TABLE_NAME = "Node Information";
 
 
 export const exists = async () => {
     const command = new DescribeTableCommand({
-      TableName: "Node Information",
+      TableName: TABLE_NAME,
     });
 
     const response = await client.send(command);
-    return response.Table.TableName ==  "Node Information"
+    return response.Table.TableName ==  TABLE_NAME;
 };
 
 export const delete_table = async () => {
     const command = new DeleteTableCommand({
-      TableName: "DecafCoffees",
+      TableName: TABLE_NAME,
     });
   
     const response = await client.send(command);
@@ -25,15 +28,20 @@ export const delete_table = async () => {
   };
 
 
+//Note: Coordinate is string, need to do string processing
+//to extract x and y coordinate
 
 export const create_table = async () => {
   const command = new CreateTableCommand({
-    TableName: "Node Information",
+    TableName: TABLE_NAME,
 
     AttributeDefinitions: [
-      {AttributeName: "Coordinate", AttributeType: "N",},
+      {AttributeName: "Coordinate", AttributeType: "S",},
+      {AttributeName: "Type", AttributeType: "N",}, 
       {AttributeName: "Origin", AttributeType: "N"},
       {AttributeName: "Visited", AttributeType: "N"},
+      {AttributeName: "Decision_Node", AttributeType: "BOOL"}, //if true, this node 
+      //has multiple possible decisions
     ],
 
     KeySchema: [
@@ -46,7 +54,9 @@ export const create_table = async () => {
       ReadCapacityUnits: 1,
       WriteCapacityUnits: 1,
     },
+
   });
+
 
   const response = await client.send(command);
   console.log(response);
@@ -54,8 +64,36 @@ export const create_table = async () => {
 };
 
 
+export const add_node = async (coordinate, origin, visited) => {
+  const command = new PutCommand({
+    TableName: TABLE_NAME,
+    Item: {
+      Coordinate : coordinate,
+      Type : 0, //path
+      Origin : origin,
+      Visited : visited,
+    },
+  });
 
+  const response = await docClient.send(command);
+  console.log(response);
+  return response;
+};
 
+export const add_wall = async (coordinate) => {
+  const command = new PutCommand({
+    TableName: TABLE_NAME,
+    Item: {
+      Coordinate : coordinate,
+      Type : 1, //wall
+      Origin : null,
+      Visited : null,
+    },
+  });
 
+  const response = await docClient.send(command);
+  console.log(response);
+  return response;
+};
 
 
