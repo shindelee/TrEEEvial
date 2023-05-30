@@ -1,7 +1,7 @@
 //Create DynamoDB table
 
 import { DeleteTableCommand, CreateTableCommand, DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { PutCommand, DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
+import { PutCommand, UpdateCommand, DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 
 const client = new DynamoDBClient({});
 const docClient = DynamoDBDocumentClient.from(client);
@@ -40,8 +40,9 @@ export const create_table = async () => {
       {AttributeName: "Type", AttributeType: "N",}, 
       {AttributeName: "Origin", AttributeType: "N"},
       {AttributeName: "Visited", AttributeType: "N"},
-      {AttributeName: "Decision_Node", AttributeType: "BOOL"}, //if true, this node 
+      {AttributeName: "Decision_Node", AttributeType: "N"}, //if true, this node 
       //has multiple possible decisions
+      {AttributeName: "Start_Node", AttributeType: "N"},
     ],
 
     KeySchema: [
@@ -64,7 +65,7 @@ export const create_table = async () => {
 };
 
 
-export const add_node = async (coordinate, origin, visited) => {
+export const add_node = async (coordinate, origin, visited, decision, start) => {
   const command = new PutCommand({
     TableName: TABLE_NAME,
     Item: {
@@ -72,6 +73,8 @@ export const add_node = async (coordinate, origin, visited) => {
       Type : 0, //path
       Origin : origin,
       Visited : visited,
+      Decision_Node : decision,
+      Start_Node : start,
     },
   });
 
@@ -88,6 +91,8 @@ export const add_wall = async (coordinate) => {
       Type : 1, //wall
       Origin : null,
       Visited : null,
+      Decision_Node : null,
+      Start_Node : null,
     },
   });
 
@@ -96,4 +101,20 @@ export const add_wall = async (coordinate) => {
   return response;
 };
 
+export const edit_entry = async (coordinate) => {
+  const command = new UpdateCommand({
+    TableName: TABLE_NAME,
+    Key: {
+      Coordinate: coordinate,
+    },
+    UpdateExpression: "set Color = :color",
+    ExpressionAttributeValues: {
+      ":color": "black",
+    },
+    ReturnValues: "ALL_NEW",
+  });
 
+  const response = await docClient.send(command);
+  console.log(response);
+  return response;
+};

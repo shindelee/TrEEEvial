@@ -52,4 +52,18 @@ This is Tremaux.
 
 ## Software Dependencies
 
-1.
+1. npm install dynamodb
+2. Configure AWS SDK with credentials in the package.json file (done)
+3. npm install (automatically installs dependencies)
+4. Download AWS CLI (just to be able to view tables locally)\\
+   https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
+
+```
+java -D"java.library.path=./DynamoDBLocal_lib" -jar DynamoDBLocal.jar
+```
+
+## Concerns:
+
+The wall is much thinner than the distance represented by each pixel! might have to change the way we represent the maze.
+
+Need to also store which is the start node!
