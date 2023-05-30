@@ -77,7 +77,7 @@ wire         sop, eop, in_valid, out_ready;
 
 ////////////////////////////////////////////////////////////////////////
 
-
+/*
 // RGB -> HSV conversion:
 // H: 0 - 360, S: 0 - 255, V: 0 - 255
 
@@ -99,12 +99,12 @@ assign val = cmax;
 // HSV
 
 wire red_detect, blue_detect, yellow_detect, white_detect;
-assign red_detect = ((hue >= 0 & hue <= 20) | (hue >= 340 & hue <= 360)) & sat >= 200 & sat <= 255 & val >= 210 & val <= 255;
-assign blue_detect = hue >= 220 & hue <= 260 & sat >= 210 & sat <= 255 & val >= 210 & val <= 255;
-assign yellow_detect = hue >= 40 & hue <= 80 & sat >= 200 & sat <= 255 & val >= 210 & val <= 255;
+assign red_detect = ((hue >= 0 & hue <= 20) | (hue >= 340 & hue <= 360)) & sat >= 180 & sat <= 255 & val >= 170 & val <= 255;
+assign blue_detect = hue >= 220 & hue <= 260 & sat >= 200 & sat <= 255 & val >= 170 & val <= 255;
+assign yellow_detect = hue >= 40 & hue <= 80 & sat >= 200 & sat <= 255 & val >= 170 & val <= 255;
 assign white_detect = sat == 0 & val >= 220 & val <= 255;
+*/
 
-/*
 // RGB values
 // Detect red, blue, yellow, white areas
 
@@ -113,7 +113,7 @@ assign red_detect = red[7] & ~green[7] & ~blue[7];
 assign blue_detect = ~red[7] & ~green[7] & blue[7];
 assign yellow_detect = red[7] & green[7] & ~blue[7] & red[6] & green[6];
 assign white_detect = (red[7:4] == 4'b1111) & (green[7:4] == 4'b1111) & (blue[7:4] == 4'b1111);
-*/
+
 
 // Find boundary of cursor box
 
