@@ -100,8 +100,8 @@ assign val = cmax;
 
 wire red_detect, blue_detect, yellow_detect, white_detect;
 assign red_detect = ((hue >= 0 & hue <= 20) | (hue >= 340 & hue <= 360)) & sat >= 200 & sat <= 255 & val >= 210 & val <= 255;
-assign blue_detect = hue >= 220 & hue <= 260 & sat >= 210 & sal <= 255 & val >= 210 & val <= 255;
-assign yellow_detect = hue >= 40 & hue <= 80 & sat >= 200 & sal <= 255 & val >= 210 & val <= 255;
+assign blue_detect = hue >= 220 & hue <= 260 & sat >= 210 & sat <= 255 & val >= 210 & val <= 255;
+assign yellow_detect = hue >= 40 & hue <= 80 & sat >= 200 & sat <= 255 & val >= 210 & val <= 255;
 assign white_detect = sat == 0 & val >= 220 & val <= 255;
 
 /*
