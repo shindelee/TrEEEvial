@@ -1,4 +1,5 @@
 module EEE_IMGPROC(
+
 	// global clock & reset
 	clk,
 	reset_n,
@@ -73,9 +74,10 @@ parameter BB_COL_DEFAULT = 24'h00ff00;  // bounding box default color: green
 wire [7:0]   red, green, blue, grey;
 wire [7:0]   red_out, green_out, blue_out;
 wire         sop, eop, in_valid, out_ready;
+
 ////////////////////////////////////////////////////////////////////////
 
-/*
+
 // RGB -> HSV conversion:
 // H: 0 - 360, S: 0 - 255, V: 0 - 255
 
@@ -86,45 +88,44 @@ assign cmax = ((red >= green) & (red >= blue)) ? red : ((green >= blue) & (green
 assign cmin = ((red <= green) & (red <= blue)) ? red : ((green <= blue) & (green <= red)) ? green : blue;
 assign delta = cmax - cmin;
 
-assign hue_temp = (delta == 0) ? 0 : (cmax == red) ? (60 * (green - blue)/ delta)
-                                   : (cmax == green) ? (60 * (blue - red) / delta)
+assign hue_temp = (delta == 0) ? 0 : (cmax == red) ? (60 * (green - blue) / delta)
+                                   : (cmax == green) ? (120 + 60 * (blue - red) / delta)
                                    : (240 + 60 * (red - green) / delta);
 
 assign hue = (hue_temp < 0) ? hue_temp + 360 : hue_temp;
 assign sat = (cmax == 0) ? 0 : 255 * delta / cmax;
 assign val = cmax; 
 
-// HSV + RGB:
+// HSV
 
 wire red_detect, blue_detect, yellow_detect, white_detect;
-assign red_detect = red[7] & ~green[7] & ~blue[7] & hue >= 5 & hue <= 15 & sat >= 180 & sat <= 230 & val >= 120 & val <= 210;
-assign blue_detect = ~red[7] & ~green[7] & blue[7] & hue >= 205 & hue <= 215 & sat >= 140 & sat <= 220 & val >= 50 & val <= 120;
-assign yellow_detect = red[7] & green[7] & ~blue[7] & hue >= 80 & hue <= 100 & sat >= 90 & sat <= 140 & val >= 150 & val <= 220;
-assign white_detect = (red[7:4] == 4'b1111) & (green[7:4] == 4'b1111) & (blue[7:4] == 4'b1111);
+assign red_detect = ((hue >= 0 & hue <= 20) | (hue >= 340 & hue <= 360)) & sat >= 200 & sat <= 255 & val >= 210 & val <= 255;
+assign blue_detect = hue >= 220 & hue <= 260 & sat >= 210 & sal <= 255 & val >= 210 & val <= 255;
+assign yellow_detect = hue >= 40 & hue <= 80 & sat >= 200 & sal <= 255 & val >= 210 & val <= 255;
+assign white_detect = sat == 0 & val >= 220 & val <= 255;
 
-
+/*
 // RGB values
 // Detect red, blue, yellow, white areas
 
-/*
 wire red_detect, blue_detect, yellow_detect, white_detect;
 assign red_detect = red[7] & ~green[7] & ~blue[7];
 assign blue_detect = ~red[7] & ~green[7] & blue[7];
 assign yellow_detect = red[7] & green[7] & ~blue[7] & red[6] & green[6];
 assign white_detect = (red[7:4] == 4'b1111) & (green[7:4] == 4'b1111) & (blue[7:4] == 4'b1111);
 */
-*/
+
 // Find boundary of cursor box
 
 // Highlight detected areas
 wire [23:0] red_high, blue_high, yellow_high, white_high;
-assign grey = green[7:1] + red[7:2] + blue[7:2]; // Grey = green/2 + red/4 + blue/4
+assign grey = green[7:1] + red[7:2] + blue[7:2]; 
+// Grey = green/2 + red/4 + blue/4
 
 assign red_high  =  red_detect ? bb_col_r : {grey, grey, grey};
 assign blue_high = blue_detect ? bb_col_b : red_high;
 assign yellow_high = yellow_detect ? bb_col_y : blue_high;
 assign white_high = white_detect ? bb_col_w : yellow_high;
-
 
 // Show bounding box
 wire [23:0] new_image;
@@ -167,6 +168,30 @@ end
 
 // Find first and last pixels 
 
+// Find first and last red pixels
+reg [10:0] red_x_min, red_y_min, red_x_max, red_y_max;
+always@(posedge clk) begin
+	if (red_detect & in_valid) begin	
+	
+	// Update bounds when the pixel is red
+		if (x < red_x_min) red_x_min <= x;
+		if (x > red_x_max) red_x_max <= x;
+		if (y < red_y_min) red_y_min <= y;
+		if (y > red_y_max) red_y_max <= y;
+	end
+	
+	if (sop & in_valid) begin	
+	
+	// Reset bounds on start of packet
+		red_x_min <= IMAGE_W-11'h1;
+		red_x_max <= 0;
+		red_y_min <= IMAGE_H-11'h1;
+		red_y_max <= 0;
+	end
+	
+end
+
+
 // Find first and last wall pixels
 reg [10:0] wall_x_min, wall_y_min, wall_x_max, wall_y_max;
 
@@ -187,29 +212,6 @@ always@(posedge clk) begin
 		wall_x_max <= 0;
 		wall_y_min <= IMAGE_H-11'h1;
 		wall_y_max <= 0;
-	end
-	
-end
-
-// Find first and last red pixels
-reg [10:0] red_x_min, red_y_min, red_x_max, red_y_max;
-always@(posedge clk) begin
-	if (red_detect & in_valid) begin	
-	
-	// Update bounds when the pixel is red
-		if (x < red_x_min) red_x_min <= x;
-		if (x > red_x_max) red_x_max <= x;
-		if (y < red_y_min) red_y_min <= y;
-		if (y > red_y_max) red_y_max <= y;
-	end
-	
-	if (sop & in_valid) begin	
-	
-	// Reset bounds on start of packet
-		red_x_min <= IMAGE_W-11'h1;
-		red_x_max <= 0;
-		red_y_min <= IMAGE_H-11'h1;
-		red_y_max <= 0;
 	end
 	
 end
@@ -273,16 +275,16 @@ always@(posedge clk) begin
 		
 		// Latch edges for display overlay on next frame
 		
-		left_wall <= wall_x_min;
-		right_wall <= wall_x_max;
-		top_wall <= wall_y_min;
-		bottom_wall <= wall_y_max;
-		
 		left_red <= red_x_min;
 		right_red <= red_x_max;
 		top_red <= red_y_min;
 		bottom_red <= red_y_max;
 		
+		left_wall <= wall_x_min;
+		right_wall <= wall_x_max;
+		top_wall <= wall_y_min;
+		bottom_wall <= wall_y_max;
+
 		left_blue <= blue_x_min;
 		right_blue <= blue_x_max;
 		top_blue <= blue_y_min;
@@ -292,6 +294,7 @@ always@(posedge clk) begin
 		right_yellow <= yellow_x_max;
 		top_yellow <= yellow_y_min;
 		bottom_yellow <= yellow_y_max;
+		
 		
 		/*
 		left <= x_min;
@@ -338,11 +341,11 @@ always@(*) begin	// Write words to FIFO as state machine advances
 			msg_buf_wr = 1'b1;
 		end
 		3'b010: begin
-			msg_buf_in = {5'b0, red_x_min, 5'b0, red_y_min};	//Top left coordinate
+			msg_buf_in = {5'b0, red_x_min, 5'b0, red_y_min};	// Top left coordinate
 			msg_buf_wr = 1'b1;
 		end
 		3'b011: begin
-			msg_buf_in = {5'b0, red_x_max, 5'b0, red_y_max}; //Bottom right coordinate
+			msg_buf_in = {5'b0, red_x_max, 5'b0, red_y_max}; // Bottom right coordinate
 			msg_buf_wr = 1'b1;
 		end
 	endcase
@@ -392,11 +395,11 @@ STREAM_REG #(.DATA_WIDTH(26)) out_reg (
 
 // Addresses
 `define REG_STATUS    			0
-`define READ_MSG    				1
+`define READ_MSG    			1
 `define READ_ID    				2
-`define REG_BBCOL					3
+`define REG_BBCOL				3
 
-//Status register bits
+// Status register bits
 // 31:16 - unimplemented
 // 15:8 - number of words in message buffer (read only)
 // 7:5 - unused
@@ -429,7 +432,7 @@ begin
 end
 
 
-//Flush the message buffer if 1 is written to status register bit 4
+// Flush the message buffer if 1 is written to status register bit 4
 assign msg_buf_flush = (s_chipselect & s_write & (s_address == `REG_STATUS) & s_writedata[4]);
 
 

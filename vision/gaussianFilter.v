@@ -7,7 +7,7 @@ module gaussianFilter (
   // Gaussian Kernel
   parameter [7:0] WEIGHTS [5][5] = { {2, 4, 5, 4, 2},
                                       {4, 9,12, 9, 4},
-                                      {5,12,15,12, 5},
+                                      {5, 12, 15, 12, 5},
                                       {4, 9,12, 9, 4},
                                       {2, 4, 5, 4, 2}};
   reg [7:0] buffer [5][5];
