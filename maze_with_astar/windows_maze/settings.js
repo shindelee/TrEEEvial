@@ -33,7 +33,7 @@ function generateMaze(e) {
 
   form.style.display = "none";
 
-  newMaze = new Maze(mazeSize, number, number);
+  newMaze = new Maze(mazeSize, 8, 12);
   newMaze.setup();
   newMaze.draw();
   console.log("We finished drawing the maze.");
