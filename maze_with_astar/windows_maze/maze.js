@@ -1,12 +1,12 @@
 // The array received from the rover.
-let map_array = [[0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1],
-                 [0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1],
-                 [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
-                 [1, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0, 1],
-                 [1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0],
-                 [1, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0],
-                 [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
-                 [0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0]
+let map_array = [[0, 0, 0, 0, 0, 0, 0, 0],
+                 [0, 1, 1, 1, 0, 0, 0, 0],
+                 [0, 0, 0, 0, 0, 0, 1, 0],
+                 [1, 0, 1, 1, 1, 0, 1, 0],
+                 [1, 0, 0, 0, 0, 0, 1, 0],
+                 [1, 0, 0, 0, 0, 0, 1, 1],
+                 [1, 0, 0, 0, 1, 0, 0, 0],
+                 [0, 0, 1, 1, 1, 1, 0, 0]
                 ];
 
 // Initialize the canvas
@@ -236,6 +236,11 @@ class Maze {
         grid[r][c].show(this.size, this.rows, this.columns);
       }
     }
+
+    // Display the current square our rover is on.
+    generationComplete = true;
+    current = this.grid[0][0];
+    current.highlight(this.columns);
   }
 }
 
@@ -321,6 +326,19 @@ class Cell {
     let x = (this.colNum * this.parentSize) / columns + 1;
     let y = (this.rowNum * this.parentSize) / columns + 1;
     ctx.fillStyle = "purple";
+    ctx.fillRect(
+      x,
+      y,
+      this.parentSize / columns - 3,
+      this.parentSize / columns - 3
+    );
+  }
+
+  unhighlight(columns) {
+    // Additions and subtractions added so the highlighted cell does cover the walls
+    let x = (this.colNum * this.parentSize) / columns + 1;
+    let y = (this.rowNum * this.parentSize) / columns + 1;
+    ctx.fillStyle = "black";
     ctx.fillRect(
       x,
       y,

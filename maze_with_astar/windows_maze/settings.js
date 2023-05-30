@@ -7,6 +7,14 @@ let close = document.querySelector(".close");
 
 let newMaze;
 
+function wait(ms){
+  var start = new Date().getTime();
+  var end = start;
+  while(end < start + ms) {
+    end = new Date().getTime();
+ }
+}
+
 form.addEventListener("submit", generateMaze);
 document.addEventListener("keydown", move);
 replay.addEventListener("click", () => {
@@ -33,25 +41,41 @@ function generateMaze(e) {
 
   form.style.display = "none";
 
-  newMaze = new Maze(mazeSize, 8, 12);
+  newMaze = new Maze(mazeSize, number, number);
   newMaze.setup();
   newMaze.draw();
   console.log("We finished drawing the maze.");
 }
+i=0;
 
-function move(e) {
+function move() {
   console.log('We reached the arrow key game part.');
   if (!generationComplete) return;
-  let key = e.key;
-  let row = current.rowNum;
-  let col = current.colNum;
+  console.log('Generation is complete.');
+  // shortest_path = [[0, 1], [0, 2], [0, 3], [0, 4], [0, 5], [1, 5], [2, 5], [3, 5], [4, 5], [5, 5], [6, 5], [6, 6], [6, 7], [7, 7]];
+
+    if (!generationComplete) return;
+    shortest_path = [[0, 1], [0, 2], [0, 3], [0, 4], [0, 5], [1, 5], [2, 5], [3, 5], [4, 5], [5, 5], [6, 5], [6, 6], [6, 7], [7, 7]];
+    let next = newMaze.grid[shortest_path[i][0]][shortest_path[i][1]];
+    i++;
+    current.unhighlight(newMaze.columns);
+    current = next;
+    //newMaze.draw();
+    current.highlight(newMaze.columns);
+    // not required if goal is in bottom right
+    if (current.goal) complete.style.display = "block";
+    console.log(i);
+    wait(100);
+
+  /*
 
   switch (key) {
     case "ArrowUp":
       if (!current.walls.topWall) {
         let next = newMaze.grid[row - 1][col];
+        current.unhighlight(newMaze.columns);
         current = next;
-        newMaze.draw();
+        //newMaze.draw();
         current.highlight(newMaze.columns);
         // not required if goal is in bottom right
         if (current.goal) complete.style.display = "block";
@@ -61,8 +85,9 @@ function move(e) {
     case "ArrowRight":
       if (!current.walls.rightWall) {
         let next = newMaze.grid[row][col + 1];
+        current.unhighlight(newMaze.columns);
         current = next;
-        newMaze.draw();
+        //newMaze.draw();
         current.highlight(newMaze.columns);
         if (current.goal) complete.style.display = "block";
       }
@@ -71,8 +96,10 @@ function move(e) {
     case "ArrowDown":
       if (!current.walls.bottomWall) {
         let next = newMaze.grid[row + 1][col];
+        current.unhighlight(newMaze.columns);
         current = next;
-        newMaze.draw();
+        //newMaze.draw();
+        //console.log(current);
         current.highlight(newMaze.columns);
         if (current.goal) complete.style.display = "block";
       }
@@ -81,12 +108,15 @@ function move(e) {
     case "ArrowLeft":
       if (!current.walls.leftWall) {
         let next = newMaze.grid[row][col - 1];
+        current.unhighlight(newMaze.columns);
         current = next;
-        newMaze.draw();
+        //newMaze.draw();
         current.highlight(newMaze.columns);
         // not required if goal is in bottom right
         if (current.goal) complete.style.display = "block";
       }
       break;
   }
+
+  */
 }
