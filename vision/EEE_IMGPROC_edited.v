@@ -109,8 +109,8 @@ assign yellow_detect = (8'd10  < hue) & (hue < 8'd42  )
 						& (8'd60 < sat) & (sat < 8'd120 )
 						& (8'd118  < val) & (val < 8'd214 );
 assign white_detect = sat == 0 & val >= 220 & val <= 255;
-*/
 
+*/
 
 // RGB values
 // Detect red, blue, yellow, white areas
@@ -193,7 +193,7 @@ always@(posedge clk) begin
 		if (x < red_x_min) red_x_min <= x;
 		if (x > red_x_max) red_x_max <= x;
 		if (y < red_y_min) red_y_min <= y;
-		if (y > red_y_max) red_y_max <= y;
+		red_y_max <= y;
 	end
 	
 	if (sop & in_valid) begin	
@@ -218,7 +218,7 @@ always@(posedge clk) begin
 		if (x < wall_x_min) wall_x_min <= x;
 		if (x > wall_x_max) wall_x_max <= x;
 		if (y < wall_y_min) wall_y_min <= y;
-		if (y > wall_y_max) wall_y_max <= y;
+		wall_y_max <= y;
 	end
 	
 	if (sop & in_valid) begin	
@@ -241,7 +241,7 @@ always@(posedge clk) begin
 		if (x < blue_x_min) blue_x_min <= x;
 		if (x > blue_x_max) blue_x_max <= x;
 		if (y < blue_y_min) blue_y_min <= y;
-		if (y > blue_y_max) blue_y_max <= y;
+		blue_y_max <= y;
 	end
 	
 	if (sop & in_valid) begin	
@@ -263,7 +263,7 @@ always@(posedge clk) begin
 		if (x < yellow_x_min) yellow_x_min <= x;
 		if (x > yellow_x_max) yellow_x_max <= x;
 		if (y < yellow_y_min) yellow_y_min <= y;
-		if (y > yellow_y_max) yellow_y_max <= y;
+		yellow_y_max <= y;
 	end
 	if (sop & in_valid) begin	
 	
@@ -362,6 +362,22 @@ always@(*) begin	// Write words to FIFO as state machine advances
 		end
 		3'b011: begin
 			msg_buf_in = {5'b0, red_x_max, 5'b0, red_y_max}; 	// Bottom right coordinate -RED
+			msg_buf_wr = 1'b1;
+		end
+		3'b100: begin
+			msg_buf_in = {5'b0, blue_x_min, 5'b0, blue_y_min};	// Top left coordinate - BLUE
+			msg_buf_wr = 1'b1;
+		end
+		3'b101: begin
+			msg_buf_in = {5'b0, blue_x_max, 5'b0, blue_y_max}; 	// Bottom right coordinate - BLUE
+			msg_buf_wr = 1'b1;
+		end
+		3'b110: begin
+			msg_buf_in = {5'b0, yellow_x_min, 5'b0, yellow_y_min};	// Top left coordinate - YELLOW
+			msg_buf_wr = 1'b1;
+		end
+		3'b111: begin
+			msg_buf_in = {5'b0, yellow_x_max, 5'b0, yellow_y_max}; 	// Bottom right coordinate - YELLOW
 			msg_buf_wr = 1'b1;
 		end
 	endcase
