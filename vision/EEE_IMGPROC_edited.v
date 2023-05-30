@@ -99,11 +99,18 @@ assign val = cmax;
 // HSV
 
 wire red_detect, blue_detect, yellow_detect, white_detect;
-assign red_detect = ((hue >= 0 & hue <= 20) | (hue >= 340 & hue <= 360)) & sat >= 180 & sat <= 255 & val >= 170 & val <= 255;
-assign blue_detect = hue >= 220 & hue <= 260 & sat >= 200 & sat <= 255 & val >= 170 & val <= 255;
-assign yellow_detect = hue >= 40 & hue <= 80 & sat >= 200 & sat <= 255 & val >= 170 & val <= 255;
+assign red_detect = ((8'd228   < hue) & (hue <= 8'd255  ) || (8'd0   <= hue) & (hue < 8'd9  ))
+					& (8'd20  < sat) & (sat < 8'd70 ) 
+					& (8'd126  < val) & (val < 8'd180 );
+assign blue_detect = (8'd137 < hue) & (hue < 8'd155 ) 
+					  & (8'd117  < sat) & (sat < 8'd183 )
+					  & (8'd121  < val) & (val < 8'd230 );
+assign yellow_detect = (8'd10  < hue) & (hue < 8'd42  )  
+						& (8'd60 < sat) & (sat < 8'd120 )
+						& (8'd118  < val) & (val < 8'd214 );
 assign white_detect = sat == 0 & val >= 220 & val <= 255;
 */
+
 
 // RGB values
 // Detect red, blue, yellow, white areas
@@ -119,13 +126,18 @@ assign white_detect = (red[7:4] == 4'b1111) & (green[7:4] == 4'b1111) & (blue[7:
 
 // Highlight detected areas
 wire [23:0] red_high, blue_high, yellow_high, white_high;
+
+// Greyscale conversion
 assign grey = green[7:1] + red[7:2] + blue[7:2]; 
 // Grey = green/2 + red/4 + blue/4
 
-assign red_high  =  red_detect ? bb_col_r : {grey, grey, grey};
-assign blue_high = blue_detect ? bb_col_b : red_high;
-assign yellow_high = yellow_detect ? bb_col_y : blue_high;
-assign white_high = white_detect ? bb_col_w : yellow_high;
+// Highlighting detected areas for new image
+wire [23:0] detectedAreaRGB;
+assign detectedAreaRGB  = red_detect ? {8'hff, 8'h0, 8'h0} : 
+                          blue_detect ? {8'h0, 8'h0, 8'hff} :
+						  yellow_detect ? {8'hff, 8'hff, 8'h0} :
+                          white_detect ? {8'hff, 8'hff, 8'hff} :
+                          {grey, grey, grey};
 
 // Show bounding box
 wire [23:0] new_image;
@@ -137,7 +149,11 @@ assign bb_active_wall = (x == left_wall) | (x == right_wall) | (y == top_wall) |
 
 // assign bb_active = (x == left) | (x == right) | (y == top) | (y == bottom);
 
-assign new_image = bb_active_wall ? bb_col_w : bb_active_red ? bb_col_r : bb_active_blue ? bb_col_b : bb_active_yellow ? bb_col_y : yellow_high;
+assign new_image = bb_active_wall ? {8'hff, 8'hff, 8'hff}
+				 : bb_active_red ? {8'hff, 8'h0, 8'h0} 
+				 : bb_active_blue ? {8'h0, 8'h0, 8'hff} 
+				 : bb_active_yellow ? {8'hff, 8'hff, 8'h0} 
+				 : detectedAreaRGB;
 
 // Switch output pixels depending on mode switch
 // Don't modify the start-of-packet word - it's a packet discriptor
@@ -341,11 +357,11 @@ always@(*) begin	// Write words to FIFO as state machine advances
 			msg_buf_wr = 1'b1;
 		end
 		3'b010: begin
-			msg_buf_in = {5'b0, red_x_min, 5'b0, red_y_min};	// Top left coordinate
+			msg_buf_in = {5'b0, red_x_min, 5'b0, red_y_min};	// Top left coordinate - RED
 			msg_buf_wr = 1'b1;
 		end
 		3'b011: begin
-			msg_buf_in = {5'b0, red_x_max, 5'b0, red_y_max}; // Bottom right coordinate
+			msg_buf_in = {5'b0, red_x_max, 5'b0, red_y_max}; 	// Bottom right coordinate -RED
 			msg_buf_wr = 1'b1;
 		end
 	endcase
@@ -417,10 +433,12 @@ begin
 	if (~reset_n)
 	begin
 		reg_status <= 8'b0;
+		/*
 		bb_col_r <= 24'hff0000;
 		bb_col_y <= 24'hffff00;
 		bb_col_b <= 24'h0000ff;
 		bb_col_w <= 24'hffffff;
+		*/
 		bb_col <= BB_COL_DEFAULT;
 	end
 	else begin
