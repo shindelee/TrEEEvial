@@ -1,0 +1,19 @@
+{
+  "name": "exploration",
+  "version": "1.0.0",
+  "description": "",
+  "main": "test.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "exploration_algorithm"
+  ],
+  "author": "Sebastian Tan",
+  "license": "ISC",
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.3.0",
+    "@aws-sdk/lib-dynamodb" : "^3.3.0"
+   },
+  "type": "module"
+}
