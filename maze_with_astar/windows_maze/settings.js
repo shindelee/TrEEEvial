@@ -50,22 +50,22 @@ i=0;
 
 function move() {
   console.log('We reached the arrow key game part.');
+  
   if (!generationComplete) return;
   console.log('Generation is complete.');
   // shortest_path = [[0, 1], [0, 2], [0, 3], [0, 4], [0, 5], [1, 5], [2, 5], [3, 5], [4, 5], [5, 5], [6, 5], [6, 6], [6, 7], [7, 7]];
 
     if (!generationComplete) return;
-    shortest_path = [[0, 1], [0, 2], [0, 3], [0, 4], [0, 5], [1, 5], [2, 5], [3, 5], [4, 5], [5, 5], [6, 5], [6, 6], [6, 7], [7, 7]];
-    let next = newMaze.grid[shortest_path[i][0]][shortest_path[i][1]];
-    i++;
-    current.unhighlight(newMaze.columns);
-    current = next;
-    //newMaze.draw();
-    current.highlight(newMaze.columns);
+    shortest_path = [[ 0, 1 ], [ 0, 2 ], [ 0, 3 ], [ 0, 4 ], [ 0, 5 ], [ 0, 6 ], [ 0, 7 ], [ 0, 8 ], [ 0, 9 ], [ 0, 10 ], [ 0, 11 ], [ 0, 12 ], [ 0, 13 ], [ 1, 13 ],  [ 2, 13 ], [ 3, 13 ], [ 4, 13 ], [ 5, 13 ], [ 6, 13 ], [ 7, 13 ], [ 7, 14 ], [ 7, 15 ], [ 8, 15 ], [ 9, 15 ], [ 10, 15 ], [ 11, 15 ], [ 12, 15 ], [ 13, 15 ], [ 14, 15 ], [ 15, 15 ]];
+      let next = newMaze.grid[shortest_path[i][0]][shortest_path[i][1]];
+      i++;
+      current.unhighlight(newMaze.columns);
+      current = next;
+      //newMaze.draw();
+      current.highlight(newMaze.columns);
     // not required if goal is in bottom right
     if (current.goal) complete.style.display = "block";
     console.log(i);
-    wait(100);
 
   /*
 
@@ -120,3 +120,11 @@ function move() {
 
   */
 }
+
+/*
+function tracing(){
+  while(!current.goal){
+    move();
+  }
+}
+*/
