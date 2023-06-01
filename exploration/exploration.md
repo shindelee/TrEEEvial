@@ -60,6 +60,7 @@ This is Tremaux.
 
 ```
 java -D"java.library.path=./DynamoDBLocal_lib" -jar DynamoDBLocal.jar
+aws dynamodb list-tables --endpoint-url http://localhost:8000
 ```
 
 ## Concerns:
@@ -67,3 +68,8 @@ java -D"java.library.path=./DynamoDBLocal_lib" -jar DynamoDBLocal.jar
 The wall is much thinner than the distance represented by each pixel! might have to change the way we represent the maze.
 
 Need to also store which is the start node!
+
+## Functions to add
+
+1. add_node(x,y, left_wall, right_wall, front_wall, parent);
+2. (dEPENDS) add_wall(x,y)
