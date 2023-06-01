@@ -120,8 +120,8 @@ assign val = cmax;
 // HSV
 
 wire red_detect, blue_detect, yellow_detect, white_detect;
-assign red_detect = ((hue > 0) & (hue < 25) || (hue > 340) & (hue < 360)) & sat > 8/10 & val > 8/10;
-// assign red_detect = red[7] & ~green[7] & ~blue[7];
+// assign red_detect = ((hue > 0) & (hue < 25) || (hue > 340) & (hue < 360)) & sat > 8/10 & val > 8/10;
+assign red_detect = red[7] & ~green[7] & ~blue[7];
 assign blue_detect = (hue > 210) & (hue < 260) & sat > 8/10 & val > 8/10; 
 assign yellow_detect = (hue > 50) & (hue < 63) & sat > 4/10 & val > 8/10; 
 // assign white_detect = sat == 0 & val > 85/100;
