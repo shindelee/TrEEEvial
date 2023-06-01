@@ -1,16 +1,23 @@
 //Create DynamoDB table
 
-import { DeleteTableCommand, CreateTableCommand, DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import { DeleteTableCommand, CreateTableCommand, ListTablesCommand, DescribeTableCommand, DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { PutCommand, UpdateCommand, DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 
-const client = new DynamoDBClient({});
+const client = new DynamoDBClient({
+  region: "x",
+  endpoint: "http://localhost:8000",
+  credentials: {
+  accessKeyId: "abcd",
+  secretAccessKey: "1234",
+    },
+});
 const docClient = DynamoDBDocumentClient.from(client);
-const TABLE_NAME = "Node Information";
+const TABLE_NAME = "Node_Information";
 
 
 export const exists = async () => {
     const command = new DescribeTableCommand({
-      TableName: TABLE_NAME,
+      TableName: "Node_Inoformation",
     });
 
     const response = await client.send(command);
@@ -19,7 +26,7 @@ export const exists = async () => {
 
 export const delete_table = async () => {
     const command = new DeleteTableCommand({
-      TableName: TABLE_NAME,
+      TableName: "Node_Information"
     });
   
     const response = await client.send(command);
@@ -33,16 +40,14 @@ export const delete_table = async () => {
 
 export const create_table = async () => {
   const command = new CreateTableCommand({
-    TableName: TABLE_NAME,
+    TableName: "Node_Information",
 
     AttributeDefinitions: [
       {AttributeName: "Coordinate", AttributeType: "S",},
-      {AttributeName: "Type", AttributeType: "N",}, 
-      {AttributeName: "Origin", AttributeType: "N"},
       {AttributeName: "Visited", AttributeType: "N"},
-      {AttributeName: "Decision_Node", AttributeType: "N"}, //if true, this node 
-      //has multiple possible decisions
-      {AttributeName: "Start_Node", AttributeType: "N"},
+      // {AttributeName: "Decision_Node", AttributeType: "N"}, //if true, this node 
+      // //has multiple possible decisions
+      // {AttributeName: "Start_Node", AttributeType: "N"},
     ],
 
     KeySchema: [
@@ -50,6 +55,11 @@ export const create_table = async () => {
         AttributeName: "Coordinate",
         KeyType: "HASH",
       },
+      {
+        AttributeName: "Visited",
+        KeyType: "RANGE",
+      },
+
     ],
     ProvisionedThroughput: {
       ReadCapacityUnits: 1,
@@ -118,3 +128,15 @@ export const edit_entry = async (coordinate) => {
   console.log(response);
   return response;
 };
+
+
+export const list_tables = async () => {
+  const command = new ListTablesCommand({});
+
+  const response = await client.send(command);
+  console.log(response);
+  return response;
+};
+
+create_table();
+

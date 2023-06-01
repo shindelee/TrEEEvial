@@ -1,5 +1,5 @@
 # ignore all files in the node modules folder
-node_modules/
+src/node_modules/
 
 #ignore the package-lock.json file
-package-lock.json
+src/package-lock.json
