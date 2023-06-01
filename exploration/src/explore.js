@@ -3,21 +3,12 @@ import {delete_table} from "../src/table_ops/delete_table.js";
 import {add_node} from "../src/table_ops/add_node.js";
 import {table_list} from "../src/table_ops/list_tables.js";
 
-
-// try {
-//     create_table();
-// }
-
-// catch(err) {
-//     delete_table();
-//     create_table();
-// }
-
+// create a new table if it already exists
 let tables = table_list();
 tables.then(function(result) {
     if (result.TableNames.includes("Node_Information")) {
         delete_table();
-        create_table();
+        // create_table();
     }
 
     else {
