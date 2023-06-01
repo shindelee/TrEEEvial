@@ -1,3 +1,5 @@
+import React from 'react';
+
 // The array received from the rover.
 let map_array = [[0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1],
                  [0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1],
@@ -378,3 +380,5 @@ class Cell {
 // let newMaze = new Maze(600, 50, 50);
 // newMaze.setup();
 // newMaze.draw();
+
+export default maze;

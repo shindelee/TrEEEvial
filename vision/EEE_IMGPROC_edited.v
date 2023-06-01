@@ -100,23 +100,6 @@ assign hue = (hue_temp < 0) ? hue_temp + 360 : hue_temp;
 assign sat = (cmax == 0) ? 0 : delta / cmax;
 assign val = cmax; 
 
-/*
-red = red / 255; 
-blue = blue / 255;
-green = green / 255;
-
-assign cmax = ((red >= green) & (red >= blue)) ? red : ((green >= blue) & (green >= red)) ? green : blue;
-assign cmin = ((red <= green) & (red <= blue)) ? red : ((green <= blue) & (green <= red)) ? green : blue;
-assign delta = cmax - cmin;
-
-assign hue_temp = (delta == 0) ? 0 : (cmax == red) ? (60 * (green - blue) / delta)
-                                   : (cmax == green) ? (120 + 60 * (blue - red) / delta)
-                                   : (240 + 60 * (red - green) / delta);
-
-assign hue = (hue_temp < 0) ? hue_temp + 360 : hue_temp;
-assign sat = (cmax == 0) ? 0 : delta / cmax;
-assign val = cmax; 
-*/
 // HSV
 
 wire red_detect, blue_detect, yellow_detect;

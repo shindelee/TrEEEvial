@@ -24,7 +24,6 @@ function Body(){
                 </form>
   
                 <canvas className="maze"></canvas>
-  
             </body> 
         </div>
     )

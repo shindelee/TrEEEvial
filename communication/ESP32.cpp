@@ -1,10 +1,13 @@
-#define RX_PIN 16  // Define the RX pin. Adjust according to your wiring.
+#define RX_PIN 16  
 
 HardwareSerial FPGA_Serial(1);  // Use the second hardware serial port.
 
 void setup() {
-  Serial.begin(115200);  // Start the serial communication with the baud rate for the Serial Monitor
-  FPGA_Serial.begin(9600, SERIAL_8N1, RX_PIN);  // Start the UART communication with the baud rate set on the FPGA. Adjust the baud rate, data format, and RX pin as needed.
+  Serial.begin(115200);  
+  // Start the serial communication with the baud rate for the Serial Monitor
+  
+  FPGA_Serial.begin(9600, SERIAL_8N1, RX_PIN);  
+  // Start the UART communication with the baud rate set on the FPGA. Adjust the baud rate, data format, and RX pin as needed.
 }
 
 void loop() {
@@ -22,3 +25,5 @@ FPGA_Serial.available() checks if there are any new characters available to read
 FPGA_Serial.read() reads the newest character from the UART line.
 
 */
+
+// Define the RX pin. Adjust according to your wiring.
