@@ -119,13 +119,12 @@ assign val = cmax;
 */
 // HSV
 
-wire red_detect, blue_detect, yellow_detect, white_detect;
-// assign red_detect = ((hue > 0) & (hue < 25) || (hue > 340) & (hue < 360)) & sat > 8/10 & val > 8/10;
-assign red_detect = red[7] & ~green[7] & ~blue[7];
+wire red_detect, blue_detect, yellow_detect;
+assign red_detect = ((hue > 0) & (hue < 25) || (hue > 340) & (hue < 360)) & sat > 8/10 & val > 8/10;
 assign blue_detect = (hue > 210) & (hue < 260) & sat > 8/10 & val > 8/10; 
 assign yellow_detect = (hue > 50) & (hue < 63) & sat > 4/10 & val > 8/10; 
-// assign white_detect = sat == 0 & val > 85/100;
 
+// assign red_detect = red[7] & ~green[7] & ~blue[7];
 
 /*
 // RGB values
@@ -141,7 +140,7 @@ assign white_detect = (red[7:4] == 4'b1111) & (green[7:4] == 4'b1111) & (blue[7:
 // Find boundary of cursor box
 
 // Highlight detected areas
-wire [23:0] red_high, blue_high, yellow_high, white_high;
+wire [23:0] red_high, blue_high, yellow_high;
 
 // Greyscale conversion
 assign grey = green[7:1] + red[7:2] + blue[7:2]; 
@@ -152,12 +151,11 @@ wire [23:0] detectedAreaRGB;
 assign detectedAreaRGB  = red_detect ? {8'hff, 8'h0, 8'h0} : 
                           blue_detect ? {8'h0, 8'h0, 8'hff} :
 						  yellow_detect ? {8'hff, 8'hff, 8'h0} :
-                          // white_detect ? {8'hff, 8'hff, 8'hff} :
                           {grey, grey, grey};
 
 // Show bounding box without line intersections
 wire [23:0] new_image;
-wire bb_active_red, bb_active_blue, bb_active_yellow, bb_active_wall;
+wire bb_active_red, bb_active_blue, bb_active_yellow;
 assign bb_active_red = ((x == left_red | x == right_red) & (y <= bottom_red) & (y >= top_red)) | ((y == top_red | y == bottom_red) & (x <= right_red) & (x >= left_red));
 assign bb_active_blue = ((x == left_blue | x == right_blue) & (y <= bottom_blue) & (y >= top_blue)) | ((y == top_blue | y == bottom_blue) & (x <= right_blue) & (x >= left_blue));
 assign bb_active_yellow = ((x == left_yellow | x == right_yellow) & (y <= bottom_yellow) & (y >= top_yellow)) | ((y == top_yellow | y == bottom_yellow) & (x <= right_yellow) & (x >= left_yellow));
@@ -304,7 +302,6 @@ reg [2:0] msg_state;
 reg [10:0] left_red, right_red, top_red, bottom_red;
 reg [10:0] left_blue, right_blue, top_blue, bottom_blue;
 reg [10:0] left_yellow, right_yellow, top_yellow, bottom_yellow;
-// reg [10:0] left_wall, right_wall, top_wall, bottom_wall;
 
 reg [7:0] frame_count;
 
@@ -317,13 +314,6 @@ always@(posedge clk) begin
 		right_red <= red_x_max;
 		top_red <= red_y_min;
 		bottom_red <= red_y_max;
-		
-		/*
-		left_wall <= wall_x_min;
-		right_wall <= wall_x_max;
-		top_wall <= wall_y_min;
-		bottom_wall <= wall_y_max;
-		*/
 
 		left_blue <= blue_x_min;
 		right_blue <= blue_x_max;
@@ -473,12 +463,6 @@ begin
 	if (~reset_n)
 	begin
 		reg_status <= 8'b0;
-		/*
-		bb_col_r <= 24'hff0000;
-		bb_col_y <= 24'hffff00;
-		bb_col_b <= 24'h0000ff;
-		bb_col_w <= 24'hffffff;
-		*/
 		bb_col <= BB_COL_DEFAULT;
 	end
 	else begin
