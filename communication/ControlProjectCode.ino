@@ -7,6 +7,7 @@
 #include <sstream>
 #include <iostream>
 #include <deque>
+
 //Initialize pins for communucation with drive, vision and energy
 /*Pin Info:
  * IO16 - Arduino D9 Drive RX Connect to TX of Arduino 
