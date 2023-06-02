@@ -1,4 +1,7 @@
 function triangulate(beacon1, beacon2, angle1, angle2) {
+    // beacon1 and beacon2 are objects {x: x_coordinate, y: y_coordinate} -> this may be RED or BLUE or YELLOW beacons
+    // angles are in degrees
+
     // convert angles to radians
     let angle1Rad = Math.PI / 180 * angle1;
     let angle2Rad = Math.PI / 180 * angle2;
