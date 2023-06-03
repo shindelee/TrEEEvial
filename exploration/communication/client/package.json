@@ -1,0 +1,19 @@
+{
+  "name": "client",
+  "version": "1.0.0",
+  "description": "client-side code for websocket communication with ESP32",
+  "main": "ws_client.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "websocket"
+  ],
+  "author": "Sebastian Tan",
+  "license": "ISC",
+  "dependencies": {
+    "socket.io": "^4.6.2",
+    "sockette":"^2.0.6",
+    "ws": "^8.13.0"
+  }
+}
