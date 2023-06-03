@@ -14,9 +14,6 @@
  
 */
 
-// Params
-// std::string VisionStatus;
-
 void setup() {
 
   // Start the serial communication with the baud rate for the Serial Monitor
@@ -30,35 +27,50 @@ void setup() {
   
 }
 
-/*
-void processVision(Vbuff[7]){
-
-}
-*/
-
 void loop() {
-  if (Serial1.available()) {  // Check if there is data available to read
-    Serial.println("Reading...");
-    byte b = Serial.read();     // read it into byte variable 'b'
-    Serial.println(b, HEX);
-    
-    /*
-    // Process or use the received data as needed
-    // ...
-    
-    // Send a response back to the FPGA, if required
-    byte data[] = {0xAB, 0xCD, 0xEF};
-  Serial.write(data, sizeof(data));
+  if (Serial1.available() >= 4) {  // Check if there are at least 4 bytes available to read
+   
+    byte b1 = Serial1.read();    // read the bytes into byte variables 'b1' to 'b4'
+    byte b2 = Serial1.read();  
+    byte b3 = Serial1.read();
+    byte b4 = Serial1.read();
 
-    */
+    uint32_t val = b1 | (b2 << 8) | (b3 << 16) | (b4 << 24); // Combine the bytes into a single 32-bit integer
+
+    Serial.println(val, HEX);  // Print the combined value
+    delay(1000);
   }
-  
 }
 
+  
+
 /*
-
-FPGA_Serial.begin(9600, SERIAL_8N1, RXD2, TXD2); initializes UART communication with a baud rate of 9600, 8 data bits, no parity, and 1 stop bit (8N1 format). The RXD2 and TXD2 constants represent the GPIO numbers where the FPGA is connected. You should replace these with the actual GPIO numbers you're using.
-FPGA_Serial.available() checks if there are any new characters available to read on the UART line.
-FPGA_Serial.read() reads the newest character from the UART line.
-
+//Recieve location of ping pong ball (if found on camera) and send to database
+if(Serial2.available() && !Turning){
+ char *byteBuff;
+ String VStatus;
+ VStatus = Serial2.readStringUntil('\n');
+ Serial.print(VStatus);
+ VisionStatus = VStatus.c_str();
+ unsigned int Vbuff[7];
+ if (VisionStatus.size()>=56){
+ VisionStatus = VisionStatus.substr(0,56);
+ for(int i = 0;i<7;i++){
+   std::stringstream ss;
+   ss << std::hex << VisionStatus.substr(i*8,8);
+   ss >> Vbuff[i];
+   Serial.print(Vbuff[i]);
+   Serial.print("\n");
+ }
+ }
+ if((Vbuff[0]>>24)=='R'){ // Verify Sync
+  processVision(Vbuff);
+ }
+}
+//Pathfinding (Obstacle avoidance)
+if(Warning && Pathfinding){
+  Serial.println("Obstacle Detected! Pathfinding automatically.");
+  HandleWarning();
+  Warning = false;
+}
 */
