@@ -1,5 +1,5 @@
-#define RX_PIN 19
-#define TX_PIN 18
+#define RX_PIN 16
+#define TX_PIN 17
 
 // Define the baud rate
 #define BAUD_RATE 115200
@@ -23,7 +23,7 @@ void setup() {
   Serial.begin(115200);
   
   // Start the UART communication with the baud rate set on the FPGA. Adjust the baud rate, data format, and RX pin as needed.
-  UART.begin(115200, SERIAL_8N1, RX_PIN, TX_PIN);
+  Serial1.begin(115200, SERIAL_8N1, RX_PIN, TX_PIN);
 
   // SERIAL_8N1 configuration refers to 8 data bits, no parity bit, and 1 stop bit, 
   // which is the most common configuration.
@@ -37,17 +37,22 @@ void processVision(Vbuff[7]){
 */
 
 void loop() {
-  if (UART.available()) {  // Check if there is data available to read
-    char c = UART.read();  // Read the incoming byte
-    Serial.println(c);  // Print the received byte to the Serial Monitor
-
+  if (Serial1.available()) {  // Check if there is data available to read
+    Serial.println("Reading...");
+    byte b = Serial.read();     // read it into byte variable 'b'
+    Serial.println(b, HEX);
     
+    /*
     // Process or use the received data as needed
     // ...
     
     // Send a response back to the FPGA, if required
-    // UART.write(responseData);
+    byte data[] = {0xAB, 0xCD, 0xEF};
+  Serial.write(data, sizeof(data));
+
+    */
   }
+  
 }
 
 /*

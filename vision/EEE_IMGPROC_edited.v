@@ -103,11 +103,11 @@ assign val = cmax;
 // HSV
 
 wire red_detect, blue_detect, yellow_detect;
-assign red_detect = ((hue > 0) & (hue < 25) || (hue > 340) & (hue < 360)) & sat > 8/10 & val > 8/10;
+// assign red_detect = ((hue > 0) & (hue < 35)) & sat > 4/10 & val > 8/10;
+assign red_detect = red[7] & ~green[7] & ~blue[7];
 assign blue_detect = (hue > 210) & (hue < 260) & sat > 8/10 & val > 8/10; 
 assign yellow_detect = (hue > 50) & (hue < 63) & sat > 4/10 & val > 8/10; 
-
-// assign red_detect = red[7] & ~green[7] & ~blue[7];
+// assign yellow_detect = (hue > 35) & (hue < 63) & sat > 4/10 & val > 8/10; 
 
 /*
 // RGB values
@@ -326,7 +326,11 @@ always@(posedge clk) begin
 	end
 	
 	// Cycle through message writer states once started
-	if (msg_state != 3'b000) msg_state <= msg_state + 3'b001;
+	if (msg_state != 3'b000) 
+		begin
+			if (msg_state == 3'b111) msg_state <= 3'b000;
+			else msg_state <= msg_state + 3'b001;
+		end
 
 end
 	
@@ -346,12 +350,11 @@ always@(*) begin	// Write words to FIFO as state machine advances
 	case(msg_state)
 		3'b000: begin
 			msg_buf_in = 32'b0;
-			msg_buf_wr = 1'b0;      
+			msg_buf_wr = 1'b0; 									// outputs nothing     
 		end
-
 		3'b001: begin
-			msg_buf_in = `START_MSG_ID;	// Message ID
-			msg_buf_wr = 1'b1;						// write to buffer
+			msg_buf_in = `START_MSG_ID;							// Message ID
+			msg_buf_wr = 1'b1;									// write to buffer
 		end
 		3'b010: begin
 			msg_buf_in = {5'b0, red_x_min, 5'b0, red_y_min};	// Top left coordinate - RED
@@ -439,7 +442,7 @@ STREAM_REG #(.DATA_WIDTH(26)) out_reg (
 // Process write
 
 reg  [7:0]   reg_status;
-reg	[23:0]	bb_col, bb_col_r, bb_col_y, bb_col_b;
+reg	[23:0]	bb_col;
 
 always @ (posedge clk)
 begin
