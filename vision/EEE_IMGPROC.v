@@ -149,7 +149,7 @@ always@(posedge clk) begin
 		bottom <= y_max;
 		
 		
-		//Start message writer FSM once every MSG_INTERVAL frames, if there is room in the FIFO
+		// Start message writer FSM once every MSG_INTERVAL frames, if there is room in the FIFO
 		frame_count <= frame_count - 1;
 		
 		if (frame_count == 0 && msg_buf_size < MESSAGE_BUF_MAX - 3) begin
@@ -158,7 +158,7 @@ always@(posedge clk) begin
 		end
 	end
 	
-	//Cycle through message writer states once started
+	// Cycle through message writer states once started
 	if (msg_state != 2'b00) msg_state <= msg_state + 2'b01;
 
 end
@@ -296,7 +296,7 @@ begin
 	read_d <= s_read;
 end
 
-//Fetch next word from message buffer after read from READ_MSG
+// Fetch next word from message buffer after read from READ_MSG
 assign msg_buf_rd = s_chipselect & s_read & ~read_d & ~msg_buf_empty & (s_address == `READ_MSG);
 						
 
