@@ -8,7 +8,6 @@ struct position {
   int y;
 };
 
-
 // Hexadecimal (char) -> Binary (string)
 const char* hex_to_bin (char c){
 
@@ -25,7 +24,6 @@ const char* hex_to_bin (char c){
         default: return "000";
     }
 }
-
 
 // Binary (string) -> Colour (string)
 const String bin_to_colour (String b){
@@ -77,8 +75,8 @@ int bin_str_to_dec_num (const String& bin){
 }
 
 // Euclidean Distance (between 2 known coordinates)
-float calculateDistance(float x1, float y1, float x2, float y2) {
-  float distance = sqrt(pow((x2 - x1), 2) + pow((y2 - y1), 2));
+float calculateDistance(position c1, position c2) {
+  float distance = sqrt(pow((c1.x - c2.x), 2) + pow((c1.y - c2.y), 2));
   return distance;
 }
 
@@ -106,6 +104,12 @@ position centre_coord(float min_x, float max_x, float min_y, float max_y){
     return centrePos;
 }
 
+// Size of the boundary box
+float size_bb(float min_x, float max_x, float min_y, float max_y){
+    float size = (max_x - min_x) * (max_y - min_y);
+    return size;
+}
+
 // Check if a specific beacon has reached the middle section of the frame
 // Need to double-check the boundaries of the middle section!
 bool middle(position centrePos){
@@ -119,20 +123,65 @@ bool middle(position centrePos){
 }
 
 // Check if there is any beacon in the middle section of the frame
-String detect(position centre_red, position centre_yellow, position centre_blue){
+bool detect(position centre_red, position centre_yellow, position centre_blue){
 
-    if(middle(centre_red)){
-        return "red";
-    }
-    else if(middle(centre_yellow)){
-        return "yellow";
-    }
-    else if(middle(centre_blue)){
-        return "blue";
+    if(middle(centre_red) || middle(centre_yellow) || middle(centre_blue)){
+        return 1;
     }
     else{
-        return "None";
+        return 0;
     }
 }
 
+position top_left(int min_x, int max_y){
+    position coord;
+    coord.x = min_x;
+    coord.y = max_y;
+
+    return coord;
+}
+
+position bottom_right(int max_x, int min_y){
+    position coord;
+    coord.x = max_x;
+    coord.y = min_y;
+
+    return coord;
+}
+
+// differentiate between the 3 beacons - should be in the main loop
+
+/*
+if (middle(red) || middle(yellow)){
+    if (size_bb(yellow) > 0.5 * size_bb(red)){
+        return "yellow";
+    }
+    else{
+        return "red";
+    }
+}
+
+if(middle(blue)){
+    return "blue";
+}
+
+*/
+
+// cosine rule
+float angle(float a, float b, float c){
+    float A = acos((pow(b, 2) + pow(c, 2) - pow(a, 2))/(2 * b * c))
+    float d_A = degrees(A);
+    return d_A;
+}
+
 // triangulation
+position current_pos(position red, position yellow, position blue, float alpha, float beta){
+    float distance_r_y = calculateDistance(red, yellow);
+    float distance_y_b = calculateDistance(yellow, blue);
+    float distance_b_r = calculateDistance(blue, red);
+
+    // current position
+    position current;
+
+    return current;
+}
