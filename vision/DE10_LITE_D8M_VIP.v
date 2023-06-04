@@ -178,8 +178,11 @@ Qsys u0 (
 		
 		.eee_imgproc_0_conduit_mode_new_signal     (SW[0]),
 		
-		.uart_0_rx_tx_rxd                          (ARDUINO_IO[8]),                          //                     uart_0_rx_tx.rxd
-		.uart_0_rx_tx_txd                          (ARDUINO_IO[9])                           //
+		.uart_0_rx_tx_rxd                          (ARDUINO_IO[8]),            //     	transmitted by Arduino
+		.uart_0_rx_tx_txd                          (ARDUINO_IO[9])             //		received by Arduino
+
+		// .uart_0_rx_tx_rxd                       (ARDUINO_IO[6]),
+		// .uart_0_rx_tx_txd                       (ARDUINO_IO[5])
 	);
 
 FpsMonitor uFps(
@@ -187,8 +190,8 @@ FpsMonitor uFps(
 	.vs(MIPI_PIXEL_VS),
 	
 	.fps(),
-	.hex_fps_h(HEX1),
-	.hex_fps_l(HEX0)
+	.hex_fps_h(HEX1),	// number 6 on 7 seg
+	.hex_fps_l(HEX0)	// number 0 on 7 seg -> 60 fps displayed
 );
 
 assign  HEX2 = 7'h7F;

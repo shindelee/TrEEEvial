@@ -4,8 +4,8 @@
 
 // x, y - coordinates
 struct position {
-  int x;
-  int y;
+  float x;
+  float y;
 };
 
 // Hexadecimal (char) -> Binary (string)
@@ -133,7 +133,7 @@ bool detect(position centre_red, position centre_yellow, position centre_blue){
     }
 }
 
-position top_left(int min_x, int max_y){
+position top_left(float min_x, float max_y){
     position coord;
     coord.x = min_x;
     coord.y = max_y;
@@ -141,7 +141,7 @@ position top_left(int min_x, int max_y){
     return coord;
 }
 
-position bottom_right(int max_x, int min_y){
+position bottom_right(float max_x, float min_y){
     position coord;
     coord.x = max_x;
     coord.y = min_y;
@@ -151,9 +151,12 @@ position bottom_right(int max_x, int min_y){
 
 // differentiate between the 3 beacons - should be in the main loop
 
+// size_yellow = size_bb(yellow_x_min, yellow_x_max, yellow_y_min, yellow_y_max);
+// size_red = size_bb(red_x_min, red_x_max, red_y_min, red_y_max);
+
 /*
 if (middle(red) || middle(yellow)){
-    if (size_bb(yellow) > 0.5 * size_bb(red)){
+    if (size_yellow > 0.5 * (size_red)){
         return "yellow";
     }
     else{
@@ -174,14 +177,56 @@ float angle(float a, float b, float c){
     return d_A;
 }
 
-// triangulation
-position current_pos(position red, position yellow, position blue, float alpha, float beta){
-    float distance_r_y = calculateDistance(red, yellow);
-    float distance_y_b = calculateDistance(yellow, blue);
-    float distance_b_r = calculateDistance(blue, red);
+// triangulation - original 
+// treat the mostleft beacon as "East"
+
+position current_pos(position beacon2, position beacon3, float angle1, float angle2){
+// angle2 is the bearing between the beacon1 and beacon2 seen on the camera
+// angle1 is the bearing between the beacon1 and beacon3 seen on the camera
+
+    // if angles will be computed in radians as inputs, then ignore this section
+    // convert angles to radians
+    angle1Rad = math.radians(angle1)
+    angle2Rad = math.radians(angle2) 
 
     // current position
     position current;
 
+    if(angle1Rad != angle2Rad){
+        current.x = ((beacon3.y - beacon2.y) + (beacon2.x * tan(angle2Rad)) - (beacon3.x * tan(angle1Rad))) / (tan(angle2Rad) - tan(angle1Rad));
+        current.y = ((beacon3.y * tan(angle2Rad) - beacon2.y * tan(angle1Rad)) - ((beacon3.x - beacon2.x) * tan(angle2Rad) * tan(angle1Rad))) / (tan(angle2Rad) - tan(angle1Rad));
+    }
+    else{
+        Serial.println("Error due to same angle!");
+        break;
+    }
+   
+    return current;
+}
+
+// triangulation - double check
+// treat the middle beacon as "North"
+
+position current_pos_check(position beacon1, position beacon3, float angle1, float angle2){
+// angle2 = 90 - alpha
+// angle1 = angle2 + alpha + beta
+
+    // if angles will be computed in radians as inputs, then ignore this section
+    // convert angles to radians
+    angle1Rad = math.radians(angle1)
+    angle2Rad = math.radians(angle2) 
+
+    // current position
+    position current;
+
+    if(angle1Rad != angle2Rad){
+        current.x = ((beacon3.y - beacon1.y) + (beacon1.x * tan(angle2Rad)) - (beacon3.x * tan(angle1Rad))) / (tan(angle2Rad) - tan(angle1Rad));
+        current.y = ((beacon3.y * tan(angle2Rad) - beacon1.y * tan(angle1Rad)) - ((beacon3.x - beacon1.x) * tan(angle2Rad) * tan(angle1Rad))) / (tan(angle2Rad) - tan(angle1Rad));
+    }
+    else{
+        Serial.println("Error due to same angle!");
+        break;
+    }
+   
     return current;
 }
