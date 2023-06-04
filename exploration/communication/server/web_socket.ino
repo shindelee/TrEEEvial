@@ -1,13 +1,10 @@
 #include <WiFi.h>
 #include <AsyncTCP.h>
-#include <ESPAsyncWebSrv.h>
-
-//macros
-const int lightSensorPin = 32;
+#include <ESPAsyncWebServer.h>
 
 //network credentials
-const char* ssid = "iPhone";
-const char* password = "12345678";
+const char* ssid = "REPLACE_WITH_YOUR_SSID";
+const char* password = "REPLACE_WITH_YOUR_PASSWORD";
 
 //Async Web Server object
 AsyncWebServer server(80);
@@ -15,17 +12,16 @@ AsyncWebSocket ws("/ws");
 
 //send info
 void notifyClients() {
-  ws.textAll("wall ahead!!");
+  ws.textAll(String(testing));
 }
 
 void handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
   AwsFrameInfo *info = (AwsFrameInfo*)arg;
   if (info->final && info->index == 0 && info->len == len && info->opcode == WS_TEXT) {
     data[len] = 0;
-    Serial.println((char*)data);
-//    if (strcmp((char*)data, "turn left!") == 0) {
-//      Serial.println((char*)data);
-//    }
+    if (strcmp((char*)data, "toggle") == 0) {
+      notifyClients();
+    }
   }
 }
 
@@ -52,34 +48,19 @@ void initWebSocket() {
   server.addHandler(&ws);
 }
 
-//String processor(const String& var){
-//  return String(var=="STATE" && sensor_1.state ? "path":"wall")
-//}
+String processor(const String& var){
+  Serial.println(var);
+  if(var == "STATE"){
+    return String("request received");
+  }
+
+  return String("nothing received");
+}
 
 
-//Board-side 
-//struct Phototransistor{
-//  uint8_t  pin;
-////  bool     lastReading;
-////  uint32_t lastDebounceTime;
-//  bool state; //true if wall present
-//
-//  void read() {
-//    bool reading = analogRead(pin);
-//
-//  if (reading > 100) { //wall
-//    state = true;
-//    }
-//
-//   else state = false;
-//  }
-//  };
+void setup(){
+  Serial.begin(115200);
 
-//global variable
-//Phototransistor sensor_1 = {SENSOR1_PIN, false};
-
-
-void initWifi(){
   //Connect to WiFi
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
@@ -88,19 +69,13 @@ void initWifi(){
   }
 
   //ESP32's local IP
-  Serial.println(WiFi.localIP());
-  }
+  Serial.println("ESP32 IP: " + WiFi.localIP());
 
-
-void setup(){
-  Serial.begin(115200);
-  initWifi();
   initWebSocket();
-  pinMode(lightSensorPin, INPUT);
 
   // Route for root / web page
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send_P(200, "text/plain", "initialise!");
+    request->send_P(200, "text/plain", "Hello, World");
   });
 
   server.begin();
@@ -110,21 +85,4 @@ void setup(){
 void loop() {
   ws.cleanupClients();
 //  digitalWrite(ledPin, ledState);
-
-  int lightSensorReading = 0;
-  lightSensorReading = analogRead(lightSensorPin);
-//  Serial.println(lightSensorPin);
-//  Serial.println(lightSensorReading);
-//  delay(1000);
-  if (lightSensorReading > 100) {
-      Serial.println("sending message to client...");
-      notifyClients();
-      delay(5000);
-    }
-
-//  delay(5000);
-//  notifyClients();
-
-  
-  
 }
