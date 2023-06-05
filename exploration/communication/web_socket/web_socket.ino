@@ -117,7 +117,7 @@ void loop() {
 //  Serial.println(lightSensorReading);
 //  delay(1000);
   if (lightSensorReading > 100) {
-      Serial.println("sending message to client...");
+//      Serial.println("sending message to client...");
       notifyClients();
       delay(5000);
     }
