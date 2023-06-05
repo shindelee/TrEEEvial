@@ -1,0 +1,96 @@
+#define RX_PIN 16
+#define TX_PIN 17
+
+// Define the baud rate
+#define BAUD_RATE 115200
+
+/* Initialize pins for communucation with vision
+
+ * IO19 - Arduino D5 Vision RX
+ * I018 - Arduino D6 Vision TX
+ * GND - GNDM
+ 
+*/
+
+void setup() {
+
+    // Start the serial communication with the baud rate for the Serial Monitor
+    Serial.begin(115200);
+  
+    // Start the UART communication with the baud rate set on the FPGA. Adjust the baud rate, data format, and RX pin as needed.
+    Serial1.begin(115200, SERIAL_8N1, RX_PIN, TX_PIN);
+
+    // SERIAL_8N1 configuration refers to 8 data bits, no parity bit, and 1 stop bit, 
+    // which is the most common configuration.
+  
+}
+
+void loop() {
+    if (Serial1.available() >= 28) {  
+        uint32_t hexadeci[7];
+        uint32_t numbers[14];
+        byte b1, b2, b3, b4;
+
+        for(int i = 0; i < 7; i++){
+            b1 = Serial1.read();    // read the bytes into byte variables 'b1' to 'b4'
+            b2 = Serial1.read();  
+            b3 = Serial1.read();
+            b4 = Serial1.read();
+
+            hexadeci[i] = b1 | (b2 << 8) | (b3 << 16) | (b4 << 24); // Combine the bytes into a single 32-bit integer
+
+            // To extract bits 10 through 0, we use a bitwise AND with a mask where these bits are 1 and the others are 0.
+            numbers[2 * i] = hexadeci[i]  & 0x7FF;
+
+            // To extract bits 27 through 16, we again use a bitwise AND, then shift the result right 16 places.
+            numbers[2 * i + 1]  = (hexadeci[i] & 0x0FFF0000) >> 16;
+        }
+    
+        for(int i = 1; i < 7; i++){
+            Serial.print(hexadeci[i]);
+            Serial.print(" ");
+        }
+
+        Serial.print("\n");
+
+        for(int j = 2; j < 14; j++){
+            Serial.print(numbers[j]);
+            Serial.print(" ");
+        }
+        
+        /*
+        // Reference Purposes:
+        red_x_min = numbers[2];
+        red_y_min = numbers[3];
+        red_x_max = numbers[4];
+        red_y_max = numbers[5];
+        blue_x_min = numbers[6];
+        blue_y_min = numbers[7];
+        blue_x_max = numbers[8];
+        blue_y_max = numbers[9];
+        yellow_x_min = numbers[10];
+        yellow_y_min = numbers[11];
+        yellow_x_max = numbers[12];
+        yellow_y_max = numbers[13];
+        */
+    }
+}
+
+/*
+void loop() {
+
+    char hexString[] = "ABCD";  // The string of hexadecimal digits
+    char *end;
+    long number = strtol(hexString, &end, 16);  // Convert the string to a long integer
+  
+    // To extract bits 10 through 0, we use a bitwise AND with a mask where these bits are 1 and the others are 0.
+    uint32_t bits_10_0 = number & 0x7FF;
+    // output: 210
+
+    // To extract bits 27 through 16, we again use a bitwise AND, then shift the result right 16 places.
+    uint32_t bits_27_16 = (number & 0x0FFF0000) >> 16;
+    // output: 49
+
+    Serial.println(number);
+}
+*/

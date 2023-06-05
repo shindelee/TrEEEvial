@@ -1,7 +1,7 @@
 module gaussian_filter (
     input wire clk,
-    input wire [7:0] pixel_in,
-    output reg [7:0] pixel_out
+    input wire [10:0] pixel_in,
+    output reg [10:0] pixel_out
 );
 
 reg [7:0] buffer [4:0][4:0];  // 5x5 buffer for storing the last 5 rows of pixels

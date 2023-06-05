@@ -196,6 +196,13 @@ int main()
         OV8865SetGain(gain);
         Focus_Init();
 
+        FILE* ser = fopen("/dev/uart_0", "rb+");
+        if(ser){
+        	printf("Opened UART\n");
+        } else {
+        	printf("Failed to open UART\n");
+        	while (1);
+        }
 
   while(1){
 
@@ -248,43 +255,17 @@ int main()
        }
 	#endif
 
-       FILE* ser = fopen("/dev/uart_0", "rb+");
-       // Open file for reading and writing
-
-       if(ser){
-    	   // Read messages from the image processor and print them on the terminal
-           printf("Opened UART\n");
-
-           int count = 0;
-
-           while ( (IORD(0x42000,EEE_IMGPROC_STATUS) >> 8) | 0xff ) {
-        	   // Find out if there are words to read
-        	   count++;
-               int word = IORD(0x42000,EEE_IMGPROC_MSG);
-               // Get next word from message buffer
-
-               if (word == EEE_IMGPROC_MSG_START) { printf("\n"); fprintf("\n"); }
-               // Newline on message identifier
-
-               printf("%08x\n",word); fprintf("%08x\n",word);
-               if (count >= 7) break;
-           }
-
-           fclose(ser);
-       }
-
-
        //Read messages from the image processor and print them on the terminal
        while ((IORD(0x42000,EEE_IMGPROC_STATUS)>>8) & 0xff) { 	//Find out if there are words to read
            int word = IORD(0x42000,EEE_IMGPROC_MSG); 			//Get next word from message buffer
     	   if (fwrite(&word, 4, 1, ser) != 1)
     		   printf("Error writing to UART");
-           if (word == EEE_IMGPROC_MSG_START)				// Newline on message identifier
+           if (word == EEE_IMGPROC_MSG_START)				//Newline on message identifier
     		   printf("\n");
     	   printf("%08x ",word);
        }
 
-       // Update the bounding box colour
+       //Update the bounding box colour
        boundingBoxColour = ((boundingBoxColour + 1) & 0xff);
        IOWR(0x42000, EEE_IMGPROC_BBCOL, (boundingBoxColour << 8) | (0xff - boundingBoxColour));
 
@@ -323,6 +304,7 @@ int main()
         	   printf("\nFocus = %x ",current_focus);
        	   	   break;}
        }
+
 
 	   //Main loop delay
 	   usleep(10000);

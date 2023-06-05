@@ -162,51 +162,83 @@ assign {red_out, green_out, blue_out} = (mode & ~sop & packet_video) ? new_image
 
 reg [10:0] x, y;
 reg packet_video;
+reg [10:0] pixel_in, pixel_out;
+
+reg [7:0] buffer [4:0][4:0];
+reg [31:0] row, col, sum; // Move sum here
+
+localparam [7:0] kernel[5][5] = {
+    {1,  4,  6,  4,  1},
+    {4, 16, 24, 16,  4},
+    {6, 24, 36, 24,  6},
+    {4, 16, 24, 16,  4},
+    {1,  4,  6,  4,  1}
+};
+
 always@(posedge clk) begin
 	if (sop) begin
-		x <= 11'h0;                           // start (x, y) at (0, 0)
+		x <= 11'h0;
 		y <= 11'h0;
-		packet_video <= (blue[3:0] == 3'h0);  // ?
+		packet_video <= (blue[3:0] == 3'h0);
 	end
 	else if (in_valid) begin
-		if (x == IMAGE_W-1) begin   // read the entire row of image pixels x = 0 ~ IMAGE_W - 1 then read the next row above
+		if (x == IMAGE_W-1) begin
 			x <= 11'h0;
 			y <= y + 11'h1;
 		end
 		else begin
 			x <= x + 11'h1;
 		end
+
+		// Shift the pixel values in the buffer to make room for the new pixel.
+		for (row=0; row<4; row=row+1) begin
+			for (col=0; col<4; col=col+1) begin
+				buffer[row][col] <= buffer[row][col+1];
+			end
+			buffer[row][4] <= buffer[row+1][4];
+		end
+		for (col=0; col<4; col=col+1) begin
+			buffer[4][col] <= buffer[4][col+1];
+		end
+		buffer[4][4] <= new_pixel;
+
+		// Compute the convolution with the kernel.
+		sum = 0;
+		for (row=0; row<5; row=row+1) begin
+			for (col=0; col<5; col=col+1) begin
+				sum = sum + buffer[row][col] * kernel[row][col];
+			end
+		end
+
+		// Normalize.
+		pixel_out <= sum >>> 8;
 	end
 end
 
-reg [10:0] red_counter, blue_counter, yellow_counter;
+endmodule
+
+
+// Find first and last pixels 
 
 // Find first and last red pixels
 reg [10:0] red_x_min, red_y_min, red_x_max, red_y_max;
-
 always@(posedge clk) begin
-	if (red_detect & in_valid) begin
-		red_counter <= red_counter + 1; // Increment the counter for each consecutive red pixel
-		
-		if (red_counter >= 5) begin // Check if there are at least 5 consecutive red pixels
-			// Update bounds when the pixel is red and there are at least 5 consecutive red pixels
-			if (x < red_x_min) red_x_min <= x;
-			if (x > red_x_max) red_x_max <= x;
-			if (y < red_y_min) red_y_min <= y;
-			red_y_max <= y;
-		end
-	end else begin
-		red_counter <= 0; // Reset the counter if the pixel is not red
+	if (red_detect & in_valid) begin	
+	
+	// Update bounds when the pixel is red
+		if (x < red_x_min) red_x_min <= x;
+		if (x > red_x_max) red_x_max <= x;
+		if (y < red_y_min) red_y_min <= y;
+		red_y_max <= y;
 	end
 	
-	if (sop & in_valid) begin
-		// Reset bounds on start of packet
+	if (sop & in_valid) begin	
+	
+	// Reset bounds on start of packet
 		red_x_min <= IMAGE_W-11'h1;
 		red_x_max <= 0;
 		red_y_min <= IMAGE_H-11'h1;
 		red_y_max <= 0;
-		// Reset the counter on start of packet
-		red_counter <= 0;
 	end
 end
 
