@@ -1,27 +1,17 @@
+
 import math
 
-def triangulate(beacon1, beacon2, angle1, angle2):
-    
-    # beacon1 and beacon2 are objects {x: x_coordinate, y: y_coordinate} -> this may be RED or BLUE or YELLOW beacons
-    # angles are in degrees
+# Assuming all variables are defined and initialized
+x1, y1, x2, y2, theta1, theta2 = 2, 0, 0, 0, 240, 120 # Replace with actual values
 
-    # convert angles to radians
-    angle1Rad = math.radians(angle1)
-    angle2Rad = math.radians(angle2) 
+# Convert angles from degrees to radians
+theta1_rad = math.radians(theta1)
+theta2_rad = math.radians(theta2)
 
-    # find the coordinates of the current location
-    x_current = ((beacon1['y'] - beacon2['y']) + beacon2['x'] * math.tan(angle2Rad) - beacon1['x'] * math.tan(angle1Rad)) / (math.tan(angle2Rad) - math.tan(angle1Rad))
-    y_current = ((beacon1['y'] * math.tan(angle2Rad) - beacon2['y'] * math.tan(angle1Rad)) - ((beacon1['x'] - beacon2['x']) * math.tan(angle2Rad) * math.tan(angle1Rad))) / (math.tan(angle2Rad) - math.tan(angle1Rad))
+# Calculate x3 and y3
+x3 = ((y1 - y2) + x2 * math.tan(theta2_rad) - x1 * math.tan(theta1_rad)) / (math.tan(theta2_rad) - math.tan(theta1_rad))
 
-    return x_current, y_current
+y3 = ((y1 * math.tan(theta2_rad) - y2 * math.tan(theta1_rad)) - ((x1 - x2) * math.tan(theta2_rad) * math.tan(theta1_rad))) / (math.tan(theta2_rad) - math.tan(theta1_rad))
 
-# Testing: (Works!)
-# Example coordinates of beacons:
-beacon1 = {'x': 0, 'y': 0}
-beacon2 = {'x': 5, 'y': 0}
-
-angle1 = 60;  # angle in degrees
-angle2 = 120;  # angle in degrees
-
-position = triangulate(beacon1, beacon2, angle1, angle2);
-print(position);  # (x_current, y_current)
+print('x3:', x3)
+print('y3:', y3)
