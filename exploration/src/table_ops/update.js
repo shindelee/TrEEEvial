@@ -2,8 +2,6 @@ export const updateName = async (new_val) => {
     const aws = require('aws-sdk');
     const docClient = new aws.DynamoDB.DocumentClient();
   
-    const newName = 'Bob';
-  
     const params = {
       TableName: 'Node_Information',
       Key: {
@@ -15,6 +13,5 @@ export const updateName = async (new_val) => {
         ':r': new_val,
       },
     };
-  
     await docClient.update(params).promise();
   }
