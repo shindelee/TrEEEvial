@@ -8,16 +8,16 @@ export const queryv = async (X, Y) => {
   const command = new QueryCommand({
     TableName: "Node_Information",
     KeyConditionExpression:
-      "x = :X AND y = :Y",
+      "x = :visited_x AND y = :visited_y",
     ExpressionAttributeValues: {
-      ":originCountry": "Ethiopia",
-      ":roastDate": "2023-05-01",
+      ":visited_x": "X",
+      ":visited_y": "Y",
     },
     ConsistentRead: true,
   });
 
   const response = await docClient.send(command);
-  console.log(response);
-  return response;
+  console.log(response.visited);
+  return response.visited;
 };
 

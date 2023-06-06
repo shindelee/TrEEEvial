@@ -11,20 +11,26 @@ function Tremaux (){
     if (Front === 0 && Left === 1 && Right === 1){
         msg = forward;
         rover.send(msg);
-        visit_update = queryv + 1;
+        visit_update = queryv +1;
         update(X, Y, visit_update);
+        // visited[Front] = update(X, Y, visit_update);
+        // Do you update the visited of the tile you were just on or the tile you are moving to?
     }
 
     else if (Front === 0 && Left === 0 && Right === 1){
         if (visited[Front] < visited[Left]){
             msg = forward;
             rover.send(msg);
-            update(visited[Front]);
+            visit_update = queryv +1;
+            update(X, Y, visit_update);
+            // update(visited[Front]);
         }
         else{
             msg = go_left;
             rover.send(msg);
-            update(visited[Left]);
+            visit_update = queryv +1;
+            update(X, Y, visit_update);
+            // update(visited[Left]);
         }
     }
 
@@ -32,12 +38,16 @@ function Tremaux (){
         if (visited[Front] < visited[Right]){
             msg = forward;
             rover.send(msg);
-            update(visited[Front]);
+            visit_update = queryv +1;
+            update(X, Y, visit_update);
+            // update(visited[Front]);
         }
         else{
             msg = go_right;
             rover.send(msg);
-            update(visited[Right]);
+            visit_update = queryv +1;
+            update(X, Y, visit_update);
+            // update(visited[Right]);
         }
     }
 
@@ -45,17 +55,23 @@ function Tremaux (){
         if (Math.min(visited[Front], visited[Left], visited[Right]) === visited[Front]){
             msg = forward;
             rover.send(msg);
-            update(visited[Front]);
+            visit_update = queryv +1;
+            update(X, Y, visit_update);
+            // update(visited[Front]);
         }
         else if (Math.min(visited[Front], visited[Left], visited[Right]) === visited[Left]){
             msg = go_left;
             rover.send(msg);
-            update(visited[Left]);
+            visit_update = queryv +1;
+            update(X, Y, visit_update);
+            // update(visited[Left]);
         }
         else{
             msg = go_right;
             rover.send(msg);
-            update(visited[Right]);
+            visit_update = queryv +1;
+            update(X, Y, visit_update);
+            // update(visited[Right]);
         }
     }
 
@@ -63,30 +79,40 @@ function Tremaux (){
         if (visited[Left] < visited[Right]){
             msg = go_left;
             rover.send(msg);
-            update(visited[Left]);
+            visit_update = queryv +1;
+            update(X, Y, visit_update);
+            // update(visited[Left]);
         }
         else{
             msg = go_right;
             rover.send(msg);
-            update(visited[Right]);
+            visit_update = queryv +1;
+            update(X, Y, visit_update);
+            // update(visited[Right]);
         }
     }
 
     else if (Front === 1 && Left === 1 && Right === 0){
         msg = go_right;
         rover.send(msg);
-        update(visited[Right]);
+        visit_update = queryv +1;
+        update(X, Y, visit_update);
+        // update(visited[Right]);
     }
 
     else if (Front === 1 && Left === 0 && Right === 1){
         msg = go_left;
         rover.send(msg);
-        update(visited[Left]);
+        visit_update = queryv +1;
+        update(X, Y, visit_update);
+        // update(visited[Left]);
     }
 
     else{
         msg = backtrack;
         rover.send(msg);
-        update(visited[Front]);
+        visit_update = queryv +1;
+        update(X, Y, visit_update);
+        // update(visited[Front]);
     }
 }

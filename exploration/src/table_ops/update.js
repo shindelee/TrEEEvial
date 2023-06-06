@@ -8,7 +8,7 @@ export const update = async (X, Y, new_val) => {
         x: X,
         y: Y
       },
-      UpdateExpression: 'SET Visited = :r',
+      UpdateExpression: 'SET visited = :r',
       ExpressionAttributeValues: {
         ':r': new_val,
       },
