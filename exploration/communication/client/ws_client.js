@@ -49,3 +49,12 @@ var gateway = `ws://172.20.10.5/ws`;
 
 initWebSocket();
 
+setInterval(()=>{
+  const start = Date.now();
+
+  websocket.send("PING",()=>{
+    const duration = Date.now() - start;
+    console.log (duration);
+  });
+}, 1000);
+
