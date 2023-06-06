@@ -3,3 +3,7 @@ node_modules/
 
 #ignore the package-lock.json file
 package-lock.json
+
+package.json
+
+ws_client.js
