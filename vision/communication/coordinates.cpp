@@ -9,55 +9,70 @@
  * IO19 - Arduino D5 Vision RX
  * I018 - Arduino D6 Vision TX
  * GND - GNDM
- 
+
 */
 
-void setup() {
+void setup()
+{
 
     // Start the serial communication with the baud rate for the Serial Monitor
     Serial.begin(115200);
-  
+
     // Start the UART communication with the baud rate set on the FPGA. Adjust the baud rate, data format, and RX pin as needed.
     Serial1.begin(115200, SERIAL_8N1, RX_PIN, TX_PIN);
 
-    // SERIAL_8N1 configuration refers to 8 data bits, no parity bit, and 1 stop bit, 
+    // SERIAL_8N1 configuration refers to 8 data bits, no parity bit, and 1 stop bit,
     // which is the most common configuration.
-  
 }
 
-void loop() {
-    if (Serial1.available() >= 28) {  
+void loop()
+{
+    if (Serial1.available() >= 28)
+    {
+        uint32_t temp;
         uint32_t hexadeci[7];
+        char terminal[7][9];
         uint32_t numbers[14];
         byte b1, b2, b3, b4;
 
-        for(int i = 0; i < 7; i++){
-            b1 = Serial1.read();    // read the bytes into byte variables 'b1' to 'b4'
-            b2 = Serial1.read();  
+        for (int i = 0; i < 7; i++)
+        {
+            b1 = Serial1.read(); // read the bytes into byte variables 'b1' to 'b4'
+            b2 = Serial1.read();
             b3 = Serial1.read();
             b4 = Serial1.read();
 
             hexadeci[i] = b1 | (b2 << 8) | (b3 << 16) | (b4 << 24); // Combine the bytes into a single 32-bit integer
 
+            // char buffer[9];  // Create a character buffer to hold the hexadecimal representation
+            sprintf(terminal[i], "%08X", hexadeci[i]); // Convert the long value to hexadecimal
+
+            // Serial.print("Hexadecimal value: 0x");
+            // Serial.println(buffer);
+
             // To extract bits 10 through 0, we use a bitwise AND with a mask where these bits are 1 and the others are 0.
-            numbers[2 * i] = hexadeci[i]  & 0x7FF;
+            numbers[2 * i] = hexadeci[i] & 0x7FF;
 
             // To extract bits 27 through 16, we again use a bitwise AND, then shift the result right 16 places.
-            numbers[2 * i + 1]  = (hexadeci[i] & 0x0FFF0000) >> 16;
+            numbers[2 * i + 1] = (hexadeci[i] & 0x0FFF0000) >> 16;
         }
-    
-        for(int i = 1; i < 7; i++){
-            Serial.print(hexadeci[i]);
+
+        for (int i = 0; i < 7; i++)
+        {
+            Serial.print(terminal[i]);
             Serial.print(" ");
         }
 
         Serial.print("\n");
 
-        for(int j = 2; j < 14; j++){
+        for (int j = 0; j < 14; j++)
+        {
             Serial.print(numbers[j]);
             Serial.print(" ");
         }
-        
+
+        delay(5000);
+
         /*
         // Reference Purposes:
         red_x_min = numbers[2];
@@ -82,7 +97,7 @@ void loop() {
     char hexString[] = "ABCD";  // The string of hexadecimal digits
     char *end;
     long number = strtol(hexString, &end, 16);  // Convert the string to a long integer
-  
+
     // To extract bits 10 through 0, we use a bitwise AND with a mask where these bits are 1 and the others are 0.
     uint32_t bits_10_0 = number & 0x7FF;
     // output: 210
