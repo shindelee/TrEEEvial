@@ -3,5 +3,3 @@ node_modules/
 
 #ignore the package-lock.json file
 package-lock.json
-
-web_socket.ino
