@@ -1,4 +1,4 @@
-export const updateName = async (new_val) => {
+export const update = async (X, Y, new_val) => {
     const aws = require('aws-sdk');
     const docClient = new aws.DynamoDB.DocumentClient();
   
