@@ -4,7 +4,7 @@
 const char* ssid     = "iPhone";
 const char* password = "12345678";
 char path[] = "/";
-char host[] = "echo.websocket.org";
+char host[] = "172.20.10.4:5000";
   
 WebSocketClient webSocketClient;
 
@@ -38,7 +38,7 @@ void setup() {
   
 
   // Connect to the websocket server
-  if (client.connect("echo.websocket.org", 80)) {
+  if (client.connect("172.20.10.4", 5000)) {
     Serial.println("Connected");
   } else {
     Serial.println("Connection failed.");
@@ -74,8 +74,8 @@ void loop() {
     }
     
     // capture the value of analog 1, send it along
-    pinMode(1, INPUT);
-    data = String(analogRead(1));
+//    pinMode(1, INPUT);
+    data = "testing, hello world";
     
     webSocketClient.sendData(data);
     
