@@ -11,7 +11,7 @@ const client = new DynamoDBClient({
 });
 const docClient = DynamoDBDocumentClient.from(client);
 
-export const add_wall = async (X,Y, Parent) => {
+export const add_wall = async (X,Y) => {
   const command = new PutCommand({
     TableName: "Node_Information",
     Item: {

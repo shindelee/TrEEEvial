@@ -11,15 +11,17 @@ const client = new DynamoDBClient({
 });
 const docClient = DynamoDBDocumentClient.from(client);
 
-export const add_node = async (X,Y, Parent) => {
+export const add_node = async (X,Y, Parent_x, Parent_y) => {
   const command = new PutCommand({
     TableName: "Node_Information",
     Item: {
       x : X,
       y : Y,
-      type: 0, //path
-      parent : Parent,
+      type: 1,
+      parent_x : Parent_x,
+      parent_y : Parent_y,
       visited : 0
+
     },
   });
 
