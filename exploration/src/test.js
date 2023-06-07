@@ -1,27 +1,27 @@
-import { DeleteTableCommand, DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import { DynamoDBClient, QueryCommand } from "@aws-sdk/client-dynamodb";
 
-const client = new DynamoDBClient({
-  //Quirk for local host development only!
-    region: "x",
-    endpoint: "http://localhost:8000",
-    credentials: {
-      accessKeyId: "abcd",
-      secretAccessKey: "1234",
-    },
-});
-
+const client = new DynamoDBClient({});
 
 export const main = async () => {
-  const command = new DeleteTableCommand({
-    TableName: "Node_Information",
+  const command = new QueryCommand({
+    KeyConditionExpression: "x = :flavor AND y = :",
+    // For more information about data types,
+    // see https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/HowItWorks.NamingRulesDataTypes.html#HowItWorks.DataTypes and
+    // https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Programming.LowLevelAPI.html#Programming.LowLevelAPI.DataTypeDescriptors
+    ExpressionAttributeValues: {
+      ":flavor": { S: "Key Lime" },
+      ":searchKey": { S: "no coloring" },
+    },
+    FilterExpression: "contains (Description, :searchKey)",
+    ProjectionExpression: "Flavor, CrustType, Description",
+    TableName: "Pies",
   });
 
   const response = await client.send(command);
-  console.log(response);
+  response.Items.forEach(function (pie) {
+    console.log(`${pie.Flavor.S} - ${pie.Description.S}\n`);
+  });
   return response;
 };
 
-
-
-main();
 

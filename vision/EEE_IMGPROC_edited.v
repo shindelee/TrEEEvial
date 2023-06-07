@@ -261,6 +261,7 @@ always @(posedge clk)begin
 	blue_detect_4 <= blue_detect_3;
 	blue_detect_5 <= blue_detect_4;
 
+
 	yellow_detect_1 <= yellow_detect;
 	yellow_detect_2 <= yellow_detect_1;
 	yellow_detect_3 <= yellow_detect_2;

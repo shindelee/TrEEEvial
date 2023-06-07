@@ -1,7 +1,62 @@
-import {update} from "../src/table_ops/update.js";
-import {queryv} from "../src/table_ops/query_visited.js";
+import {update} from "./table_ops/update.js";
+import {queryv} from "./table_ops/query_visited.js";
 
-function Tremaux (){
+
+var WebSocketServer = require('websocket').server;
+var http = require('http');
+
+var server = http.createServer(function(request, response) {
+    console.log((new Date()) + ' Received request for ' + request.url);
+    response.writeHead(404);
+    response.end();
+});
+server.listen(5000, function() {
+    console.log((new Date()) + ' Server is listening on port 5000');
+});
+
+wsServer = new WebSocketServer({
+    httpServer: server,
+    autoAcceptConnections: false
+});
+
+function originIsAllowed(origin) {
+  return true;
+}
+
+wsServer.on('request', function(request) {
+    console.log(request)
+    if (!originIsAllowed(request.origin)) {
+      // Make sure we only accept requests from an allowed origin
+      request.reject();
+      console.log((new Date()) + ' Connection from origin ' + request.origin + ' rejected.');
+      return;
+    }
+    
+    var connection = request.accept(null, request.origin)
+    console.log((new Date()) + ' Connection accepted.');
+
+    connection.on('message', function(received_message) {
+        if (received_message.type === 'utf8') {
+            const message = JSON.parse(received_message.utf8Data);
+            console.log('Received Message: ' + message);
+            //connection.sendUTF(message.utf8Data); this resend the reseived message, instead of it i will send a custom message. hello from nodejs
+            connection.sendUTF("Turn left!");
+        }
+        else if (message.type === 'binary') {
+            console.log('Received Binary Message of ' + message.binaryData.length + ' bytes');
+            connection.sendBytes(message.binaryData);
+        }
+    });
+
+
+
+    connection.on('close', function(reasonCode, description) {
+        console.log((new Date()) + ' Peer ' + connection.remoteAddress + ' has disconnected.');
+    });
+});
+
+
+export function Tremaux (){
     visited[current_pos] += 1;
     wall.Front = rec.Front;
     wall.Left = rec.Left;

@@ -75,9 +75,15 @@ wsServer.on('request', function(request) {
 
     connection.on('message', function(message) {
         if (message.type === 'utf8') {
-            console.log('Received Message: ' + message.utf8Data);
+            received_message = message.utf8Data;
+            json = JSON.parse(received_message);
+            console.log('Received Message lw: ' + json.lw);
+            console.log('Received Message rw: ' + json.rw);
+            sum = parseInt(json.lw) + parseInt(json.rw);
+            console.log("sum = " + sum)
+
             //connection.sendUTF(message.utf8Data); this resend the reseived message, instead of it i will send a custom message. hello from nodejs
-            connection.sendUTF("Turn left!");
+            // connection.sendUTF("Turn left!");
         }
         else if (message.type === 'binary') {
             console.log('Received Binary Message of ' + message.binaryData.length + ' bytes');
