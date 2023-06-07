@@ -1,5 +1,8 @@
-import {update} from "./table_ops/update.js";
-import {queryv} from "./table_ops/query_visited.js";
+import {create_table} from "../src/table_ops/create_table.js";
+import {delete_table} from "../src/table_ops/delete_table.js";
+import {add_node} from "../src/table_ops/add_node.js";
+import {table_list} from "../src/table_ops/list_tables.js";
+import {query_visited} from "../src/table_ops/query_visited.js"
 
 
 var WebSocketServer = require('websocket').server;
@@ -38,9 +41,7 @@ wsServer.on('request', function(request) {
     connection.on('message', function(received_message) {
         if (received_message.type === 'utf8') {
             const message = JSON.parse(received_message.utf8Data);
-            console.log('Received Message: ' + message);
-            //connection.sendUTF(message.utf8Data); this resend the reseived message, instead of it i will send a custom message. hello from nodejs
-            connection.sendUTF("Turn left!");
+            Tremaux(message);
         }
         else if (message.type === 'binary') {
             console.log('Received Binary Message of ' + message.binaryData.length + ' bytes');
@@ -56,12 +57,12 @@ wsServer.on('request', function(request) {
 });
 
 
-export function Tremaux (){
-    visited[current_pos] += 1;
-    wall.Front = rec.Front;
-    wall.Left = rec.Left;
-    wall.Right = rec.Right;
-    last_visited = current_pos;
+export function Tremaux (message){
+    const X = message.x;
+    const Y = message.y;
+    const Front = message.fw;
+    const Left = message.lw;
+    const Right = message.rw;
 
     if (Front === 0 && Left === 1 && Right === 1){
         msg = forward;
