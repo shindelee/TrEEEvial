@@ -21,7 +21,6 @@ export const add_node = async (X,Y, Parent_x, Parent_y) => {
       parent_x : Parent_x,
       parent_y : Parent_y,
       visited : 0
-
     },
   });
 
