@@ -1,5 +1,5 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { PutCommand, DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
+import { UpdateCommand, DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 
 const client = new DynamoDBClient({
   region: "x",
@@ -11,17 +11,18 @@ const client = new DynamoDBClient({
 });
 const docClient = DynamoDBDocumentClient.from(client);
 
-export const add_node = async (X,Y, Parent_x, Parent_y, unexplored) => {
-  const command = new PutCommand({
+export const increment_visited = async (X,Y) => {
+  const command = new UpdateCommand({
     TableName: "Node_Information",
-    Item: {
+    Key: {
       x : X,
-      y : Y,
-      type: 1,
-      parent : {x : Parent_x, y : Parent_y},
-      unvisited_nodes : unexplored,
-      visited : 0
+      y :Y
     },
+    UpdateExpression: 'SET visited = visited + :r',
+    ExpressionAttributeValues: {
+      ':r': 1,
+    },
+    ReturnValues: "UPDATED_NEW",
   });
 
   const response = await docClient.send(command);

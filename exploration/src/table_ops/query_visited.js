@@ -20,16 +20,19 @@ export const query_visited = async (X, Y) => {
       ":visited_x": X,
       ":visited_y": Y,
     },
-    // ProjectionExpression: "visited",
+    ProjectionExpression: "visited",
 
     ConsistentRead: true,
   });
 
   const response = await docClient.send(command);
     // console.log("number of visitations: " + response);
+    var return_vals = [];
     response.Items.forEach(function (result) {
       console.log(`${result.visited}\n`);
     });
-    return response;
+    return response.visited;
+    
+    
 };
 

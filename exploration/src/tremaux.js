@@ -8,19 +8,6 @@ import {query_visited} from "../src/table_ops/query_visited.js"
 //1 means path??
 
 export function Tremaux (message, state){
-    if (state == "start") {
-        let tables = table_list();
-        tables.then(function(result) {
-        if (result.TableNames.includes("Node_Information")) {
-            delete_table();
-            // create_table();
-        }
-
-        else {
-            create_table();
-        }
-        })
-    }
     const X = parseInt(message.x);
     const Y = parseInt(message.y);
     const Front = parseInt(message.fw);
@@ -28,19 +15,44 @@ export function Tremaux (message, state){
     const Right = parseInt(message.rw);
     var msg;
 
-    
+    if (state == "start") {
+        let tables = table_list();
+        tables.then(function(result) {
+        if (result.TableNames.includes("Node_Information")) {
+            delete_table();
+            create_table();
+        }
 
-    if (Front == 0 && Left == 1 && Right == 1){
-        var visited_left = query_visited(X,Y);
+        else {
+            create_table();
+        }
+        })
+        var unvisited = new Set(); //set used for easy access and deletion
 
-        msg = 'f';
-        visit_update = queryv +1;
-        update(X, Y, visit_update);
-        // visited[Front] = update(X, Y, visit_update);
-        // Do you update the visited of the tile you were just on or the tile you are moving to?
+        if (Left == 0) {
+            unvisited.add("left");
+        }
+
+        if (Front == 0) {
+            unvisited.add("forward");
+        }
+
+        if (Right == 0) {
+            unvisited.add("forward");
+        }
+        add_node(X,Y,X,Y,unvisited);
     }
 
-    else if (Front == 0 && Left == 0 && Right == 1){
+    // if (Front == 0 && Left == 1 && Right == 1){
+    //     msg = 'f';
+    //     visit_update = queryv +1;
+    //     update(X, Y, visit_update);
+    //     // visited[Front] = update(X, Y, visit_update);
+    //     // Do you update the visited of the tile you were just on or the tile you are moving to?
+    // }
+
+    //path to the front and the left
+    if (Front == 0 && Left == 0 && Right == 1){
         if (visited[Front] < visited[Left]){
             msg = forward;
             rover.send(msg);
