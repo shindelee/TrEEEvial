@@ -1,6 +1,11 @@
-#include "I2Cdev.h"
-#include "MPU6050.h"
-#include "math.h"
+// #include "I2Cdev.h"
+// #include "MPU6050.h"
+// #include "math.h"
+
+#include <Adafruit_MPU6050.h>
+#include <Adafruit_Sensor.h>
+#include <Wire.h>
+#include <math.h>
 
 MPU6050 mpu;
 
