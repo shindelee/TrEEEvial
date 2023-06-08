@@ -30,8 +30,11 @@ export const query_visited = async (X, Y) => {
     var return_vals = [];
     response.Items.forEach(function (result) {
       console.log(`${result.visited}\n`);
+      return_vals.push(result.visited);
     });
-    return response.visited;
+
+    return parseInt(return_vals)
+    
     
     
 };
