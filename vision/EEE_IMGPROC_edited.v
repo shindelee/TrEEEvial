@@ -99,7 +99,7 @@ always @(posedge clk) begin
 	blue_gauss_stage_3 <= blue_gauss_stage_2;
 	blue_gauss_stage_4 <= blue_gauss_stage_3;
 	blue_gauss_stage_5 <= blue_gauss_stage_4;
-	
+
 end
 
 // Gaussian Filter
@@ -122,41 +122,39 @@ always @(*) begin
 
 	// 11'h2
 	if (x % IMAGE_W > IMAGE_W - 2 ) begin
-		gauss_red = Red_stage_5;
-		gauss_green = Green_stage_5;
-		gauss_blue = Blue_stage_5;
+		gauss_red = red_gauss_stage_5;
+		gauss_green = green_gauss_stage_5;
+		gauss_blue = blue_gauss_stage_5;
 	end 
 
 	else begin
 
 		temp_r1 = 8 * red_gauss_stage_1; 
-		temp_r2 = 31 * red_stage_2;
-		temp_r3 = 49 * red_stage_3;
-		temp_r4 = 31 * red_stage_4;
-		temp_r5 = 8 * red_stage_5;
+		temp_r2 = 31 * red_gauss_stage_2;
+		temp_r3 = 49 * red_gauss_stage_3;
+		temp_r4 = 31 * red_gauss_stage_4;
+		temp_r5 = 8 * red_gauss_stage_5;
 		temp_sum_r = temp_r1 + temp_r2 + temp_r3 + temp_r4 + temp_r5;
 		gauss_red = temp_sum_r [14:7];
 
-		temp_g1 = 8 * Green_stage_1; 
-		temp_g2 = 31 * Green_stage_2;
-		temp_g3 = 49 * Green_stage_3;
-		temp_g4 = 31 * Green_stage_4;
-		temp_g5 = 8 * Green_stage_5;
+		temp_g1 = 8 * green_gauss_stage_1; 
+		temp_g2 = 31 * green_gauss_stage_2;
+		temp_g3 = 49 * green_gauss_stage_3;
+		temp_g4 = 31 * green_gauss_stage_4;
+		temp_g5 = 8 * green_gauss_stage_5;
 		temp_sum_g = temp_g1 + temp_g2 + temp_g3 + temp_g4 + temp_g5;
 		gauss_green = temp_sum_g [14:7];
 
-		temp_b1 = 8 * Blue_stage_1; 
-		temp_b2 = 31 * Blue_stage_2;
-		temp_b3 = 49 * Blue_stage_3;
-		temp_b4 = 31 * Blue_stage_4;
-		temp_b5 = 8 * Blue_stage_5;
-		tmp_sum_b = tmp_b_1 + tmp_b_2 + tmp_b_3 + tmp_b_4 + tmp_b_5;
+		temp_b1 = 8 * blue_gauss_stage_1; 
+		temp_b2 = 31 * blue_gauss_stage_2;
+		temp_b3 = 49 * blue_gauss_stage_3;
+		temp_b4 = 31 * blue_gauss_stage_4;
+		temp_b5 = 8 * blue_gauss_stage_5;
+		temp_sum_b = temp_b1 + temp_b2 + temp_b3 + temp_b4 + temp_b5;
 		gauss_blue = temp_sum_b [14:7];
 
 	end 
 end
-
-
 
 // Median Filter
 
@@ -401,18 +399,32 @@ always@(posedge clk) begin
 	end
 end
 
-
 // Find first and last red pixels
+wire centre = x > 240 && x < 380 && y < 400 && y > 100;
+
+reg [10:0] red_count, blue_count, yellow_count;
+
+initial begin
+	red_count = 0;
+	blue_count = 0;
+	yellow_count = 0;
+end
 
 reg [10:0] red_x_min, red_y_min, red_x_max, red_y_max;
 always@(posedge clk) begin
-	if (red_detect & in_valid) begin	
-	
-	// Update bounds when the pixel is blue
-		if (x < red_x_min) red_x_min <= x;
-		if (x > red_x_max) red_x_max <= x;
-		if (y < red_y_min) red_y_min <= y;
-		red_y_max <= y;
+	if (red_detect & in_valid & centre) begin	
+		red_count >= red_count + 1;
+
+		if(red_count >= 3) begin
+			// Update bounds when the pixel is red
+			if (x < red_x_min) red_x_min <= x;
+			if (x > red_x_max) red_x_max <= x;
+			if (y < red_y_min) red_y_min <= y;
+			red_y_max <= y;
+		end
+	end
+	else begin
+		red_count >= 0;
 	end
 	
 	if (sop & in_valid) begin	
@@ -422,6 +434,8 @@ always@(posedge clk) begin
 		red_x_max <= 0;
 		red_y_min <= IMAGE_H-11'h1;
 		red_y_max <= 0;
+
+		red_count >= 0;
 	end
 end
 
@@ -429,12 +443,18 @@ end
 reg [10:0] blue_x_min, blue_y_min, blue_x_max, blue_y_max;
 always@(posedge clk) begin
 	if (blue_detect & in_valid) begin	
-	
-	// Update bounds when the pixel is blue
-		if (x < blue_x_min) blue_x_min <= x;
-		if (x > blue_x_max) blue_x_max <= x;
-		if (y < blue_y_min) blue_y_min <= y;
-		blue_y_max <= y;
+		blue_count >= blue_count + 1;
+
+		if(blue_count >= 3) begin
+			// Update bounds when the pixel is blue
+			if (x < blue_x_min) blue_x_min <= x;
+			if (x > blue_x_max) blue_x_max <= x;
+			if (y < blue_y_min) blue_y_min <= y;
+			blue_y_max <= y;
+		end
+	end
+	else begin
+		blue_count >= 0;
 	end
 	
 	if (sop & in_valid) begin	
@@ -444,6 +464,8 @@ always@(posedge clk) begin
 		blue_x_max <= 0;
 		blue_y_min <= IMAGE_H-11'h1;
 		blue_y_max <= 0;
+
+		blue_count >= 0;
 	end
 end
 
@@ -451,13 +473,20 @@ end
 reg [10:0] yellow_x_min, yellow_y_min, yellow_x_max, yellow_y_max;
 always@(posedge clk) begin
 	if (yellow_detect & in_valid) begin	
-	
-	// Update bounds when the pixel is yellow
-		if (x < yellow_x_min) yellow_x_min <= x;
-		if (x > yellow_x_max) yellow_x_max <= x;
-		if (y < yellow_y_min) yellow_y_min <= y;
-		yellow_y_max <= y;
+		yellow_count >= yellow_count + 1;
+
+		if(yellow_count >= 3) begin
+			// Update bounds when the pixel is yellow
+			if (x < yellow_x_min) yellow_x_min <= x;
+			if (x > yellow_x_max) yellow_x_max <= x;
+			if (y < yellow_y_min) yellow_y_min <= y;
+			yellow_y_max <= y;
+		end
 	end
+	else begin
+		yellow_count >= 0;
+	end
+
 	if (sop & in_valid) begin	
 	
 	// Reset bounds on start of packet
@@ -465,6 +494,8 @@ always@(posedge clk) begin
 		yellow_x_max <= 0;
 		yellow_y_min <= IMAGE_H-11'h1;
 		yellow_y_max <= 0;
+
+		yellow_count >= 0;
 	end
 end
 
@@ -679,6 +710,23 @@ end
 assign msg_buf_rd = s_chipselect & s_read & ~read_d & ~msg_buf_empty & (s_address == `READ_MSG);
 
 /*
+module comparator(
+    input [7:0] A,
+    input [7:0] B,
+    output reg [7:0] smaller,
+    output reg [7:0] larger
+);
+
+always @(*) begin
+    if(A < B) begin
+		smaller = A;
+		larger = B;
+	end
+	else begin
+		smaller = B;
+		larger = A;
+	end
+end
 
 module Median_Filter(
 	input[10:0] x,
