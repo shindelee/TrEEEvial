@@ -1,6 +1,11 @@
 import React, { useState } from "react";
+import './App.css';
 import TableComp from './TableComp';
+import styled from 'styled-components';
+import Navbar from './components/Navbar';
 import ReactPolling from "react-polling/lib/ReactPolling";
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import PastDemo from "./components/pages/PastDemo";
 
 function App() {
 
@@ -44,6 +49,20 @@ function App() {
         .catch((err) => alert(err)
         );
         };
+    
+    const Button1 = styled.button`
+        background-color: #9c27b0;
+        color: white;
+        padding: 5px 10px;
+        border-radius: 5px;
+        outline: 0;
+        margin: 10px 10px;
+        cursor: pointer;
+        box-shadow: 0px 2px 2px lightgray;
+        &: hover{
+            background-color: #ba68c8;
+        }
+    `
 
     return (
         <div className="App">
@@ -58,9 +77,19 @@ function App() {
                 // return <div>{tableData33}<br/><br/></div>;
                 }}
             />
+            <Router>
+              <Navbar />
+              <Routes>
+                <Route path='/past-demo' component={<PastDemo/>} />
+              </Routes>
+            </Router>
             <TableComp td = {tableData33}/>
-            <button onClick={()=>handleClick(updateTable33)}>New maze state</button>
-            <button onClick={()=>handleClick2(updateTable33)}>Display shortest path</button>
+            <Button1 onClick={()=>handleClick(updateTable33)}>
+                New maze state
+            </Button1>
+            <Button1 onClick={()=>handleClick2(updateTable33)}>
+                Display shortest path
+            </Button1>
         </div>
     );
 }
