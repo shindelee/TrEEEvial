@@ -424,7 +424,7 @@ always@(posedge clk) begin
 		end
 	end
 	else begin
-		red_count >= 0;
+		red_count <= 0;
 	end
 	
 	if (sop & in_valid) begin	
@@ -435,7 +435,7 @@ always@(posedge clk) begin
 		red_y_min <= IMAGE_H-11'h1;
 		red_y_max <= 0;
 
-		red_count >= 0;
+		red_count <= 0;
 	end
 end
 
@@ -454,7 +454,7 @@ always@(posedge clk) begin
 		end
 	end
 	else begin
-		blue_count >= 0;
+		blue_count <= 0;
 	end
 	
 	if (sop & in_valid) begin	
@@ -465,7 +465,7 @@ always@(posedge clk) begin
 		blue_y_min <= IMAGE_H-11'h1;
 		blue_y_max <= 0;
 
-		blue_count >= 0;
+		blue_count <= 0;
 	end
 end
 
@@ -484,7 +484,7 @@ always@(posedge clk) begin
 		end
 	end
 	else begin
-		yellow_count >= 0;
+		yellow_count <= 0;
 	end
 
 	if (sop & in_valid) begin	
@@ -495,7 +495,7 @@ always@(posedge clk) begin
 		yellow_y_min <= IMAGE_H-11'h1;
 		yellow_y_max <= 0;
 
-		yellow_count >= 0;
+		yellow_count <= 0;
 	end
 end
 
