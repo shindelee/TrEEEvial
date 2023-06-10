@@ -24,5 +24,13 @@ export const get_coord = async (X,Y) => {
 
   const response = await docClient.send(command);
   console.log(response);
-  return response;
+  if (response.Item) {
+    return true;
+  }
+
+  else {
+    return false;
+  }
+
+  
 };

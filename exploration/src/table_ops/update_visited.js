@@ -11,16 +11,16 @@ const client = new DynamoDBClient({
 });
 const docClient = DynamoDBDocumentClient.from(client);
 
-export const increment_visited = async (X,Y) => {
+export const increment_visited = async (X,Y, update) => {
   const command = new UpdateCommand({
     TableName: "Node_Information",
     Key: {
       x : X,
       y :Y
     },
-    UpdateExpression: 'SET visited = visited + :r',
+    UpdateExpression: 'SET visited_count = :r',
     ExpressionAttributeValues: {
-      ':r': 1,
+      ':r': update,
     },
     ReturnValues: "UPDATED_NEW",
   });

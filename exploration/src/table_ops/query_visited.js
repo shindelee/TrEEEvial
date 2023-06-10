@@ -29,11 +29,11 @@ export const query_visited = async (X, Y) => {
     // console.log("number of visitations: " + response);
     var return_vals = [];
     response.Items.forEach(function (result) {
-      console.log(`${result.visited}\n`);
-      return_vals.push(result.visited);
+      console.log(`${result.visited_count}\n`);
+      return_vals.push(result.visited_count);
     });
 
-    return parseInt(return_vals)
+    return parseInt(return_vals);
     
     
     

@@ -17,10 +17,9 @@ export const add_node = async (X,Y, Parent_x, Parent_y, unexplored) => {
     Item: {
       x : X,
       y : Y,
-      type: 1,
       parent : {x : Parent_x, y : Parent_y},
       unvisited_nodes : unexplored,
-      visited : 0
+      visited_count : 1 //now visited once!
     },
   });
 
