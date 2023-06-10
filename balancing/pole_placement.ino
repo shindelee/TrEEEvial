@@ -12,86 +12,92 @@ Adafruit_MPU6050 mpu;
 #define dirPinLeft 12
 #define stepPinLeft 14
 #define stepsPerRevolution 200
-#define DISTANCE_PER_STEP 0.01
 
 #define dirPinRight 27    // right motor driver
 #define stepPinRight 26   // left motor driver
 
 const float WHEEL_CIRCUMFERENCE = 0.204;  // circumference of the wheel in meters 
-
-volatile int encoderCount = 0;
-
 const float MAX_TORQUE = 1.0;  // set this to the maximum torque your motor can deliver
-const int MAX_PWM = 255;  // the maximum PWM value for the Arduino
 
 #define TIMER_INTERVAL_MS 1000
 #define STEPS_PER_REV 200
 #define WHEEL_RADIUS 0.0325
 
-int LIMIT = 400;
+#define SPEED_LIMIT 400
+#define ACC_LIMIT 500 // (example)
+
 int stepperSpeed;
-int16_t Xacc, Zacc, gyroY, gyroRate, mu = 0.993;
-float accangle, curangle, preangle = 0, gyroAngle = 0, alpha;
+int16_t Xacc, Yacc, Zacc, gyroZ, gyroY, gyroX, gyroRate;
+double mu = 0.993;
+
+#define rad_to_deg 57.2957795131 // This equals 180/PI, the conversion factor from radians to degrees
+#define dt 0.01 // This is the time interval between readings (in seconds) - for a 100Hz update rate
+float accangle, curangle, preangle = 0, gyroAngle = 0;
 unsigned long currTime, prevTime = 0, loopTime;
+
+double initialAngularVelocity = 0.0;
+double momentOfInertia = 0.01475;
 
 AccelStepper stepper1(AccelStepper::DRIVER, stepPinLeft, dirPinLeft); // Create an instance of AccelStepper for left motor
 AccelStepper stepper2(AccelStepper::DRIVER, stepPinRight, dirPinRight); // Create an instance of AccelStepper for right motor
 
-void setMotorSpeeds(float leftMotorSpeed, float rightMotorSpeed) {
+// calculate the wheel circumference (2*Pi*R)
+double wheelCircumference = 2 * PI * WHEEL_RADIUS;
 
-  if (leftMotorSpeed >= 0) {
-    analogWrite(stepPinLeft, leftMotorSpeed);
-    digitalWrite(dirPinLeft, HIGH);
-  }
-  else {
-    analogWrite(stepPinLeft, 255 + leftMotorSpeed);
-    digitalWrite(dirPinLeft, LOW);
-  }
-  if (rightMotorSpeed >= 0) {
-    analogWrite(stepPinRight, rightMotorSpeed);
-    digitalWrite(dirPinRight, LOW);
-  }
-  else {
-    analogWrite(stepPinRight, 255 + rightMotorSpeed);
-    digitalWrite(dirPinRight, HIGH);
-  }
+// calculate the distance per step
+double distancePerStep = wheelCircumference / STEPS_PER_REV;
+
+// variable to hold the total number of steps
+long totalSteps = 0;
+
+void motorRun(float u1, float u2){
+
+  stepper1.setAcceleration(u1);
+  stepper2.setAcceleration(u2);
+
+  Serial.println(String("u1: ") + u1);
+  Serial.println(String("u2: ") + u2);
+  
+  stepper1.run();
+  stepper2.run();
 }
-
 
 // Control Law Matrices
 
-Matrix<2, 1> u; // Control input: Torque
-Matrix<2, 1> y_xi;
+// Matrix<2, 1> u; // Control input: Torque
+Matrix<2, 1> y_xi = {0,
+                     0
+                    };
 
 // Control gain
-Matrix<2, 6> K = {-5.8956, -13.2836, 0.3939, 0.3385, -14.4569, -8.6721,
-                  -8.2139, -17.1178, -0.4273, -0.3720, -17.5030, -10.7338
+Matrix<2, 6> K = {-16.8410,  -36.9115,    0.2766,    0.1289,  -54.2005,  -55.1613,
+                  -16.3738,  -36.1393,   -0.2610,   -0.1134,  -53.0907,  -54.0331
                  };
 
-Matrix<6, 2> L = {0.9841, 0.4393,
-                  3.1689, 2.4734,
-                  0.0249, 0.3256,
-                  -0.0135, -0.1246,
-                  -7.4352, -5.7781,
-                  -15.4129, -12.4067
+Matrix<6, 2> L = {0.7419,    0.0398,
+                  1.4520,    0.1303,
+                  0.0018,    0.0548,
+                  -0.0044,    0.0982,
+                  55.3496,    4.4709,
+                  53.3626,    4.2821
                  };
 
 // System matrix
-Matrix<6, 6> A_d = {1.0000, 0.0923, 0, 0, -0.0092, 0.0005,
-                    0, 0.8497, 0, 0, -0.1777, 0.0059,
-                    0, 0, 1.0000, 0.0925, 0, 0,
-                    0, 0, 0, 0.8548, 0, 0,
-                    0, 0.0161, 0, 0, 1.0309, 0.0994,
-                    0, 0.3143, 0, 0, 0.6076, 0.9995
+Matrix<6, 6> A_d = {1.0000,    0.0735,         0,         0,    0.0000,    0.0009,
+                         0,    0.5234,         0,        0,    0.0007,    0.0155,
+                         0,         0,    1.0000,    0.0841,         0,         0,
+                         0,         0,         0,    0.7001,         0,         0,
+                         0,    0.0190,         0,         0,    1.0048,    0.0995,
+                         0,    0.3425,        0,         0,    0.0953,     0.9936
                    };
 
 // Input matrix
-Matrix<6, 2> B_d = {0.0039, 0.0039,
-                    0.0752, 0.0752,
-                    0.0233, -0.0233,
-                    0.4538, -0.4358,
-                    -0.0081, -0.0081,
-                    -0.1572, -0.1572
+Matrix<6, 2> B_d = {0.0043,    0.0043,
+                    0.0775,    0.0775,
+                    0.0369,   -0.0369,
+                    0.6963,   -0.6963,
+                   -0.0031,  -0.0031,
+                   -0.0557,   -0.0557
                    };
 
 Matrix<2, 6> C_d = {1, 0, 0, 0, 0, 0,
@@ -111,12 +117,16 @@ Matrix<6, 1> x_i_next;
                     
 // Desired output  
 Matrix<2, 1> y_d = {5, 
-                    0.7854};  
+                    0};  
                     
 // Current output
 Matrix<2, 1> y;
 
-void computeControlInput(Matrix<2, 1> y_d) {
+Matrix<2, 1> computeControlInput(Matrix<2, 1> y_d) {
+  Matrix<2, 1> u = {0,
+                    0
+                   };
+                   
   Matrix<6, 6> I; // Identity matrix
   for(int i=0; i<6; i++) {
       for(int j=0; j<6; j++) {
@@ -142,16 +152,10 @@ void computeControlInput(Matrix<2, 1> y_d) {
     Serial.println("Matrix inversion failed");
     // Handle the case when the inversion fails
   }
+
+  return u;
 }
 
-// calculate the wheel circumference (2*Pi*R)
-double wheelCircumference = 2 * PI * WHEEL_RADIUS;
-
-// calculate the distance per step
-double distancePerStep = wheelCircumference / STEPS_PER_REV;
-
-// variable to hold the total number of steps
-long totalSteps = 0;
 
 void setup() {
   Serial.begin(115200);
@@ -172,24 +176,34 @@ void setup() {
   mpu.setAccelerometerRange(MPU6050_RANGE_8_G);
   mpu.setGyroRange(MPU6050_RANGE_500_DEG);
   mpu.setFilterBandwidth(MPU6050_BAND_21_HZ);
-
+  
   pinMode(stepPinLeft, OUTPUT);
   pinMode(dirPinLeft, OUTPUT);
   pinMode(stepPinRight, OUTPUT);
   pinMode(dirPinRight, OUTPUT);
 
   // Set up the stepper motors
-  // Set the maximum speed in steps per second
-  stepper1.setMaxSpeed(LIMIT); 
-  stepper2.setMaxSpeed(LIMIT);
 
+  stepper1.setMaxSpeed(SPEED_LIMIT); 
+  stepper2.setMaxSpeed(SPEED_LIMIT);
+
+  stepper1.setAcceleration(ACC_LIMIT); 
+  stepper2.setAcceleration(ACC_LIMIT);
+
+  stepper1.moveTo(4897); // Move 10000 steps
+  stepper2.moveTo(4897); // Move 10000 steps
 }
 
 void loop() {
+  static double x = 0;
+  float alpha = 0;
+  
+  double deltaTime = 0.01; // adjust as needed, this is 10 milliseconds
+  delay(deltaTime * 1000); // delay in milliseconds
 
   // Calculate 2 readings based on the readings from MPU6050.
   // 2 readings: [x, alpha]
-
+  /*
   // Get acceleration, gyroscope, temperature from MPU
   sensors_event_t a, g, temp;
   mpu.getEvent(&a, &g, &temp);
@@ -198,77 +212,87 @@ void loop() {
   loopTime = currTime - prevTime;
   prevTime = currTime;
 
-  gyroY = g.gyro.y;
-  gyroRate = map(gyroY, -32768, 32767, -250, 250);
+  gz = g.gyro.z;
+  gyroRate = map(gx, -32768, 32767, -250, 250);
   gyroAngle = gyroAngle + (float)gyroRate*loopTime/1000;
 
-  Xacc = a.acceleration.x;
-  Zacc = a.acceleration.z;
-  accangle = atan2(Xacc,Zacc)*RAD_TO_DEG;
+  ax = a.acceleration.x;
+  ay = a.acceleration.y;
+  accangle = atan2(ay,ax)*RAD_TO_DEG;
 
   curangle = -(mu * (preangle + gyroAngle) + (1 - mu) * (accangle)); // complimentary filter
+  // Serial.println(curangle);
 
-  // Set the target position:
-    stepper1.moveTo(5);
-    stepper2.moveTo(5);
-    
-  // Step the motor with a constant speed as set by setMaxSpeed():
-    while (stepper1.distanceToGo() != 0) {
-        stepper1.run();
-    }
+  alpha = 0;
   
-    // Calculate the displacement
-    float displacement = stepper1.currentPosition() * DISTANCE_PER_STEP;
+  
+  stepper1.moveTo(5);
+  stepper2.moveTo(5);
+
+  if (stepper1.distanceToGo() == 0) {
+    stepper1.moveTo(-stepper1.currentPosition()); // Move back to zero
+  }
+
+  Serial.println(stepper1.currentPosition());
+  float revolutions = abs(stepper1.currentPosition()) / (float)stepsPerRevolution;
+  Serial.println(revolutions);
+  
+  float displacement = wheelCircumference * revolutions;
 
   // calculate the total displacement
-  double x = totalSteps * distancePerStep;
-  alpha = curangle;
+  // double x = totalSteps * distancePerStep;
+  
+  double x = displacement;
+  // alpha = curangle;
+
+  Serial.println(x);
+  // Serial.println(alpha);
+  */
   
   y = {x, alpha};
+  Serial.println(String("y: ") + x + alpha);
 
-  calculation(y);
-  
- //////////////////////////////////////////////////////////////////////////////////////////////////
- /*
-  // map the desired torque to a PWM value
-  int pwm_value = (int) (u * MAX_PWM / MAX_TORQUE);
+  // calculation
 
-  // constrain the PWM value to the range [0, MAX_PWM] to prevent invalid inputs
-  pwm_value = constrain(pwm_value, 0, MAX_PWM);
-
-  // send the PWM signal to the motor driver
-  analogWrite(MOTOR_PIN, pwm_value);
-  */
-  delay(100);
-}
-
-bool matricesAreEqual(BLA::Matrix<2, 1> a, BLA::Matrix<2, 1> b)
-{
-    for (int i = 0; i < 2; ++i)
-    {
-        for (int j = 0; j < 1; ++j)
-        {
-            if (a(i,j) != b(i,j))
-            {
-                return false;
-            }
-        }
-    }
-    return true;
-}
-
-void calculation(Matrix<2, 1> y) {
-  while(!matricesAreEqual(y_xi, y_d)){
+  if((abs(y_xi(0, 0) - y_d(0, 0)) >= 1) || (abs(y_xi(1, 0) - y_d(1, 0)) >= 0.5)){
+    Serial.println(String("difference in first ele: ") + abs(y_xi(0, 0) - y_d(0, 0)));
     // difference between output value measured by sensor and the output of model
     y_xi = C_d * x_i_next - y;
-    
+    Serial.println(String("y_xi: ") + y_xi(0,0) + y_xi(1,0));
+
     // calculate u
-    computeControlInput(y_d);
+    Matrix<2, 1> u = computeControlInput(y_d);
+
+    float output1 = u(0, 0); // first element
+    float output2 = u(1, 0); // second element
+
+    Serial.println(String("torque1: ") + u(0, 0));
+    Serial.println(String("torque2: ") + u(1, 0));
+
+    float a1 = output1 / momentOfInertia;
+    float a2 = output2 / momentOfInertia;
     
+    motorRun(a1, a2);
+
+    // calculate the change in angular velocity
+    double deltaAngularVelocity = a1 * deltaTime;
+
+    // calculate the final angular velocity
+    double finalAngularVelocity = initialAngularVelocity + deltaAngularVelocity;
+
+    // calculate the total angle rotated
+    double deltaTheta = finalAngularVelocity * deltaTime;
+
+    // calculate the total distance travelled
+    double distanceTravelled = WHEEL_RADIUS * deltaTheta;
+
+    x += distanceTravelled;
+    Serial.println(String("Distance Travelled: ") + x);
+
     // Calculate next states
     x_i_next = A_d * x_i + B_d * u + L * y_xi;
+    Serial.println(String("x_i_next: ") + x_i_next(0,0) + x_i_next(1,0));
 
   }
+ 
 }
-
-
