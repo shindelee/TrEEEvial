@@ -3,8 +3,9 @@ import {delete_table} from "../src/table_ops/delete_table.js";
 import {add_node} from "../src/table_ops/add_node.js";
 import {table_list} from "../src/table_ops/list_tables.js";
 import {query_visited} from "../src/table_ops/query_visited.js";
-import {increment_visited} from "../src/table_ops/update_visited.js";
+import {update_visited} from "../src/table_ops/update_visited.js";
 import {get_coord} from "../src/table_ops/get_coord.js";
+import { path } from "express/lib/application.js";
 
 
 // {x,y,left,right,forward, turning_angle}
@@ -62,8 +63,9 @@ export function Tremaux (message, parent_x, parent_y){
         theta = theta + 360;
     }
 
+    const visited = get_coord;
 
-    if (get_coord ==false) { //if we have not visited this node before
+    if (visited ==false) { //if we have not visited this node before
         if (theta <=45 && theta > 315) { // origin path is north
             paths[0] = 1;
             paths[1] = parseInt(message.l);
@@ -124,6 +126,14 @@ export function Tremaux (message, parent_x, parent_y){
     }
     //increment the minimum path
     paths[least_travelled_path] = paths[least_travelled_path] + 1;
+
+    if (visited) {
+        update_visited(X,Y,paths);
+    }
+    else {
+        add_node(X,Y,parent_x, parent_y, path);
+    }
+    
 
     //tell robot to turn and move there
     if (theta <=45 && theta > 315) { // origin path is north
