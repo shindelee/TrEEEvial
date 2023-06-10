@@ -50,6 +50,9 @@ import { Initialise, Tremaux } from "../tremaux.js";
              var directions = Tremaux(json, parent_x, parent_y);
              parent_x = json.x;
              parent_y = json.y;
+             if (directions == "done traversing") {
+                console.log ("exploration done!")
+             }
              connection.sendUTF(directions);
          }
          else if (message.type === 'binary') {
