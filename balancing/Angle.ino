@@ -5,7 +5,7 @@
 
 MPU6050 mpu;
 
-int16_t gyroX, gyroY, gyroRate;
+int16_t gyroX, gyroZ, gyroRate;
 float gyroAngle=0;
 float alpha=0;
 unsigned long currTime, prevTime=0, loopTime;
@@ -24,8 +24,8 @@ void loop() {
   gyroRate = map(gyroX, -32768, 32767, -250, 250);
   gyroAngle = gyroAngle + (float)gyroRate*loopTime/1000;
 
-  gyroY = mpu.getRotationY();
-  gyroRate = map(gyroY, -32768, 32767, -250, 250);
+  gyroZ = mpu.getRotationZ();
+  gyroRate = map(gyroZ, -32768, 32767, -250, 250);
   alpha = alpha + (float)gyroRate*loopTime/1000;
   
   Serial.println(gyroAngle);
