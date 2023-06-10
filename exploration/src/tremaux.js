@@ -5,7 +5,6 @@ import {table_list} from "../src/table_ops/list_tables.js";
 import {query_visited} from "../src/table_ops/query_visited.js";
 import {update_visited} from "../src/table_ops/update_visited.js";
 import {get_coord} from "../src/table_ops/get_coord.js";
-import { path } from "express/lib/application.js";
 
 
 // {x,y,left,right,forward, turning_angle}
@@ -133,6 +132,8 @@ export function Tremaux (message, parent_x, parent_y){
     else {
         add_node(X,Y,parent_x, parent_y, path);
     }
+
+    //TODO: store more than one parent!!
     
 
     //tell robot to turn and move there
