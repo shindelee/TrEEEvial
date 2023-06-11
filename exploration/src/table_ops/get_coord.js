@@ -31,6 +31,4 @@ export const get_coord = async (X,Y) => {
   else {
     return false;
   }
-
-  
 };

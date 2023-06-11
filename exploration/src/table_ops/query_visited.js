@@ -1,8 +1,8 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { QueryCommand, DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
+import { DynamoDBDocumentClient, GetCommand } from "@aws-sdk/lib-dynamodb";
 
 const client = new DynamoDBClient({
-  region: "x",
+    region: "x",
     endpoint: "http://localhost:8000",
     credentials: {
       accessKeyId: "abcd",
@@ -11,31 +11,17 @@ const client = new DynamoDBClient({
 });
 const docClient = DynamoDBDocumentClient.from(client);
 
-export const query_visited = async (X, Y) => {
-  const command = new QueryCommand({
+export const query_visited = async (X,Y) => {
+  const command = new GetCommand({
     TableName: "Node_Information",
-    KeyConditionExpression:
-      "x = :visited_x AND y = :visited_y",
-    ExpressionAttributeValues: {
-      ":visited_x": X,
-      ":visited_y": Y,
-    },
-    ProjectionExpression: "visited",
-
-    ConsistentRead: true,
+    Key: {
+      x: X,
+      y: Y,
+    }
   });
 
   const response = await docClient.send(command);
-    // console.log("number of visitations: " + response);
-    var return_vals = [];
-    response.Items.forEach(function (result) {
-      console.log(`${result.visited_count}\n`);
-      return_vals.push(result.visited_count);
-    });
-
-    return parseInt(return_vals);
-    
-    
-    
+  console.log(response);
+  return response.Item.path_count;
 };
 

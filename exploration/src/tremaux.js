@@ -11,29 +11,24 @@ import {get_coord} from "../src/table_ops/get_coord.js";
 //node_info(x,y,parent_x,parent_y,unvisited,visited_count)
 // 0 means path, 1 means wall
 
-export function Initialise () {
-    let tables = table_list();
-    tables.then(function(result) {
-    if (result.TableNames.includes("Node_Information")) {
-        delete_table();
-        create_table();
+export async function Initialise () {
+    console.log("breakpoint 1");
+    let tables = await table_list();
+    console.log("breakpoint 2");
+    if (tables.TableNames.includes("Node_Information")) {
+        console.log("breakpoint 3");
+        await delete_table();
+        console.log("breakpoint 4");
+        await create_table();
     }
-
     else {
         create_table();
     }
-})
 };
 
-/*
-in unvisited dictionary, unvisited.Direction stores type int.
-0: completely unexplored path
-1: explored once before, allowed to backtrack there.
-2: wall or visited twice- not allowed to go down the path anymore
- */
 
 
-export function Tremaux (message, parent_x, parent_y){
+export async function Tremaux (message, parent_x, parent_y){
     const X = parseInt(message.x);
     const Y = parseInt(message.y);
     var msg;
@@ -54,18 +49,24 @@ export function Tremaux (message, parent_x, parent_y){
      */
 
     //calculate direction of origin path
-    const delta_y = y - parent_y;
-    const delta_x = x - parent_x;
+    const delta_y = Y - parent_y;
+    const delta_x = X - parent_x;
     const rad2deg = 57.2957795130823209;
     var theta = rad2deg * Math.atan2(delta_x,delta_y);
     if (theta < 0 ) {
         theta = theta + 360;
     }
+    console.log("theta = " + theta);
 
-    const visited = get_coord;
+    const visited = await get_coord(X,Y);
+    console.log("have we visited here? " + visited);
+    
+
+
+    
 
     if (visited ==false) { //if we have not visited this node before
-        if (theta <=45 && theta > 315) { // origin path is north
+        if (theta <=45 || (theta > 315 && theta <=360)) { // origin path is north
             paths[0] = 1;
             paths[1] = parseInt(message.l);
             paths[2] = parseInt(message.f);
@@ -94,7 +95,7 @@ export function Tremaux (message, parent_x, parent_y){
         }
     }
     else { //if visited before
-        paths = query_visited(X,Y);
+        paths = await query_visited(X,Y);
         if (theta <=45 && theta > 315) { // origin path is north
             paths[0] = paths[0] + 1;
         }
@@ -114,30 +115,35 @@ export function Tremaux (message, parent_x, parent_y){
 
     //find the path least travelled
     var least_travelled_path = 0;
-    for (let i = 1; i < paths.length(); i++) {
+    for (let i = 1; i < paths.length; i++) {
         if (paths[i] < paths[least_travelled_path]) {
             least_travelled_path = i;
         }
     }
+    console.log("let's go down path #" + least_travelled_path);
 
     if (paths[least_travelled_path] == 2) {
         return "done traversing"; //done!!
     }
     //increment the minimum path
     paths[least_travelled_path] = paths[least_travelled_path] + 1;
+    console.log("new updated paths array: " + paths);
 
     if (visited) {
-        update_visited(X,Y,paths);
+        await update_visited(X,Y,paths);
     }
     else {
-        add_node(X,Y,parent_x, parent_y, path);
+        console.log (paths);
+        await add_node(X,Y,parent_x, parent_y, paths);
     }
 
     //TODO: store more than one parent!!
     
 
-    //tell robot to turn and move there
-    if (theta <=45 && theta > 315) { // origin path is north
+    // //tell robot to turn and move there
+    console.log("my theta = " + theta + " of type " + typeof theta);
+    if (theta <=45 || theta > 315) { // origin path is north
+        console.log("i am here!")
         if (least_travelled_path==0) {
             return  "u-turn";
         }

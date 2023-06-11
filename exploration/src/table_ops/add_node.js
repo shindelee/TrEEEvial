@@ -18,8 +18,7 @@ export const add_node = async (X,Y, Parent_x, Parent_y, unexplored) => {
       x : X,
       y : Y,
       parent : {x : Parent_x, y : Parent_y},
-      unvisited_nodes : unexplored,
-      visited_count : 1 //now visited once!
+      path_count : unexplored,
     },
   });
 

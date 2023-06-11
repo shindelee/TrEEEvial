@@ -1,4 +1,4 @@
-import { Initialise, Tremaux } from "../tremaux.js";
+import { Initialise, Tremaux } from "../src/tremaux.js";
 
  var WebSocketServer = require('websocket').server;
  var http = require('http');

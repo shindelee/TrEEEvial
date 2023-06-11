@@ -18,7 +18,7 @@ export const update_visited = async (X,Y, update) => {
       x : X,
       y :Y
     },
-    UpdateExpression: 'SET visited_count = :r',
+    UpdateExpression: 'SET path_count = :r',
     ExpressionAttributeValues: {
       ':r': update,
     },
