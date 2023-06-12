@@ -1,10 +1,31 @@
 import { Initialise, Tremaux } from "../src/tremaux.js";
 
+
  var WebSocketServer = require('websocket').server;
  var http = require('http');
  var start = false; //get from front end
  var parent_x;
  var parent_y;
+
+//display matrix
+function create_matrix(m, n) {
+    const matrix = [];
+    
+    for (let i = 0; i < m; i++) {
+      const row = new Array(n).fill(0);
+      matrix.push(row);
+    }
+    
+    return matrix;
+  }
+
+ var display = create_matrix(16,24);
+
+ 
+ function update_
+
+
+ 
  
  var server = http.createServer(function(request, response) {
      console.log((new Date()) + ' Received request for ' + request.url);
@@ -23,6 +44,8 @@ import { Initialise, Tremaux } from "../src/tremaux.js";
  function originIsAllowed(origin) {
    return true;
  }
+
+
  
  wsServer.on('request', function(request) {
      console.log(request)
@@ -36,23 +59,21 @@ import { Initialise, Tremaux } from "../src/tremaux.js";
      var connection = request.accept(null, request.origin)
      console.log((new Date()) + ' Connection accepted.');
  
-     connection.on('message', function(message) {
+     connection.on('message', async function(message) {
          if (message.type === 'utf8') {
              received_message = message.utf8Data;
              json = JSON.parse(received_message);
              if (start) {
-                Initialise();
+                await Initialise();
                 start = false;
                 parent_x = json.x;
                 parent_y = json.y;
              }
 
-             var directions = Tremaux(json, parent_x, parent_y);
+             var directions = await Tremaux(json, parent_x, parent_y);
              parent_x = json.x;
              parent_y = json.y;
-             if (directions == "done traversing") {
-                console.log ("exploration done!")
-             }
+             console.log(directions);
              connection.sendUTF(directions);
          }
          else if (message.type === 'binary') {
