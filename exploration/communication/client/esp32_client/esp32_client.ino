@@ -12,6 +12,7 @@ const char* ssid     = "iPhone";
 const char* password = "12345678";
 char path[] = "/";
 char host[] = "172.20.10.4:5000";
+int seq_no;
 
 // global variables
 WebSocketClient webSocketClient;
@@ -54,6 +55,7 @@ void handshake() {
     webSocketClient.host = host;
     if (webSocketClient.handshake(client)) {
       Serial.println("Handshake successful");
+      seq_no = 0;
     } else {
       Serial.println("Handshake failed.");
       while(1) {
@@ -76,51 +78,30 @@ void setup() {
 
 
 void loop() {
-//  String received_data;
-//  uint32_t data;
-//  uint32_t hexadeci[7];
-//  uint32_t numbers[14];
-//  byte b1, b2, b3, b4;
-//
-//  
-//
-////  if (Serial1.available() >= 28) {  
-////        for(int i = 0; i < 7; i++){
-////            b1 = Serial1.read();    // read the bytes into byte variables 'b1' to 'b4'
-////            b2 = Serial1.read();  
-////            b3 = Serial1.read();
-////            b4 = Serial1.read();
-////
-////            hexadeci[i] = b1 | (b2 << 8) | (b3 << 16) | (b4 << 24); // Combine the bytes into a single 32-bit integer
-//////            Serial.println(hexadeci[i]);
-////            // To extract bits 10 through 0, we use a bitwise AND with a mask where these bits are 1 and the others are 0.
-//////            numbers[2 * i] = hexadeci[i]  & 0x7FF;
-////
-////            // To extract bits 27 through 16, we again use a bitwise AND, then shift the result right 16 places.
-//////            numbers[2 * i + 1]  = (hexadeci[i] & 0x0FFF0000) >> 16;
-////            
-////            
-////        }
-////        data = *hexadeci;
-////        Serial.println(data);
-////
-////  }
-////  else {
-////    Serial.println("UART disconnected...");
-////    data = 1000000;
-////    }
-//
-String message = "{\"lw\":\"" + String(1) + "\",\"rw\":\"" + String(3) + "\",\"fw\":\""+ String(1) + "\"}";
+  Serial.println("input x :");
+  int x = parseInt();
+  Serial.println("input y:");
+  int y = parseInt();
 
+String message1 = "{\"x\":\"" + String(x) + "\",\"y\":\"" + String(y) + "\",\"f\":\""+ String(0) + "\",\"l\":\""+ String(1)+ "\",\"r\":\""+ String(1) + "\",\"seq_no\":\""+ String(seq_no)+ "\"}";
+//String message2 = "{\"x\":\"" + String(3) + "\",\"y\":\"" + String(7) + "\",\"f\":\""+ String(0) + "\",\"l\":\""+ String(1)+ "\",\"r\":\""+ String(1) + "\",\"seq_no\":\""+ String(seq_no)+ "\"}";
+String received_data;
   if (client.connected()) {
-    webSocketClient.sendData(message); //todo: see if can send bytes
-    Serial.println("sent message");
-//    webSocketClient.getData(received_data);
-//    if (received_data.length() > 0) {
-//      Serial.print("Received data: ");
-//      Serial.println(received_data);
-//    }
-  } 
+    delay(1000);
+    webSocketClient.sendData(message1); //todo: see if can send bytes
+    Serial.println("sent message 1");
+    webSocketClient.getData(received_data);
+    while (received_data.length() <= 0) {
+      delay(5000);
+      Serial.println("sent a duplicate message 1");
+      webSocketClient.sendData(message1);
+      webSocketClient.getData(received_data);
+    }
+    Serial.print("Received data: ");
+    Serial.println(received_data);
+
+    }
+ 
   
   else {
     Serial.println("Server disconnected.Trying to reconnect...");
@@ -133,6 +114,6 @@ String message = "{\"lw\":\"" + String(1) + "\",\"rw\":\"" + String(3) + "\",\"f
     }
   }
   // wait to fully let the client disconnect
-  delay(2000);
+  delay(5000);
   
 }

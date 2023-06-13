@@ -12,13 +12,13 @@ import {get_coord} from "../src/table_ops/get_coord.js";
 // 0 means path, 1 means wall
 
 export async function Initialise () {
-    console.log("breakpoint 1");
+    // console.log("breakpoint 1");
     let tables = await table_list();
-    console.log("breakpoint 2");
+    // console.log("breakpoint 2");
     if (tables.TableNames.includes("Node_Information")) {
-        console.log("breakpoint 3");
+        // console.log("breakpoint 3");
         await delete_table();
-        console.log("breakpoint 4");
+        // console.log("breakpoint 4");
         await create_table();
     }
     else {
@@ -127,7 +127,7 @@ export async function Tremaux (message, parent_x, parent_y){
     }
     //increment the minimum path
     paths[least_travelled_path] = paths[least_travelled_path] + 1;
-    console.log("new updated paths array: " + paths);
+    // console.log("new updated paths array: " + paths);
 
     if (visited) {
         await update_visited(X,Y,paths);
@@ -141,9 +141,9 @@ export async function Tremaux (message, parent_x, parent_y){
     
 
     // //tell robot to turn and move there
-    console.log("my theta = " + theta + " of type " + typeof theta);
+    // console.log("my theta = " + theta + " of type " + typeof theta);
     if (theta <=45 || theta > 315) { // origin path is north
-        console.log("i am here!")
+        // console.log("i am here!")
         if (least_travelled_path==0) {
             return  "u-turn";
         }
@@ -206,8 +206,3 @@ export async function Tremaux (message, parent_x, parent_y){
     return "undefined";
 }
 
-
-
-
-
-    

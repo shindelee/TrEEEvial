@@ -45,6 +45,6 @@ export const create_table = async () => {
   });
 
   const response = await client.send(command);
-  console.log(response);
+  console.log("creating new table...");
   return response;
 };

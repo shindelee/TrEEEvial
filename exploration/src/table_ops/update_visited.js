@@ -26,6 +26,6 @@ export const update_visited = async (X,Y, update) => {
   });
 
   const response = await docClient.send(command);
-  console.log(response);
+  // console.log(response);
   return response;
 };
