@@ -13,6 +13,11 @@ const char* password = "12345678";
 char path[] = "/";
 char host[] = "172.20.10.4:5000";
 int seq_no;
+int counter = 0;
+int array_count[7] = {0,1,1,0,1,0,0};
+int alive_count = 0;
+bool start = true;
+int message_counter = 0;
 
 // global variables
 WebSocketClient webSocketClient;
@@ -78,27 +83,42 @@ void setup() {
 
 
 void loop() {
-  Serial.println("input x :");
-  int x = parseInt();
-  Serial.println("input y:");
-  int y = parseInt();
+  int x = counter;
+  int y = counter + 2;
+  int l = array_count[counter];
+  int r = array_count[counter+1];
+  int f = array_count[counter+2];;
 
-String message1 = "{\"x\":\"" + String(x) + "\",\"y\":\"" + String(y) + "\",\"f\":\""+ String(0) + "\",\"l\":\""+ String(1)+ "\",\"r\":\""+ String(1) + "\",\"seq_no\":\""+ String(seq_no)+ "\"}";
+String message1 = "{\"x\":\"" + String(x) + "\",\"y\":\"" + String(y) + "\",\"f\":\""+ String(f) + "\",\"l\":\""+ String(l)+ "\",\"r\":\""+ String(r) + "\",\"seq_no\":\""+ String(seq_no)+ "\"}";
 //String message2 = "{\"x\":\"" + String(3) + "\",\"y\":\"" + String(7) + "\",\"f\":\""+ String(0) + "\",\"l\":\""+ String(1)+ "\",\"r\":\""+ String(1) + "\",\"seq_no\":\""+ String(seq_no)+ "\"}";
 String received_data;
-  if (client.connected()) {
-    delay(1000);
-    webSocketClient.sendData(message1); //todo: see if can send bytes
-    Serial.println("sent message 1");
+bool connection = client.connected();
+  if (connection) {
     webSocketClient.getData(received_data);
-    while (received_data.length() <= 0) {
-      delay(5000);
-      Serial.println("sent a duplicate message 1");
+    while (start==false && received_data.length() <=0 ) {
+      initWebSocket();
+      handshake();
+      delay(500);
       webSocketClient.sendData(message1);
+      Serial.println("Resending message #" + String(message_counter));
+      delay(1000);
       webSocketClient.getData(received_data);
     }
+    
     Serial.print("Received data: ");
     Serial.println(received_data);
+    delay(2000);
+
+    webSocketClient.sendData(message1); //todo: see if can send bytes
+    start = false;
+    Serial.println("sent message #" + String(message_counter));
+    message_counter = message_counter +1;
+    delay(500);
+    
+    counter ++;
+    if (counter ==5) {
+      counter = 0;
+    }
 
     }
  
@@ -108,12 +128,11 @@ String received_data;
     initWiFi();
     initWebSocket(); // handle disconnections
     handshake();
-    delay(5000);
+    delay(1000);
     while (1) {
       // Hang on disconnect.
     }
   }
   // wait to fully let the client disconnect
-  delay(5000);
   
 }
