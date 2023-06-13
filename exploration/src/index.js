@@ -1,31 +1,17 @@
 import { Initialise, Tremaux } from "../src/tremaux.js";
+import { server as WebSocketServer } from 'websocket';
+import * as http from 'http';
 
 
- var WebSocketServer = require('websocket').server;
- var http = require('http');
- var start = false; //get from front end
+ var start = true; //get from front end
+ console.log(start);
  var parent_x;
  var parent_y;
+//  var seq_no = 0;
+ var directions = "";
+ var buffer = "";
 
 //display matrix
-function create_matrix(m, n) {
-    const matrix = [];
-    
-    for (let i = 0; i < m; i++) {
-      const row = new Array(n).fill(0);
-      matrix.push(row);
-    }
-    
-    return matrix;
-  }
-
- var display = create_matrix(16,24);
-
- 
- function update_
-
-
- 
  
  var server = http.createServer(function(request, response) {
      console.log((new Date()) + ' Received request for ' + request.url);
@@ -36,7 +22,7 @@ function create_matrix(m, n) {
      console.log((new Date()) + ' Server is listening on port 5000');
  });
  
- wsServer = new WebSocketServer({
+ const wsServer = new WebSocketServer({
      httpServer: server,
      autoAcceptConnections: false
  });
@@ -47,12 +33,13 @@ function create_matrix(m, n) {
 
 
  
- wsServer.on('request', function(request) {
+ wsServer.on('request', async function(request) {
      console.log(request)
      if (!originIsAllowed(request.origin)) {
        // Make sure we only accept requests from an allowed origin
        request.reject();
        console.log((new Date()) + ' Connection from origin ' + request.origin + ' rejected.');
+    //    seq_no = 0;
        return;
      }
      
@@ -61,24 +48,37 @@ function create_matrix(m, n) {
  
      connection.on('message', async function(message) {
          if (message.type === 'utf8') {
-             received_message = message.utf8Data;
-             json = JSON.parse(received_message);
-             if (start) {
-                await Initialise();
-                start = false;
+             var received_message = message.utf8Data;
+             if (received_message != buffer) {
+                var json = JSON.parse(received_message);
+             
+                // console.log("starting? " + start);
+
+                if (start) {
+                    console.log("breakpoint... Initialising")
+                    await Initialise();
+                    start = false;
+                    parent_x = 0;
+                    parent_y = 0;
+                }
+                console.log("received message!!");
+                console.log("x = " + json.x);
+                console.log("y = " + json.y);
+                // console.log("front wall = " + json.f);
+                //  console.log("expecting sequence number: " );
+                //  if (seq_no == json.seq_no) {
+                    
+                directions = await Tremaux(json, parent_x, parent_y);
                 parent_x = json.x;
-                parent_y = json.y;
              }
 
-             var directions = await Tremaux(json, parent_x, parent_y);
-             parent_x = json.x;
-             parent_y = json.y;
+             else {
+                console.log("duplicate message sent");
+             }
+
+             buffer = received_message;
              console.log(directions);
              connection.sendUTF(directions);
-         }
-         else if (message.type === 'binary') {
-             console.log('Received Binary Message of ' + message.binaryData.length + ' bytes');
-             connection.sendBytes(message.binaryData);
          }
      });
  

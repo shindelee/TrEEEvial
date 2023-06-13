@@ -17,6 +17,6 @@ export const delete_table = async () => {
   });
 
   const response = await client.send(command);
-  console.log(response);
+  console.log("deleting old table...");
   return response;
 };

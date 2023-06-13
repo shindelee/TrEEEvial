@@ -21,7 +21,7 @@ export const query_visited = async (X,Y) => {
   });
 
   const response = await docClient.send(command);
-  console.log(response);
+  // console.log(response);
   return response.Item.path_count;
 };
 

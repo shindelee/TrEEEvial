@@ -23,6 +23,6 @@ export const add_node = async (X,Y, Parent_x, Parent_y, unexplored) => {
   });
 
   const response = await docClient.send(command);
-  console.log(response);
+  // console.log(response);
   return response;
 };
