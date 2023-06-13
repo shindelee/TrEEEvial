@@ -325,7 +325,7 @@ assign val = cmax;
 wire red_detect, blue_detect, yellow_detect;
 assign red_detect = red[7] & ~green[7] & ~blue[7];
 assign blue_detect = (hue > 185) & (hue < 260) & sat > 4/10 & val > 8/10;
-assign yellow_detect = (hue > 35) & (hue < 65) & sat > 4/10 & val > 6/10; 
+assign yellow_detect = (hue > 0) & (hue < 100) & sat > 3/10 & val > 3/10; 
 
 // Find boundary of cursor box
 
@@ -347,17 +347,9 @@ assign grey = green[7:1] + red[7:2] + blue[7:2];
 wire [23:0] detectedAreaRGB;
 assign detectedAreaRGB  = red_high ? {8'hff, 8'h0, 8'h0} : 
                           blue_high ? {8'h0, 8'h0, 8'hff} :
-						  yellow_high ? {8'hff, 8'hff, 8'h0} :
+								yellow_high ? {8'hff, 8'hff, 8'h0} :
                           {grey, grey, grey};
 
-/*
-// Highlighting detected areas for new image
-wire [23:0] detectedAreaRGB;
-assign detectedAreaRGB  = red_detect ? {8'hff, 8'h0, 8'h0} : 
-                          blue_detect ? {8'h0, 8'h0, 8'hff} :
-						  yellow_detect ? {8'hff, 8'hff, 8'h0} :
-                          {grey, grey, grey};
-*/
 
 // Show bounding box without line intersections
 wire [23:0] new_image;
@@ -403,33 +395,19 @@ always@(posedge clk) begin
 	end
 end
 
+wire centre = x > 240 && x < 360 && y < 380 && y > 200;
+
 // Find first and last red pixels
-wire centre = x > 240 && x < 380 && y < 400 && y > 100;
-
-reg [10:0] red_count, blue_count, yellow_count;
-
-initial begin
-	red_count = 0;
-	blue_count = 0;
-	yellow_count = 0;
-end
 
 reg [10:0] red_x_min, red_y_min, red_x_max, red_y_max;
+
 always@(posedge clk) begin
 	if (red_detect & in_valid & centre) begin	
-		//red_count <= red_count + 1;
-
-		//if(red_count >= 3) begin
-		// Update bounds when the pixel is red
 		if (x < red_x_min) red_x_min <= x;
 		if (x > red_x_max) red_x_max <= x;
 		if (y < red_y_min) red_y_min <= y;
 		red_y_max <= y;
-		//end
 	end
-	//else begin
-	//	red_count <= 0;
-	//end
 	
 	if (sop & in_valid) begin	
 	
@@ -438,28 +416,19 @@ always@(posedge clk) begin
 		red_x_max <= 0;
 		red_y_min <= IMAGE_H-11'h1;
 		red_y_max <= 0;
-
-		//red_count <= 0;
 	end
 end
 
 // Find first and last blue pixels
 reg [10:0] blue_x_min, blue_y_min, blue_x_max, blue_y_max;
+
 always@(posedge clk) begin
 	if (blue_detect & in_valid & centre) begin	
-		//blue_count <= blue_count + 1;
-
-		//if(blue_count >= 3) begin
-		// Update bounds when the pixel is blue
 		if (x < blue_x_min) blue_x_min <= x;
 		if (x > blue_x_max) blue_x_max <= x;
 		if (y < blue_y_min) blue_y_min <= y;
 		blue_y_max <= y;
-		//end
 	end
-	//else begin
-	//	blue_count <= 0;
-	//end
 	
 	if (sop & in_valid) begin	
 	
@@ -468,28 +437,19 @@ always@(posedge clk) begin
 		blue_x_max <= 0;
 		blue_y_min <= IMAGE_H-11'h1;
 		blue_y_max <= 0;
-
-		//blue_count <= 0;
 	end
 end
 
 // Find first and last yellow pixels
 reg [10:0] yellow_x_min, yellow_y_min, yellow_x_max, yellow_y_max;
-always@(posedge clk) begin
-	if (yellow_detect & in_valid & centre) begin	
-		//yellow_count <= yellow_count + 1;
 
-		//if(yellow_count >= 3) begin
-			// Update bounds when the pixel is yellow
+always@(posedge clk) begin
+	if (yellow_detect & in_valid & centre) begin
 		if (x < yellow_x_min) yellow_x_min <= x;
 		if (x > yellow_x_max) yellow_x_max <= x;
 		if (y < yellow_y_min) yellow_y_min <= y;
 		yellow_y_max <= y;
-		//end
 	end
-	//else begin
-	//	yellow_count <= 0;
-	//end
 
 	if (sop & in_valid) begin	
 	
@@ -498,10 +458,9 @@ always@(posedge clk) begin
 		yellow_x_max <= 0;
 		yellow_y_min <= IMAGE_H-11'h1;
 		yellow_y_max <= 0;
-
-		//yellow_count <= 0;
 	end
 end
+
 
 // Process bounding box at the end of the frame.
 reg [2:0] msg_state;
