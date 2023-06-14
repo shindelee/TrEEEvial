@@ -7,7 +7,7 @@ let prevTime = Date.now(); // Previous timestamp
 function updateKalmanFilter(estimate1, estimate2) {
   // Calculate time difference
   const currentTime = Date.now();
-  const dt = (currentTime - prevTime) / 1000; // Convert to seconds
+  // const dt = (currentTime - prevTime) / 1000; // Convert to seconds
   prevTime = currentTime;
 
   // Calculate the weights
