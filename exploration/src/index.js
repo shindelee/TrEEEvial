@@ -77,7 +77,7 @@ import * as http from 'http';
              }
 
              buffer = received_message;
-             console.log(directions);
+             console.log("sent direction = " + directions);
              connection.sendUTF(directions);
          }
      });

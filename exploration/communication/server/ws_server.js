@@ -42,6 +42,7 @@
 
 var WebSocketServer = require('websocket').server;
 var http = require('http');
+var count = 0;
 
 var server = http.createServer(function(request, response) {
     console.log((new Date()) + ' Received request for ' + request.url);
@@ -75,15 +76,17 @@ wsServer.on('request', function(request) {
 
     connection.on('message', function(message) {
         if (message.type === 'utf8') {
-            received_message = message.utf8Data;
-            json = JSON.parse(received_message);
-            console.log('Received Message lw: ' + json.lw);
-            console.log('Received Message rw: ' + json.rw);
-            sum = parseInt(json.lw) + parseInt(json.rw);
-            console.log("sum = " + sum)
+            // received_message = message.utf8Data;
+            // json = JSON.parse(received_message);
+            // console.log('Received Message lw: ' + json.lw);
+            // console.log('Received Message rw: ' + json.rw);
+            // sum = parseInt(json.lw) + parseInt(json.rw);
+            // console.log("sum = " + sum)
+            console.log("message received");
 
             //connection.sendUTF(message.utf8Data); this resend the reseived message, instead of it i will send a custom message. hello from nodejs
-            // connection.sendUTF("Turn left!");
+            connection.sendUTF("here you go " + count);
+            count = count +1;
         }
         else if (message.type === 'binary') {
             console.log('Received Binary Message of ' + message.binaryData.length + ' bytes');
