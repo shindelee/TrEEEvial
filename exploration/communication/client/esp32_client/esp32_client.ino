@@ -95,7 +95,7 @@ String received_data;
 bool connection = client.connected();
   if (connection) {
     webSocketClient.getData(received_data);
-    while (start==false && received_data.length() <=0 ) {
+    while (start==false && received_data.length() <=0 ) { //handle disconnection
       initWebSocket();
       handshake();
       delay(500);

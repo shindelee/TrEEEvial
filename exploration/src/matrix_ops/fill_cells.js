@@ -19,3 +19,5 @@ export function fill_cells(x,y,parent_x,parent_y) {
 
     }
 }
+
+//IDEA: give priority to nodes. Don't let nodes be altered
