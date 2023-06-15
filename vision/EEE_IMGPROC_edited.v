@@ -271,34 +271,26 @@ always @(posedge clk)begin
 	yellow_detect_5 <= yellow_detect_4;
 end
 
-/*
+
 // R, G, B: 0 - 360
-wire [7:0] cmax, cmin, delta, sat, val;
-wire [8:0] hue_temp, hue;
 
-// division by 256
-assign r = red >> 8; 
-assign b = blue >> 8;
-assign g = green >> 8;
+wire[9:0] hue ;
+wire[7:0] sat, val, min, delta;
 
-assign cmax = ((r >= g) & (r >= b)) ? r : ((g >= b) & (g >= r)) ? g : b; 
-assign cmin = ((r <= g) & (r <= b)) ? r : ((g <= b) & (g <= r)) ? g : b;
-assign delta = cmax - cmin;
-
-assign hue_temp = (delta == 0) ? 0 : (cmax == r) ? (60 * (g - b) / delta)
-                                   : (cmax == g) ? (120 + 60 * (b - r) / delta)
-                                   : (240 + 60 * (r - g) / delta);
-
-assign hue = (hue_temp < 0) ? hue_temp + 360 : hue_temp;
-assign sat = (cmax == 0) ? 0 : delta / cmax;
-assign val = cmax; 
+assign val = (red > green) ? ((red > blue) ? red[7:0] : blue[7:0]) : (green > blue) ? green[7:0] : blue[7:0];						
+assign min = (red < green)? ((red<blue) ? red[7:0] : blue[7:0]) : (green < blue) ? green [7:0] : blue[7:0];
+assign sat = (val - min)* 255 / val;
+assign hue = (red == green && red == blue) ? 0 :((val != red)? (val != green) ? (((240*((val - min))+ (60* (red - green)))/(val-min))>>1):
+                ((120*(val-min)+60*(blue - red))/(val - min)>>1): 
+                (blue < green) ? ((60*(green - blue)/(val - min))>>1): (((360*(val-min) +(60*(green - blue)))/(val - min))>>1));
 
 wire red_detect, blue_detect, yellow_detect;
-assign red_detect = red[7] & ~green[7] & ~blue[7];
-assign blue_detect = (hue > 175) & (hue < 260) & sat > 4/10 & val > 8/10;
-assign yellow_detect = (hue > 35) & (hue < 63) & sat > 4/10 & val > 8/10; 
+assign red_detect = (hue < 12 && sat > 130 && val > 50) || ((hue < 360 && hue > 330) && (sat > 130) && val > 50);
+assign yellow_detect = (27 <= hue && hue < 34) && (130 < sat && sat < 225 ) && (val > 146);
+assign blue_detect = (( hue >= 80 && hue <= 123) && (  sat >= 40 && sat <= 117) && (41 <= val && val < 122))  
+|| (90 <= hue && hue <= 130) && (40 <= sat && sat <= 215) && (val >= 10 && val <= 150); 
 
-*/
+/*
 // RGB -> HSV conversion:
 // H: 0 - 360, S: 0 - 1, V: 0 - 1
 wire [7:0] r, g, b;
@@ -313,9 +305,9 @@ assign cmax = ((r >= g) & (r >= b)) ? r : ((g >= b) & (g >= r)) ? g : b;
 assign cmin = ((r <= g) & (r <= b)) ? r : ((g <= b) & (g <= r)) ? g : b;
 assign delta = cmax - cmin;
 
-assign hue_temp = (delta == 0) ? 0 : (cmax == r) ? (60 * (g - b) / delta)
-                                   : (cmax == g) ? (120 + 60 * (b - r) / delta)
-                                   : (240 + 60 * (r - g) / delta);
+assign hue_temp = (delta == 0) ? 0 : (cmax == r) ? (60 * ((g - b) / delta))
+                                   : (cmax == g) ? (120 + 60 * ((b - r) / delta))
+                                   : (240 + 60 * ((r - g) / delta));
 
 assign hue = (hue_temp < 0) ? hue_temp + 360 : hue_temp;
 assign sat = (cmax == 0) ? 0 : delta / cmax;
@@ -323,9 +315,10 @@ assign val = cmax;
 
 // HSV
 wire red_detect, blue_detect, yellow_detect;
-assign red_detect = red[7] & ~green[7] & ~blue[7];
-assign blue_detect = (hue > 185) & (hue < 260) & sat > 4/10 & val > 8/10;
-assign yellow_detect = (hue > 0) & (hue < 100) & sat > 3/10 & val > 3/10; 
+assign red_detect = (hue > 270) & (hue < 460);
+assign blue_detect = (hue > 185) & (hue < 260); //& sat > 4/10 & val > 8/10;
+assign yellow_detect = (hue > 0) & (hue < 180); //& sat > 3/10 & val > 3/10; 
+*/
 
 // Find boundary of cursor box
 
@@ -347,7 +340,7 @@ assign grey = green[7:1] + red[7:2] + blue[7:2];
 wire [23:0] detectedAreaRGB;
 assign detectedAreaRGB  = red_high ? {8'hff, 8'h0, 8'h0} : 
                           blue_high ? {8'h0, 8'h0, 8'hff} :
-								yellow_high ? {8'hff, 8'hff, 8'h0} :
+								  yellow_high ? {8'hff, 8'hff, 8'h0} :
                           {grey, grey, grey};
 
 
