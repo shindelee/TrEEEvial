@@ -9,7 +9,7 @@
 #define RIGHT_DIR_PIN 27
 
 // Define the steps per revolution for your stepper motors
-#define STEPS_PER_REVOLUTION 200
+#define STEPS_PER_REVOLUTION 200.0
 #define WHEEL_RADIUS 0.0325
 
 float wheelDiameter = 2 * WHEEL_RADIUS; 
@@ -76,13 +76,8 @@ void loop() {
 
   Serial.println(angleTurnedDegrees);
   delay(1000); // 1 second
-}
 
-/*
-int getWheelRevolutions(int wheel) {
-  myStepper.step(1); // Move the motor by one step
-  leftSteps++ ; // Increment the number of steps
-  int leftWheelRevs = leftSteps / STEPS_PER_REVOLUTION;
-  return leftWheelRevs;
+  // offsets
+
+  
 }
-*/
