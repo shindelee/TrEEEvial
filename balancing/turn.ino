@@ -27,7 +27,6 @@ void setup() {
   
   // Set the maximum speed and acceleration for the stepper motors
   leftStepper.setMaxSpeed(200);  // Adjust as needed
-  //leftStepper.setSpeed(180);
   leftStepper.setAcceleration(10);  // Adjust as needed
   
   
@@ -41,43 +40,88 @@ void loop() {
   Serial.println(prevWheelSteps);
   
   // 90 degree - right
-  
-  leftStepper.move(-240);
+
+  /*
+  leftStepper.move(-216); // -90.26
   while(leftStepper.distanceToGo() != 0) {
     leftStepper.run();
     Serial.println("left stepper dist to go: " + String(leftStepper.distanceToGo()));
   }
-  
+  */
   
   // 90 degree - left
+
   /*
-  rightStepper.move(235);
+  rightStepper.move(216);
   while(rightStepper.distanceToGo() != 0) {
     rightStepper.run();
     Serial.print("right stepper dist to go: " + String(rightStepper.distanceToGo()));
   }
-  delay(5000);
   */
 
+  // in - place 90
+  /*
+  rightStepper.move(108);
+  leftStepper.move(108);
+  while(rightStepper.distanceToGo() != 0 && leftStepper.distanceToGo() != 0) {
+    rightStepper.run();
+    leftStepper.run();
+    Serial.print("right stepper dist to go: " + String(rightStepper.distanceToGo()));
+    Serial.println("left stepper dist to go: " + String(leftStepper.distanceToGo()));
+  }
+  */
+  /*
+  // in - place 360 
+  
+  rightStepper.move(432);
+  leftStepper.move(432);
+  while(rightStepper.distanceToGo() != 0 && leftStepper.distanceToGo() != 0) {
+    rightStepper.run();
+    leftStepper.run();
+    Serial.print("right stepper dist to go: " + String(rightStepper.distanceToGo()));
+    Serial.println("left stepper dist to go: " + String(leftStepper.distanceToGo()));
+  }
+  */
+  
   // use wheel revolution to calculate angle turned (heading angle)
-
-  //int leftWheelRevs = getWheelRevolutions(leftStepper); 
-  long leftWheelSteps = leftStepper.currentPosition() - prevWheelSteps; // Get the current position of the left stepper in steps
+  // left
+  long leftWheelSteps = leftStepper.currentPosition() - prevWheelStepsL; // Get the current position of the left stepper in steps
   Serial.println(leftStepper.currentPosition());
   Serial.println(leftWheelSteps);
-  prevWheelSteps = leftStepper.currentPosition();
+  prevWheelStepsL = leftStepper.currentPosition();
   float leftWheelRevs = leftWheelSteps / STEPS_PER_REVOLUTION; 
   Serial.println(leftWheelRevs);
-  float distanceTravelled = leftWheelRevs * wheelCircumference;
-  Serial.println(distanceTravelled);
-  float angleTurnedRadians = distanceTravelled / wheelBase;
-  Serial.println(angleTurnedRadians);
-  float angleTurnedDegrees = angleTurnedRadians * (180.0 / PI);
+  float distanceTravelledL = leftWheelRevs * wheelCircumference;
+  Serial.println(distanceTravelledL);
+  float angleTurnedRadiansL = distanceTravelled / wheelBase;
+  Serial.println(angleTurnedRadiansL);
+  float angleTurnedDegreesL = angleTurnedRadians * (180.0 / PI);
 
-  Serial.println(angleTurnedDegrees);
-  delay(1000); // 1 second
+  Serial.println(angleTurnedDegrees); 
+  /*
+  // right
+  long rightWheelSteps = rightStepper.currentPosition() - prevWheelStepsR; // Get the current position of the left stepper in steps
+  Serial.println(rightStepper.currentPosition());
+  Serial.println(rightWheelSteps);
+  prevWheelStepsR = rightStepper.currentPosition();
+  float rightWheelRevs = rightWheelSteps / STEPS_PER_REVOLUTION; 
+  Serial.println(rightWheelRevs);
+  float distanceTravelledR = rightWheelRevs * wheelCircumference;
+  Serial.println(distanceTravelledR);
+  float angleTurnedRadiansR = distanceTravelledR / wheelBase;
+  Serial.println(angleTurnedRadiansR);
+  float angleTurnedDegreesR = angleTurnedRadiansR * (180.0 / PI);
 
-  // offsets
-
-  
+  Serial.println(angleTurnedDegrees); 
+  */
+  delay(3000); // 3 second
 }
+
+/*
+int getWheelRevolutions(int wheel) {
+  myStepper.step(1); // Move the motor by one step
+  leftSteps++ ; // Increment the number of steps
+  int leftWheelRevs = leftSteps / STEPS_PER_REVOLUTION;
+  return leftWheelRevs;
+}
+*/
