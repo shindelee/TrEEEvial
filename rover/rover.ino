@@ -2,6 +2,7 @@
 #include "drive_functions.h"
 #include "websocket_client.h"
 #include "balancing.h"
+#include "uart.h"
 
 
 //define globals here
