@@ -22,11 +22,11 @@ void setup()
 
     // Set the maximum speed and acceleration for the stepper motors
     leftStepper.setMaxSpeed(200); // Adjust as needed
-    leftStepper.setSpeed(-500);
+    leftStepper.setSpeed(-300);
     leftStepper.setAcceleration(10); // Adjust as needed
 
     rightStepper.setMaxSpeed(200); // Adjust as needed
-    rightStepper.setSpeed(500);
+    rightStepper.setSpeed(300);
     rightStepper.setAcceleration(10); // Adjust as needed
     //  rightStepper.move(1000);
 }
