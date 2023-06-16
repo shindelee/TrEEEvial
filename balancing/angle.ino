@@ -33,9 +33,9 @@ void loop() {
   Serial.print("X : ");
   Serial.print(mpu.getAngleX());
   Serial.print("\tY : ");
-  Serial.print(mpu.getAngleY());
+  Serial.print(mpu.getAngleY()); // theta
   Serial.print("\tZ : ");
-  Serial.println(mpu.getAngleZ());
+  Serial.println(mpu.getAngleZ()); // alpha
   timer = millis();  
   }
 }
