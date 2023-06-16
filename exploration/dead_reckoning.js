@@ -109,8 +109,8 @@ function Odometry(Ml, Mr){
     vE[k] = delta_mod_PE[k]/delta_t;
     */
 
-    console.log(PN[k+1]);
-    console.log(PE[k+1]);
+    console.log("y-axis:", PN[k+1]);
+    console.log("x-axis:", PE[k+1]);
 }
 
 Odometry(-118, 118);
