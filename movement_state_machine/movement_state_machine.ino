@@ -22,15 +22,21 @@ const int AIn2 = 9;
 const int BIn1 = 10;
 const int BIn2 = 11;
 
-// Front sensor.
-const int lightSensorPin = 25;
 
+// Left sensor. A3. (A1 for now)
+const int leftSensorPin = 26;
+// Front sensor. 34. (A2 for now)
+const int frontSensorPin = 25;
+// Right sensor. 39. (VN) (A5 for now)
+const int rightSensorPin = 35;
+
+// Sebastian's change connected DIRL to D10 (14), and STPL to A5 (35).
 // Motor Connections (constant current, step/direction bipolar motor driver)
-const int dirPinR = 27;
-const int stepPinR = 26;
+const int dirPinR = 4; //D11
+const int stepPinR = 27; //A0
 
-const int dirPinL = 12;
-const int stepPinL = 14;
+const int dirPinL = 15; //D12
+const int stepPinL = 32; //A4
 
 // Creates an instance - Pick the version you want to use and un-comment it. That's the only required change.
 //AccelStepper myStepper(AccelStepper::FULL4WIRE, AIn1, AIn2, BIn1, BIn2);  // works for TB6612 (Bipolar, constant voltage, H-Bridge motor driver)
@@ -62,14 +68,18 @@ void loop() {
     printTime = 0;
 
     // Take readings from the left and right sensors:
-    float left_reading = 120;
-    float right_reading = 120;
-    float difference = left_reading - right_reading;
+    int leftSensorReading = 0;
+    leftSensorReading = analogRead(leftSensorPin);
+    //Serial.println(leftSensorReading);
+    int rightSensorReading = 0;
+    rightSensorReading = analogRead(rightSensorPin);
+    //Serial.println(rightSensorReading);
+    float difference = leftSensorReading - rightSensorReading;
     float p = 2;
     float weighted_difference = difference * p;
     
-    myStepperR.setSpeed(-150.0 - weighted_difference);
-    myStepperL.setSpeed(150.0 - weighted_difference);
+    myStepperR.setSpeed(100.0 + weighted_difference);
+    myStepperL.setSpeed(100.0 - weighted_difference);
     state = RSPD;
     float mSpeedR = myStepperR.speed();
     float mSpeedL = myStepperL.speed();
@@ -78,10 +88,10 @@ void loop() {
     //Serial.println(myStepperR.currentPosition());
   }
 
-  int lightSensorReading = 400;
-  lightSensorReading = analogRead(lightSensorPin);
-  Serial.println(lightSensorReading);
-  if(lightSensorReading < 200){
+  int frontSensorReading = 0;
+  frontSensorReading = analogRead(frontSensorPin);
+  //Serial.println(frontSensorReading);
+  if(frontSensorReading > 10){
       state = RJSTR;
     }
   else{
