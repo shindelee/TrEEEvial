@@ -31,6 +31,9 @@ float wheelDiameter = 2 * WHEEL_RADIUS;
 float wheelBase = 0.14;  
 float wheelCircumference = wheelDiameter * PI;
 
+//keep track of current wall
+
+
 // Creates an instance - Pick the version you want to use and un-comment it. That's the only required change.
 //AccelStepper myStepper(AccelStepper::FULL4WIRE, AIn1, AIn2, BIn1, BIn2);  // works for TB6612 (Bipolar, constant voltage, H-Bridge motor driver)
 //AccelStepper myStepper(AccelStepper::FULL4WIRE, In1, In3, In2, In4);    // works for ULN2003 (Unipolar motor driver)
@@ -42,18 +45,15 @@ AccelStepper rightStepper(AccelStepper::DRIVER, RIGHT_STEP_PIN, RIGHT_DIR_PIN);
 #define RJSTR 02
 // State variable
 int state;
+bool in_node = true; //boolean to tell whether we are in a node 
 
 elapsedMillis printTime;
 
 void setup() {
   Serial.begin(115200);
-  // set the maximum speed and initial speed. The initial speed will be the only
-  // speed used. No acceleration will happen - only runSpeed is used. Runs forever.
-  myStepperR.setMaxSpeed(200.0);    // must be equal to or greater than desired speed.
-  //myStepperR.setSpeed(-150.0);       // desired speed to run at
-  myStepperL.setMaxSpeed(200.0);    // must be equal to or greater than desired speed.
-  //myStepperL.setSpeed(150.0);
-  //myStepper.setSpeed(-100.0);    // use this to run in opposite direction
+  leftStepper.setMaxSpeed(300.0);    // must be equal to or greater than desired speed.
+  rightStepper.setMaxSpeed(300.0);    // must be equal to or greater than desired speed.
+
 }
 
 void loop() {
@@ -63,19 +63,20 @@ void loop() {
     // Take readings from the left and right sensors:
     int leftSensorReading = 0;
     leftSensorReading = analogRead(leftSensorPin);
-    //Serial.println(leftSensorReading);
     int rightSensorReading = 0;
     rightSensorReading = analogRead(rightSensorPin);
+
+
     //Serial.println(rightSensorReading);
     float difference = leftSensorReading - rightSensorReading;
     float p = 2;
     float weighted_difference = difference * p;
     
-    myStepperR.setSpeed(50.0 + weighted_difference);
-    myStepperL.setSpeed(50.0 - weighted_difference);
+    leftStepper.setSpeed(50.0 + weighted_difference);
+    rightStepper.setSpeed(50.0 - weighted_difference);
     state = RSPD;
-    float mSpeedR = myStepperR.speed();
-    float mSpeedL = myStepperL.speed();
+    float mSpeedR = rightStepper.speed();
+    float mSpeedL = leftStepper.speed();
     //Serial.print(mSpeedR);
     //Serial.print("  ");
     //Serial.println(myStepperR.currentPosition());
@@ -83,13 +84,19 @@ void loop() {
 
   int frontSensorReading = 0;
   frontSensorReading = analogRead(frontSensorPin);
-  //Serial.println(frontSensorReading);
-  if(frontSensorReading > 10){
+  if(frontSensorReading > 30){
       state = RJSTR;
     }
-  else{
+  else if(leftSensorReading > 10 && rightSensorReading > 10){
       state = RSPD;
     }
+
+  else if (leftSensorReading > 10 && rightSensorReading < 10) {
+
+  }
+  else if (leftSensorReading < 10 && rightSensorReading > 10) {
+    
+  }
   
   switch (state) {
     case RSPD:
