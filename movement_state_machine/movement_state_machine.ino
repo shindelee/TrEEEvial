@@ -92,7 +92,7 @@ void loop() {
     }
 
   else if (leftSensorReading > 10 && rightSensorReading < 10) {
-
+    
   }
   else if (leftSensorReading < 10 && rightSensorReading > 10) {
     
