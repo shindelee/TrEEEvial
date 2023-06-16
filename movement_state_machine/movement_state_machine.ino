@@ -11,38 +11,31 @@
 #include <AccelStepper.h>
 #include <elapsedMillis.h>
 
-// Motor Connections (unipolar motor driver)
-const int In1 = 8;
-const int In2 = 9;
-const int In3 = 10;
-const int In4 = 11;
-// Motor Connections (constant voltage bipolar H-bridge motor driver)
-const int AIn1 = 8;
-const int AIn2 = 9;
-const int BIn1 = 10;
-const int BIn2 = 11;
+#define LEFT_STEP_PIN 33 //A3
+#define LEFT_DIR_PIN 15  //D12
 
+// Define the motor interface pins for the right wheel
+#define RIGHT_STEP_PIN 32 //A4
+#define RIGHT_DIR_PIN 4   //D11
 
-// Left sensor. A3. (A1 for now)
-const int leftSensorPin = 26;
-// Front sensor. 34. (A2 for now)
-const int frontSensorPin = 25;
-// Right sensor. 39. (VN) (A5 for now)
-const int rightSensorPin = 35;
+// Define the steps per revolution for your stepper motors
+#define STEPS_PER_REVOLUTION 200.0
+#define WHEEL_RADIUS 0.0325
 
-// Sebastian's change connected DIRL to D10 (14), and STPL to A5 (35).
-// Motor Connections (constant current, step/direction bipolar motor driver)
-const int dirPinR = 4; //D11
-const int stepPinR = 27; //A0
+//light sensor pins
+const int leftSensorPin = 27; //A0 for now 
+const int frontSensorPin = 26; //A1 for now 
+const int rightSensorPin = 35; //A5
 
-const int dirPinL = 15; //D12
-const int stepPinL = 32; //A4
+float wheelDiameter = 2 * WHEEL_RADIUS; 
+float wheelBase = 0.14;  
+float wheelCircumference = wheelDiameter * PI;
 
 // Creates an instance - Pick the version you want to use and un-comment it. That's the only required change.
 //AccelStepper myStepper(AccelStepper::FULL4WIRE, AIn1, AIn2, BIn1, BIn2);  // works for TB6612 (Bipolar, constant voltage, H-Bridge motor driver)
 //AccelStepper myStepper(AccelStepper::FULL4WIRE, In1, In3, In2, In4);    // works for ULN2003 (Unipolar motor driver)
-AccelStepper myStepperR(AccelStepper::DRIVER, stepPinR, dirPinR);           // works for a4988 (Bipolar, constant current, step/direction driver)
-AccelStepper myStepperL(AccelStepper::DRIVER, stepPinL, dirPinL);          // works for a4988 (Bipolar, constant current, step/direction driver)
+AccelStepper leftStepper(AccelStepper::DRIVER, LEFT_STEP_PIN, LEFT_DIR_PIN);
+AccelStepper rightStepper(AccelStepper::DRIVER, RIGHT_STEP_PIN, RIGHT_DIR_PIN);
 
 // State definitions
 #define RSPD 01
@@ -78,8 +71,8 @@ void loop() {
     float p = 2;
     float weighted_difference = difference * p;
     
-    myStepperR.setSpeed(100.0 + weighted_difference);
-    myStepperL.setSpeed(100.0 - weighted_difference);
+    myStepperR.setSpeed(50.0 + weighted_difference);
+    myStepperL.setSpeed(50.0 - weighted_difference);
     state = RSPD;
     float mSpeedR = myStepperR.speed();
     float mSpeedL = myStepperL.speed();
