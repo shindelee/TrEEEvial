@@ -116,12 +116,3 @@ void loop() {
   */
   delay(3000); // 3 second
 }
-
-/*
-int getWheelRevolutions(int wheel) {
-  myStepper.step(1); // Move the motor by one step
-  leftSteps++ ; // Increment the number of steps
-  int leftWheelRevs = leftSteps / STEPS_PER_REVOLUTION;
-  return leftWheelRevs;
-}
-*/

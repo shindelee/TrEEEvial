@@ -36,7 +36,7 @@ void setup() {
 }
 
 void loop() {
-  leftStepper.setCurrentPosition(0);
+  rightStepper.setCurrentPosition(0);
   leftStepper.setCurrentPosition(0);
   
   leftStepper.setSpeed(-100); // Set constant speed
