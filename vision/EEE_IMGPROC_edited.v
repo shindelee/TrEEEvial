@@ -333,7 +333,7 @@ assign sat = (val - min)* 255 / val;
 wire red_detect, blue_detect, yellow_detect;
 assign red_detect = red[7] && ~blue[7] && ~green[7] && red[6];
 assign yellow_detect = (hue > 10) && (hue < 30) && sat > 150 && sat < 240 && val < 240 && val > 155;
-// assign blue_detect = (hue > 185) && (hue < 260) && sat > 20 && val > 20 && sat < 150 && val < 120;
+// assign blue_detect = (hue > 185) && (hue < 260) && sat > 20 && val > git 20 && sat < 150 && val < 120;
 assign blue_detect = ~red[7] && blue[7] && ~green[7] && blue[6];
 
 // Find boundary of cursor box

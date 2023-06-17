@@ -1,41 +1,33 @@
-/* Get tilt angles on X and Y, and rotation angle on Z
- * Angles are given in degrees
- * 
- * License: MIT
- */
- 
+#include <Adafruit_MPU6050.h>
+#include <Adafruit_Sensor.h>
 #include <Wire.h>
-#include <MPU6050_light.h>
+#include <math.h>
 
-MPU6050 mpu(Wire);
-unsigned long timer = 0;
+MPU6050 mpu;
 
-void setup() {
-  Serial.begin(115200);
-  Wire.begin();
-  
-  byte status = mpu.begin();
-  Serial.print(F("MPU6050 status: "));
-  Serial.println(status);
-  while(status!=0){ } // stop everything if could not connect to MPU6050
-  
-  Serial.println(F("Calculating offsets, do not move MPU6050"));
-  delay(1000);
-  // mpu.upsideDownMounting = true; // uncomment this line if the MPU6050 is mounted upside-down
-  mpu.calcOffsets(); // gyro and accelero
-  Serial.println("Done!\n");
+int16_t gyroX, gyroZ, gyroRate;
+float gyroAngle=0;
+float alpha=0;
+unsigned long currTime, prevTime=0, loopTime;
+
+void setup() {  
+  mpu.initialize();
+  Serial.begin(9600);
 }
 
 void loop() {
-  mpu.update();
+  currTime = millis();
+  loopTime = currTime - prevTime;
+  prevTime = currTime;
   
-  if((millis()-timer)>10){ // print data every 10ms
-  Serial.print("X : ");
-  Serial.print(mpu.getAngleX());
-  Serial.print("\tY : ");
-  Serial.print(mpu.getAngleY()); // theta
-  Serial.print("\tZ : ");
-  Serial.println(mpu.getAngleZ()); // alpha
-  timer = millis();  
-  }
+  gyroX = mpu.getRotationX();
+  gyroRate = map(gyroX, -32768, 32767, -250, 250);
+  gyroAngle = gyroAngle + (float)gyroRate*loopTime/1000;
+
+  gyroZ = mpu.getRotationZ();
+  gyroRate = map(gyroZ, -32768, 32767, -250, 250);
+  alpha = alpha + (float)gyroRate*loopTime/1000;
+  
+  Serial.println(gyroAngle);
+  Serial.println(alpha);
 }
