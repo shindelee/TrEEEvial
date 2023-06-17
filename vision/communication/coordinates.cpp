@@ -27,11 +27,13 @@ void setup()
 
 void loop()
 {
+    byte m1, m2, m3, m4;
+    byte f1, f2, f3, f4;
     if (Serial1.available() >= 4){
-        byte m1 = Serial1.read();    // read the bytes into byte variables 'b1' to 'b4'
-        byte m2 = Serial1.read();  
-        byte m3 = Serial1.read();
-        byte m4 = Serial1.read();
+        m1 = Serial1.read();    // read the bytes into byte variables 'b1' to 'b4'
+        m2 = Serial1.read();  
+        m3 = Serial1.read();
+        m4 = Serial1.read();
 
         uint32_t message;
         message = m1 | (m2 << 8) | (m3 << 16) | (m4 << 24); 
@@ -45,7 +47,7 @@ void loop()
                 uint32_t numbers[14];
                 byte b1, b2, b3, b4;
 
-                for (int i = 0; i < 6; i++)
+                for (int i = 1; i < 6; i++)
                 {
                     b1 = Serial1.read(); // read the bytes into byte variables 'b1' to 'b4'
                     b2 = Serial1.read();
