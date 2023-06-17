@@ -37,8 +37,8 @@ AccelStepper leftStepper(AccelStepper::DRIVER, LEFT_STEP_PIN, LEFT_DIR_PIN);
 AccelStepper rightStepper(AccelStepper::DRIVER, RIGHT_STEP_PIN, RIGHT_DIR_PIN);
 
 // State definitions
-#define TWO_WALLS 1
-#define FRONT_WALL 2
+#define TWO_WALLS 2
+#define FRONT_WALL 1
 #define LEFT_WALL 3
 #define RIGHT_WALL 4
 #define NO_WALL 5
@@ -65,17 +65,17 @@ void setup()
 
 void loop()
 {
-  bool wall_on_left = true;
-  bool wall_on_right = true;
-  if (printTime >= 500)
-  {
-    printTime = 0;
+  bool wall_on_left;
+  bool wall_on_right;
+//  if (printTime >= 200)
+//  {
+//    printTime = 0;
 
     // Take readings from the left and right sensors:
     leftSensorReading = analogRead(leftSensorPin);
     rightSensorReading = analogRead(rightSensorPin);
-    wall_on_left = leftSensorReading > 30;
-    wall_on_right = rightSensorReading > 30;
+    wall_on_left = leftSensorReading > 50;
+    wall_on_right = rightSensorReading > 50;
 
     
 
@@ -112,23 +112,23 @@ void loop()
       rightStepper.setSpeed(50);
     }
     
-  }
+//  }
 
   int frontSensorReading = 0;
   frontSensorReading = analogRead(frontSensorPin);
 
   bool wall_in_front = frontSensorReading > 50;
 
-  Serial.print("left wall: " + String(leftSensorReading) + "  ");
+  Serial.print("left wall: " + String(wall_on_left) + "  ");
   Serial.print("right wall: " + String(rightSensorReading) + "  ");
-  Serial.print("front wall: " + String(frontSensorReading) + "  ");
+  Serial.print("front wall: " + String(wall_in_front) + "  ");
 
   if (wall_in_front)
   {
     state = FRONT_WALL;
     cur_state = "front wall";
   }
-  else if (wall_on_left && wall_on_right)
+  else if (wall_on_left && wall_on_right && !wall_in_front)
   {
     state = TWO_WALLS;
     cur_state = "two wall";
@@ -147,6 +147,11 @@ void loop()
 
   else if (state != previous_state) {
     state = STATE_CHANGE;
+    Serial.println( "state changed");
+    leftStepper.stop();
+    rightStepper.stop();
+    delay(2000);
+    
   }
   else
   {
