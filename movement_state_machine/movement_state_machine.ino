@@ -37,15 +37,22 @@ AccelStepper leftStepper(AccelStepper::DRIVER, LEFT_STEP_PIN, LEFT_DIR_PIN);
 AccelStepper rightStepper(AccelStepper::DRIVER, RIGHT_STEP_PIN, RIGHT_DIR_PIN);
 
 // State definitions
-#define RSPD 01
-#define RJSTR 02
-#define
+#define TWO_WALLS 1
+#define FRONT_WALL 2
+#define LEFT_WALL 3
+#define RIGHT_WALL 4
+#define NO_WALL 5
+#define STATE_CHANGE 6
 
 // State variable
 int state;
+int previous_state;
+String cur_state;
 bool in_node = true; // boolean to tell whether we are in a node
-bool left_wall_info_history[];
-bool right_wall_info_history[];
+//bool left_wall_info_history[3];
+//bool right_wall_info_history[3];
+int leftSensorReading = 0;
+int rightSensorReading = 0;
 
 elapsedMillis printTime;
 
@@ -58,53 +65,53 @@ void setup()
 
 void loop()
 {
-  if (printTime >= 1000)
+  bool wall_on_left = true;
+  bool wall_on_right = true;
+  if (printTime >= 500)
   {
     printTime = 0;
 
     // Take readings from the left and right sensors:
-    int leftSensorReading = 0;
     leftSensorReading = analogRead(leftSensorPin);
-    int rightSensorReading = 0;
     rightSensorReading = analogRead(rightSensorPin);
+    wall_on_left = leftSensorReading > 30;
+    wall_on_right = rightSensorReading > 30;
 
-    bool wall_on_left = leftSensorReading > 15;
-    bool wall_on_right = rightSensorReading > 15;
+    
 
-    // remember wall readings
-    if (sizeof(left_wall_info_history) < 4)
-    { // remember the last 4 consecutive walls
-      left_wall_info_history[sizeof(left_wall_info_history)] = wall_on_left;
-    }
-    else
-    {
-      left_wall_info[3] = left_wall_info[2];
-      left_wall_info[2] = left_wall_info[1];
-      left_wall_info[1] = left_wall_info[0];
-      left_wall_info[0] = wall_on_left;
-    }
-
-    if (sizeof(right_wall_info_history) < 4)
-    { // remember the last 4 consecutive walls
-      right_wall_info_history[sizeof(right_wall_info_history)] = wall_on_right;
-    }
-    else
-    {
-      right_wall_info[3] = right_wall_info[2];
-      right_wall_info[2] = right_wall_info[1];
-      right_wall_info[1] = right_wall_info[0];
-      right_wall_info[0] = wall_on_right;
-    }
-
-    if (state == RSPD)
+    if (state == TWO_WALLS)
     {
       float difference = leftSensorReading - rightSensorReading;
       float p = 2;
       float weighted_difference = difference * p;
 
-      leftStepper.setSpeed(50.0 + weighted_difference);
+      leftStepper.setSpeed(-(50.0 + weighted_difference));
       rightStepper.setSpeed(50.0 - weighted_difference);
     }
+
+    else if (state == LEFT_WALL) {
+      float difference = leftSensorReading - 80;
+      float p = 2;
+      float weighted_difference = difference * p;
+
+      leftStepper.setSpeed(-(50 + weighted_difference));
+      rightStepper.setSpeed(50 - weighted_difference);
+    }
+
+    else if (state == RIGHT_WALL) {
+      float difference = 80 - rightSensorReading;
+      float p = 1;
+      float weighted_difference = difference * p;
+
+      leftStepper.setSpeed(-(50 + weighted_difference));
+      rightStepper.setSpeed(50 - weighted_difference);
+    }
+
+    else if (state == NO_WALL) { //proceed with caution!
+      leftStepper.setSpeed(-50);
+      rightStepper.setSpeed(50);
+    }
+    
   }
 
   int frontSensorReading = 0;
@@ -112,31 +119,77 @@ void loop()
 
   bool wall_in_front = frontSensorReading > 50;
 
+  Serial.print("left wall: " + String(leftSensorReading) + "  ");
+  Serial.print("right wall: " + String(rightSensorReading) + "  ");
+  Serial.print("front wall: " + String(frontSensorReading) + "  ");
+
   if (wall_in_front)
   {
-    state = RJSTR;
+    state = FRONT_WALL;
+    cur_state = "front wall";
   }
   else if (wall_on_left && wall_on_right)
   {
-    state = RSPD;
+    state = TWO_WALLS;
+    cur_state = "two wall";
   }
 
   else if (wall_on_left && !wall_on_right)
   {
+    state = LEFT_WALL;
+    cur_state = "left wall";
   }
   else if (!wall_on_left && wall_on_right)
   {
+    state = RIGHT_WALL;
+    cur_state = "right wall";
   }
+
+  else if (state != previous_state) {
+    state = STATE_CHANGE;
+  }
+  else
+  {
+    state = NO_WALL;
+    cur_state = "no wall";
+  }
+
+  previous_state = state;
+
+  Serial.println("state = " + cur_state);
 
   switch (state)
   {
-  case RSPD:
-    myStepperR.runSpeed();
-    myStepperL.runSpeed();
+  case TWO_WALLS:
+    leftStepper.runSpeed();
+    rightStepper.runSpeed();
     break;
-  case RJSTR:
-    myStepperR.stop();
-    myStepperL.stop();
+  case FRONT_WALL:
+    leftStepper.stop();
+    rightStepper.stop();
     break;
+
+  case LEFT_WALL:
+    leftStepper.runSpeed();
+    rightStepper.runSpeed();
+    break;
+
+  case RIGHT_WALL:
+    leftStepper.runSpeed();
+    rightStepper.runSpeed();
+    break;
+
+  case NO_WALL:
+    leftStepper.runSpeed();
+    rightStepper.runSpeed();
+    break;
+
+  case STATE_CHANGE:
+    leftStepper.stop();
+    rightStepper.stop();
+    delay(5000);
+    break;
+    
+  
   }
 }

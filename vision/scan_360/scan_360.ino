@@ -3,7 +3,7 @@
 #define RX_PIN 16
 #define TX_PIN 17
 
-#define LEFT_STEP_PIN 27 //A4
+#define LEFT_STEP_PIN 32 //A4, does not work
 #define LEFT_DIR_PIN 15 //D12
 
 #define RIGHT_STEP_PIN 33 //A3
