@@ -101,21 +101,3 @@ void loop()
     }
 }
 
-/*
-void loop() {
-
-    char hexString[] = "ABCD";  // The string of hexadecimal digits
-    char *end;
-    long number = strtol(hexString, &end, 16);  // Convert the string to a long integer
-
-    // To extract bits 10 through 0, we use a bitwise AND with a mask where these bits are 1 and the others are 0.
-    uint32_t bits_10_0 = number & 0x7FF;
-    // output: 210
-
-    // To extract bits 27 through 16, we again use a bitwise AND, then shift the result right 16 places.
-    uint32_t bits_27_16 = (number & 0x0FFF0000) >> 16;
-    // output: 49
-
-    Serial.println(number);
-}
-*/
