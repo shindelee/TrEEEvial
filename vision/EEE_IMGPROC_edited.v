@@ -292,11 +292,11 @@ assign blue_detect = ( hue > 80 && hue < 156) && (saturation > 16 && saturation 
 */
 
 // RGB -> HSV conversion:
-// H: 0 - 360, S: 0 - 1, V: 0 - 1
+// H: 0 - 360, S: 0 - 255, V: 0 - 255
 
 
 wire [7:0] r, g, b;
-wire [7:0] cmax, cmin, delta, sat, val;
+wire [7:0] cmax, cmin, delta, sat, val, min;
 wire [8:0] hue_temp, hue;
 
 
@@ -310,25 +310,31 @@ assign b = blue >> 8;
 assign g = green >> 8;
 */
 
+assign min = (red < green)? ((red<blue) ? red[7:0] : blue[7:0]) : (green < blue) ? green [7:0] : blue[7:0];
 assign cmax = ((r >= g) & (r >= b)) ? r : ((g >= b) & (g >= r)) ? g : b;
 assign cmin = ((r <= g) & (r <= b)) ? r : ((g <= b) & (g <= r)) ? g : b;
 assign delta = cmax - cmin;
 
+/*
 assign hue_temp = (delta == 0) ? 0 : (cmax == r) ? (60 * ((g - b) / delta))
                                    : (cmax == g) ? (120 + 60 * ((b - r) / delta))
                                    : (240 + 60 * ((r - g) / delta));
 
 assign hue = (hue_temp < 0) ? hue_temp + 360 : hue_temp;
-assign sat = (cmax == 0) ? 0 : delta / cmax;
-assign val = cmax; 
+*/
+assign val = (red > green) ? ((red > blue) ? red[7:0] : blue[7:0]) : (green > blue) ? green[7:0] : blue[7:0];
+assign hue = (red == green && red == blue) ? 0 :((val != red)? (val != green) ? (((240*((val - min))+ (60* (red - green)))/(val-min))>>1):
+                ((120*(val-min)+60*(blue - red))/(val - min)>>1): 
+                (blue < green) ? ((60*(green - blue)/(val - min))>>1): (((360*(val-min) +(60*(green - blue)))/(val - min))>>1));
+
+assign sat = (val - min)* 255 / val;
 
 // HSV
-wire red_detect, blue_detect, yellow_detect, white_detect;
+wire red_detect, blue_detect, yellow_detect;
 assign red_detect = red[7] && ~blue[7] && ~green[7] && red[6];
-assign yellow_detect = (hue > 0) && (hue < 180) && sat > 8/10 && val > 7/10;
-assign blue_detect = (hue > 185) && (hue < 260) && sat > 6/10 && val > 7/10;
-assign white_detect = (red[7:1] == (7'b1111111)) && (blue[7:1] == (7'b1111111)) && (green[7:1] == (7'b1111111));
- 
+assign yellow_detect = (hue > 10) && (hue < 30) && sat > 150 && sat < 240 && val < 240 && val > 155;
+// assign blue_detect = (hue > 185) && (hue < 260) && sat > 20 && val > 20 && sat < 150 && val < 120;
+assign blue_detect = ~red[7] && blue[7] && ~green[7] && blue[6];
 
 // Find boundary of cursor box
 
@@ -366,9 +372,9 @@ assign bb_active_yellow = ((x == left_yellow | x == right_yellow) & (y <= bottom
 // assign bb_active_yellow = (x == left_yellow) | (x == right_yellow) | (y == top_yellow) | (y == bottom_yellow);
 
 assign new_image = bb_active_red ? {8'hff, 8'h0, 8'h0} 
-				 : bb_active_blue ? {8'h0, 8'h0, 8'hff} 
-				 : bb_active_yellow ? {8'hff, 8'hff, 8'h0} 
-				 : detectedAreaRGB;
+						: bb_active_blue ? {8'h0, 8'h0, 8'hff} 
+						: bb_active_yellow ? {8'hff, 8'hff, 8'h0} 
+						: detectedAreaRGB;
 
 // Switch output pixels depending on mode switch
 // Don't modify the start-of-packet word - it's a packet discriptor
@@ -397,7 +403,7 @@ always@(posedge clk) begin
 	end
 end
 
-wire centre = x > 240 && x < 360 && y < 380 && y > 230;
+wire centre = x > 260 && x < 380 && y < 300 && y > 180;
 
 // Find first and last red pixels
 

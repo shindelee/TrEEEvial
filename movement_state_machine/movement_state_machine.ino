@@ -34,18 +34,19 @@ float wheelCircumference = wheelDiameter * PI;
 //keep track of current wall
 
 
-// Creates an instance - Pick the version you want to use and un-comment it. That's the only required change.
-//AccelStepper myStepper(AccelStepper::FULL4WIRE, AIn1, AIn2, BIn1, BIn2);  // works for TB6612 (Bipolar, constant voltage, H-Bridge motor driver)
-//AccelStepper myStepper(AccelStepper::FULL4WIRE, In1, In3, In2, In4);    // works for ULN2003 (Unipolar motor driver)
 AccelStepper leftStepper(AccelStepper::DRIVER, LEFT_STEP_PIN, LEFT_DIR_PIN);
 AccelStepper rightStepper(AccelStepper::DRIVER, RIGHT_STEP_PIN, RIGHT_DIR_PIN);
 
 // State definitions
 #define RSPD 01
 #define RJSTR 02
+#define 
+
 // State variable
 int state;
 bool in_node = true; //boolean to tell whether we are in a node 
+bool left_wall_info_history[];
+bool right_wall_info_history[];
 
 elapsedMillis printTime;
 
@@ -66,35 +67,58 @@ void loop() {
     int rightSensorReading = 0;
     rightSensorReading = analogRead(rightSensorPin);
 
+    bool wall_on_left = leftSensorReading >15;
+    bool wall_on_right = rightSensorReading > 15;
+  
 
-    //Serial.println(rightSensorReading);
+    //remember wall readings
+    if(sizeof(left_wall_info_history) < 4 ) { //remember the last 4 consecutive walls 
+      left_wall_info_history[sizeof(left_wall_info_history)] = wall_on_left;
+    }
+    else {
+      left_wall_info[3] = left_wall_info[2];
+      left_wall_info[2] = left_wall_info[1];
+      left_wall_info[1] = left_wall_info[0];
+      left_wall_info[0] = wall_on_left;
+    }
+  
+    if(sizeof(right_wall_info_history) < 4 ) { //remember the last 4 consecutive walls 
+      right_wall_info_history[sizeof(right_wall_info_history)] = wall_on_right;
+    }
+    else {
+      right_wall_info[3] = right_wall_info[2];
+      right_wall_info[2] = right_wall_info[1];
+      right_wall_info[1] = right_wall_info[0];
+      right_wall_info[0] = wall_on_right;
+    }
+  
+    if (state ==RSPD) {
     float difference = leftSensorReading - rightSensorReading;
     float p = 2;
     float weighted_difference = difference * p;
     
     leftStepper.setSpeed(50.0 + weighted_difference);
     rightStepper.setSpeed(50.0 - weighted_difference);
-    state = RSPD;
-    float mSpeedR = rightStepper.speed();
-    float mSpeedL = leftStepper.speed();
-    //Serial.print(mSpeedR);
-    //Serial.print("  ");
-    //Serial.println(myStepperR.currentPosition());
+    }
   }
 
   int frontSensorReading = 0;
   frontSensorReading = analogRead(frontSensorPin);
-  if(frontSensorReading > 30){
+
+  bool wall_in_front = frontSensorReading > 50;
+  
+  
+  if(wall_in_front){
       state = RJSTR;
     }
-  else if(leftSensorReading > 10 && rightSensorReading > 10){
+  else if(wall_on_left && wall_on_right){
       state = RSPD;
     }
 
-  else if (leftSensorReading > 10 && rightSensorReading < 10) {
-
+  else if (wall_on_left && !wall_on_right) {
+      
   }
-  else if (leftSensorReading < 10 && rightSensorReading > 10) {
+  else if (!wall_on_left && wall_on_right) {
     
   }
   
