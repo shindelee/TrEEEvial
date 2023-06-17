@@ -27,51 +27,60 @@ void setup()
 
 void loop()
 {
-    if (Serial1.available() >= 28)
-    {
-        uint32_t temp;
-        uint32_t hexadeci[7];
-        char terminal[7][9];
-        uint32_t numbers[14];
-        byte b1, b2, b3, b4;
+    if (Serial1.available() >= 4){
+        byte m1, m2, m3, m4;
 
-        for (int i = 0; i < 7; i++)
-        {
-            b1 = Serial1.read(); // read the bytes into byte variables 'b1' to 'b4'
-            b2 = Serial1.read();
-            b3 = Serial1.read();
-            b4 = Serial1.read();
+        byte m1 = Serial1.read();    // read the bytes into byte variables 'b1' to 'b4'
+        byte m2 = Serial1.read();  
+        byte m3 = Serial1.read();
+        byte m4 = Serial1.read();
 
-            hexadeci[i] = b1 | (b2 << 8) | (b3 << 16) | (b4 << 24); // Combine the bytes into a single 32-bit integer
+        if(m1 == 0 && m2 == 82 && m3 == 66 && m4 == 66){
+            if (Serial1.available() >= 24)
+            {
+                uint32_t temp;
+                uint32_t hexadeci[7];
+                char terminal[7][9];
+                uint32_t numbers[14];
+                byte b1, b2, b3, b4;
 
-            // char buffer[9];  // Create a character buffer to hold the hexadecimal representation
-            sprintf(terminal[i], "%08X", hexadeci[i]); // Convert the long value to hexadecimal
+                for (int i = 0; i < 6; i++)
+                {
+                    b1 = Serial1.read(); // read the bytes into byte variables 'b1' to 'b4'
+                    b2 = Serial1.read();
+                    b3 = Serial1.read();
+                    b4 = Serial1.read();
 
-            // Serial.print("Hexadecimal value: 0x");
-            // Serial.println(buffer);
+                    hexadeci[i] = b1 | (b2 << 8) | (b3 << 16) | (b4 << 24); // Combine the bytes into a single 32-bit integer
 
-            // To extract bits 10 through 0, we use a bitwise AND with a mask where these bits are 1 and the others are 0.
-            numbers[2 * i] = hexadeci[i] & 0x7FF;
+                    // char buffer[9];  // Create a character buffer to hold the hexadecimal representation
+                    sprintf(terminal[i], "%08X", hexadeci[i]); // Convert the long value to hexadecimal
 
-            // To extract bits 27 through 16, we again use a bitwise AND, then shift the result right 16 places.
-            numbers[2 * i + 1] = (hexadeci[i] & 0x0FFF0000) >> 16;
-        }
+                    // Serial.print("Hexadecimal value: 0x");
+                    // Serial.println(buffer);
 
-        for (int i = 0; i < 7; i++)
-        {
-            Serial.print(terminal[i]);
-            Serial.print(" ");
-        }
+                    // To extract bits 10 through 0, we use a bitwise AND with a mask where these bits are 1 and the others are 0.
+                    numbers[2 * i] = hexadeci[i] & 0x7FF;
 
-        Serial.print("\n");
+                    // To extract bits 27 through 16, we again use a bitwise AND, then shift the result right 16 places.
+                    numbers[2 * i + 1] = (hexadeci[i] & 0x0FFF0000) >> 16;
+                }
 
-        for (int j = 0; j < 14; j++)
-        {
-            Serial.print(numbers[j]);
-            Serial.print(" ");
-        }
+                for (int i = 0; i < 6; i++)
+                {
+                    Serial.print(terminal[i]);
+                    Serial.print(" ");
+                }
 
-        delay(5000);
+                Serial.print("\n");
+
+                for (int j = 0; j < 12; j++)
+                {
+                    Serial.print(numbers[j]);
+                    Serial.print(" ");
+                }
+
+                delay(5000);
 
         /*
         // Reference Purposes:
@@ -89,6 +98,9 @@ void loop()
         yellow_y_max = numbers[13];
         */
     }
+        }
+    }
+    
 }
 
 /*
