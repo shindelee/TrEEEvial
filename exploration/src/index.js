@@ -64,7 +64,20 @@ import * as http from 'http';
                 console.log("received message!!");
                 console.log("x = " + json.x);
                 console.log("y = " + json.y);
-                // console.log("front wall = " + json.f);
+                console.log("red_x_min = " + json.red_x_min);
+                console.log("red_x_max = " + json.red_x_max);
+                console.log("red_y_min = " + json.red_y_min);
+                console.log("red_y_max = " + json.red_y_max);
+                console.log("blue_x_min = " + json.blue_x_min);
+                console.log("blue_x_max = " + json.blue_x_max);
+                console.log("blue_y_min = " + json.blue_y_min);
+                console.log("blue_y_max = " + json.blue_y_max);
+                console.log("yellow_x_min = " + json.yellow_x_min);
+                console.log("yellow_x_max = " + json.yellow_x_max);
+                console.log("yellow_y_min = " + json.yellow_y_min);
+                console.log("yellow_y_max = " + json.yellow_y_max);
+
+                
                 //  console.log("expecting sequence number: " );
                 //  if (seq_no == json.seq_no) {
                     
