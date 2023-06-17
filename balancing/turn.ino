@@ -1,12 +1,12 @@
 #include <AccelStepper.h>
 
 // Define the motor interface pins for the left wheel
-#define LEFT_STEP_PIN 14
-#define LEFT_DIR_PIN 12
+#define LEFT_STEP_PIN 32
+#define LEFT_DIR_PIN 15
 
 // Define the motor interface pins for the right wheel
-#define RIGHT_STEP_PIN 26
-#define RIGHT_DIR_PIN 27
+#define RIGHT_STEP_PIN 33
+#define RIGHT_DIR_PIN 4
 
 // Define the steps per revolution for your stepper motors
 #define STEPS_PER_REVOLUTION 200.0
@@ -36,8 +36,9 @@ void setup() {
 }
 
 void loop() {
-  static long prevWheelSteps = 0;
-  Serial.println(prevWheelSteps);
+  static long prevWheelStepsL = 0;
+  static long prevWheelStepsR = 0;
+  Serial.println(prevWheelStepsL);
   
   // 90 degree - right
 
@@ -70,7 +71,7 @@ void loop() {
     Serial.println("left stepper dist to go: " + String(leftStepper.distanceToGo()));
   }
   */
-  /*
+  
   // in - place 360 
   
   rightStepper.move(432);
@@ -81,8 +82,8 @@ void loop() {
     Serial.print("right stepper dist to go: " + String(rightStepper.distanceToGo()));
     Serial.println("left stepper dist to go: " + String(leftStepper.distanceToGo()));
   }
-  */
   
+  /*
   // use wheel revolution to calculate angle turned (heading angle)
   // left
   long leftWheelSteps = leftStepper.currentPosition() - prevWheelStepsL; // Get the current position of the left stepper in steps
@@ -93,11 +94,11 @@ void loop() {
   Serial.println(leftWheelRevs);
   float distanceTravelledL = leftWheelRevs * wheelCircumference;
   Serial.println(distanceTravelledL);
-  float angleTurnedRadiansL = distanceTravelled / wheelBase;
+  float angleTurnedRadiansL = distanceTravelledL / wheelBase;
   Serial.println(angleTurnedRadiansL);
-  float angleTurnedDegreesL = angleTurnedRadians * (180.0 / PI);
+  float angleTurnedDegreesL = angleTurnedRadiansL * (180.0 / PI);
 
-  Serial.println(angleTurnedDegrees); 
+  Serial.println(angleTurnedDegreesL); 
   /*
   // right
   long rightWheelSteps = rightStepper.currentPosition() - prevWheelStepsR; // Get the current position of the left stepper in steps
@@ -112,7 +113,16 @@ void loop() {
   Serial.println(angleTurnedRadiansR);
   float angleTurnedDegreesR = angleTurnedRadiansR * (180.0 / PI);
 
-  Serial.println(angleTurnedDegrees); 
+  Serial.println(angleTurnedDegreesR); 
   */
   delay(3000); // 3 second
 }
+
+/*
+int getWheelRevolutions(int wheel) {
+  myStepper.step(1); // Move the motor by one step
+  leftSteps++ ; // Increment the number of steps
+  int leftWheelRevs = leftSteps / STEPS_PER_REVOLUTION;
+  return leftWheelRevs;
+}
+*/
