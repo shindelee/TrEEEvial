@@ -28,14 +28,15 @@ void setup()
 void loop()
 {
     if (Serial1.available() >= 4){
-        byte m1, m2, m3, m4;
-
         byte m1 = Serial1.read();    // read the bytes into byte variables 'b1' to 'b4'
         byte m2 = Serial1.read();  
         byte m3 = Serial1.read();
         byte m4 = Serial1.read();
 
-        if(m1 == 0 && m2 == 82 && m3 == 66 && m4 == 66){
+        uint32_t message;
+        message = m1 | (m2 << 8) | (m3 << 16) | (m4 << 24); 
+
+        if(message == 5390914){
             if (Serial1.available() >= 24)
             {
                 uint32_t temp;
@@ -80,27 +81,24 @@ void loop()
                     Serial.print(" ");
                 }
 
-                delay(5000);
-
-        /*
-        // Reference Purposes:
-        red_x_min = numbers[2];
-        red_y_min = numbers[3];
-        red_x_max = numbers[4];
-        red_y_max = numbers[5];
-        blue_x_min = numbers[6];
-        blue_y_min = numbers[7];
-        blue_x_max = numbers[8];
-        blue_y_max = numbers[9];
-        yellow_x_min = numbers[10];
-        yellow_y_min = numbers[11];
-        yellow_x_max = numbers[12];
-        yellow_y_max = numbers[13];
-        */
-    }
+            /*
+            // Reference Purposes:
+            red_x_min = numbers[2];
+            red_y_min = numbers[3];
+            red_x_max = numbers[4];
+            red_y_max = numbers[5];
+            blue_x_min = numbers[6];
+            blue_y_min = numbers[7];
+            blue_x_max = numbers[8];
+            blue_y_max = numbers[9];
+            yellow_x_min = numbers[10];
+            yellow_y_min = numbers[11];
+            yellow_x_max = numbers[12];
+            yellow_y_max = numbers[13];
+            */
+            }
         }
     }
-    
 }
 
 /*
