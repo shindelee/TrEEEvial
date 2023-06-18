@@ -46,7 +46,7 @@ AccelStepper rightStepper(AccelStepper::DRIVER, RIGHT_STEP_PIN, RIGHT_DIR_PIN);
 
 // State variable
 int state;
-int previous_state;
+String previous_state;
 String cur_state;
 bool in_node = true; // boolean to tell whether we are in a node
 //bool left_wall_info_history[3];
@@ -67,9 +67,6 @@ void loop()
 {
   bool wall_on_left;
   bool wall_on_right;
-//  if (printTime >= 200)
-//  {
-//    printTime = 0;
 
     // Take readings from the left and right sensors:
     leftSensorReading = analogRead(leftSensorPin);
@@ -112,7 +109,6 @@ void loop()
       rightStepper.setSpeed(50);
     }
     
-//  }
 
   int frontSensorReading = 0;
   frontSensorReading = analogRead(frontSensorPin);
@@ -144,22 +140,22 @@ void loop()
     state = RIGHT_WALL;
     cur_state = "right wall";
   }
-
-  else if (state != previous_state) {
-    state = STATE_CHANGE;
-    Serial.println( "state changed");
-    leftStepper.stop();
-    rightStepper.stop();
-    delay(2000);
-    
-  }
   else
   {
     state = NO_WALL;
     cur_state = "no wall";
   }
 
-  previous_state = state;
+  Serial.print("state before loop = " + cur_state + "   ");
+  Serial.println("previous state before loop = " + previous_state);
+
+  if (cur_state != previous_state) {
+    leftStepper.stop();
+    rightStepper.stop();
+    delay(5000);
+  }
+
+  previous_state = cur_state;
 
   Serial.println("state = " + cur_state);
 
@@ -187,14 +183,6 @@ void loop()
   case NO_WALL:
     leftStepper.runSpeed();
     rightStepper.runSpeed();
-    break;
-
-  case STATE_CHANGE:
-    leftStepper.stop();
-    rightStepper.stop();
-    delay(5000);
-    break;
-    
-  
+    break;  
   }
 }
