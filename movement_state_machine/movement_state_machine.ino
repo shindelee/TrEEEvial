@@ -63,45 +63,32 @@ void set_wall_states() {
     {
       state = FRONT_WALL;
       cur_state = "front wall";
+      leftStepper.setSpeed(0);
+      rightStepper.setSpeed(0);
     }
     else if (wall_on_left && wall_on_right && !wall_in_front)
     {
       state = TWO_WALLS;
       cur_state = "two wall";
+      set_speed(leftSensorReading,rightSensorReading);
     }
   
     else if (wall_on_left && !wall_on_right)
     {
       state = LEFT_WALL;
       cur_state = "left wall";
+      set_speed(leftSensorReading,50);
     }
     else if (!wall_on_left && wall_on_right)
     {
       state = RIGHT_WALL;
       cur_state = "right wall";
+      set_speed(50,rightSensorReading);
     }
     else
     {
       state = NO_WALL;
       cur_state = "no wall";
-    }
-}
-
-void set_motor_speeds() {
-
-if (state == TWO_WALLS){
-      set_speed(leftSensorReading,rightSensorReading);
-    }
-
-    else if (state == LEFT_WALL) {
-      set_speed(leftSensorReading,50);
-    }
-
-    else if (state == RIGHT_WALL) {
-      set_speed(50,rightSensorReading);
-    }
-
-    else if (state == NO_WALL) { //proceed with caution!
       leftStepper.setSpeed(-50);
       rightStepper.setSpeed(50);
     }
@@ -116,11 +103,10 @@ void read_sensors_and_set_speed() {
     wall_on_right = rightSensorReading > 50;
 
     set_wall_states();
-    set_motor_speeds();
-    
-    Serial.print("left wall: " + String(wall_on_left) + "  ");
+        
+    Serial.print("left wall: " + String(leftSensorReading) + "  ");
     Serial.print("right wall: " + String(rightSensorReading) + "  ");
-    Serial.print("front wall: " + String(wall_in_front) + "  ");
+    Serial.print("front wall: " + String(frontSensorReading) + "  ");
 }
 
 
@@ -136,13 +122,15 @@ void setup()
 
 void loop()
 {
-  int time_since_last_reading_left = abs(leftStepper.currentPosition() - last_sensor_reading_left);
-  int time_since_last_reading_right = abs(rightStepper.currentPosition() - last_sensor_reading_right);
-  Serial.println ("time since last reading left = " + String(time_since_last_reading_left));
-  Serial.println ("time since last reading right = " + String(time_since_last_reading_right));
-  if (time_since_last_reading_left >=20 && time_since_last_reading_right >=20) {
+  int time_since_reading_left = abs(leftStepper.currentPosition() - last_sensor_reading_left);
+  int time_since_reading_right = abs(rightStepper.currentPosition() - last_sensor_reading_right);
+  Serial.print ("time since left = " + String(time_since_reading_left) + "   ");
+  Serial.println ("time since right = " + String(time_since_reading_right));
+  if (state == FRONT_WALL || (time_since_reading_left >=40 || time_since_reading_right >=40))
+  {
     // Take readings from the sensors and set states
     read_sensors_and_set_speed();
+    Serial.println("state = " + cur_state);
     if (cur_state != previous_state) {
       leftStepper.stop();
       rightStepper.stop();
@@ -152,32 +140,11 @@ void loop()
   
   }
 
-  Serial.println("state = " + cur_state);
+//  Serial.println("state = " + cur_state);
 
-  switch (state)
-  {
-  case TWO_WALLS:
-    leftStepper.runSpeed();
-    rightStepper.runSpeed();
-    break;
-  case FRONT_WALL:
-    leftStepper.stop();
-    rightStepper.stop();
-    break;
+  //run the stepper
+  leftStepper.runSpeed();
+  rightStepper.runSpeed();
 
-  case LEFT_WALL:
-    leftStepper.runSpeed();
-    rightStepper.runSpeed();
-    break;
 
-  case RIGHT_WALL:
-    leftStepper.runSpeed();
-    rightStepper.runSpeed();
-    break;
-
-  case NO_WALL:
-    leftStepper.runSpeed();
-    rightStepper.runSpeed();
-    break;  
-  }
 }
