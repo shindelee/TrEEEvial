@@ -1,15 +1,5 @@
-/*
-   Uno sketch to drive a stepper motor using the AccelStepper library.
-   Works with a ULN-2003 unipolar stepper driver, or a bipolar, constant voltage motor driver
-   such as the L298 or TB6612, or a step/direction constant current driver like the a4988.
-   Time to try some experiments!
-   10/21/21  --jkl  jlarson@pacifier.com
-   2. Try accelerating to a speed, using run, and then switch to runSpeed to keep going.
-      Can try positive and negative targets.
-*/
-// Include the AccelStepper Library
 #include <AccelStepper.h>
-#include <elapsedMillis.h>
+//#include <elapsedMillis.h>
 
 #define LEFT_STEP_PIN 33 // A3
 #define LEFT_DIR_PIN 15  // D12
@@ -44,118 +34,123 @@ AccelStepper rightStepper(AccelStepper::DRIVER, RIGHT_STEP_PIN, RIGHT_DIR_PIN);
 #define NO_WALL 5
 #define STATE_CHANGE 6
 
-// State variable
+// State variables
 int state;
 String previous_state;
 String cur_state;
 bool in_node = true; // boolean to tell whether we are in a node
-//bool left_wall_info_history[3];
-//bool right_wall_info_history[3];
+int frontSensorReading = 0;
 int leftSensorReading = 0;
 int rightSensorReading = 0;
+int last_sensor_reading_left = 0;
+int last_sensor_reading_right = 0;
+bool wall_on_left;
+bool wall_on_right;
+bool wall_in_front;
 
-elapsedMillis printTime;
+//functions
+void set_speed(int left_sensor_reading, int right_sensor_reading) {
+  float difference = leftSensorReading - rightSensorReading;
+  float p = 1;
+  float weighted_difference = difference * p;
 
-void setup()
-{
-  Serial.begin(115200);
-  leftStepper.setMaxSpeed(300.0);  // must be equal to or greater than desired speed.
-  rightStepper.setMaxSpeed(300.0); // must be equal to or greater than desired speed.
+  leftStepper.setSpeed(-(50.0 + weighted_difference));
+  rightStepper.setSpeed(50.0 - weighted_difference);
 }
 
-void loop()
-{
-  bool wall_on_left;
-  bool wall_on_right;
-
-    // Take readings from the left and right sensors:
-    leftSensorReading = analogRead(leftSensorPin);
-    rightSensorReading = analogRead(rightSensorPin);
-    wall_on_left = leftSensorReading > 50;
-    wall_on_right = rightSensorReading > 50;
-
-    
-
-    if (state == TWO_WALLS)
+void set_wall_states() {
+  if (wall_in_front)
     {
-      float difference = leftSensorReading - rightSensorReading;
-      float p = 2;
-      float weighted_difference = difference * p;
+      state = FRONT_WALL;
+      cur_state = "front wall";
+    }
+    else if (wall_on_left && wall_on_right && !wall_in_front)
+    {
+      state = TWO_WALLS;
+      cur_state = "two wall";
+    }
+  
+    else if (wall_on_left && !wall_on_right)
+    {
+      state = LEFT_WALL;
+      cur_state = "left wall";
+    }
+    else if (!wall_on_left && wall_on_right)
+    {
+      state = RIGHT_WALL;
+      cur_state = "right wall";
+    }
+    else
+    {
+      state = NO_WALL;
+      cur_state = "no wall";
+    }
+}
 
-      leftStepper.setSpeed(-(50.0 + weighted_difference));
-      rightStepper.setSpeed(50.0 - weighted_difference);
+void set_motor_speeds() {
+
+if (state == TWO_WALLS){
+      set_speed(leftSensorReading,rightSensorReading);
     }
 
     else if (state == LEFT_WALL) {
-      float difference = leftSensorReading - 80;
-      float p = 2;
-      float weighted_difference = difference * p;
-
-      leftStepper.setSpeed(-(50 + weighted_difference));
-      rightStepper.setSpeed(50 - weighted_difference);
+      set_speed(leftSensorReading,50);
     }
 
     else if (state == RIGHT_WALL) {
-      float difference = 80 - rightSensorReading;
-      float p = 1;
-      float weighted_difference = difference * p;
-
-      leftStepper.setSpeed(-(50 + weighted_difference));
-      rightStepper.setSpeed(50 - weighted_difference);
+      set_speed(50,rightSensorReading);
     }
 
     else if (state == NO_WALL) { //proceed with caution!
       leftStepper.setSpeed(-50);
       rightStepper.setSpeed(50);
     }
+}
+
+void read_sensors_and_set_speed() {
+    leftSensorReading = analogRead(leftSensorPin);
+    rightSensorReading = analogRead(rightSensorPin);
+    frontSensorReading = analogRead(frontSensorPin);
+    wall_in_front = frontSensorReading > 50;
+    wall_on_left = leftSensorReading > 50;
+    wall_on_right = rightSensorReading > 50;
+
+    set_wall_states();
+    set_motor_speeds();
     
+    Serial.print("left wall: " + String(wall_on_left) + "  ");
+    Serial.print("right wall: " + String(rightSensorReading) + "  ");
+    Serial.print("front wall: " + String(wall_in_front) + "  ");
+}
 
-  int frontSensorReading = 0;
-  frontSensorReading = analogRead(frontSensorPin);
 
-  bool wall_in_front = frontSensorReading > 50;
-
-  Serial.print("left wall: " + String(wall_on_left) + "  ");
-  Serial.print("right wall: " + String(rightSensorReading) + "  ");
-  Serial.print("front wall: " + String(wall_in_front) + "  ");
-
-  if (wall_in_front)
-  {
-    state = FRONT_WALL;
-    cur_state = "front wall";
-  }
-  else if (wall_on_left && wall_on_right && !wall_in_front)
-  {
-    state = TWO_WALLS;
-    cur_state = "two wall";
-  }
-
-  else if (wall_on_left && !wall_on_right)
-  {
-    state = LEFT_WALL;
-    cur_state = "left wall";
-  }
-  else if (!wall_on_left && wall_on_right)
-  {
-    state = RIGHT_WALL;
-    cur_state = "right wall";
-  }
-  else
-  {
-    state = NO_WALL;
-    cur_state = "no wall";
-  }
-
-  Serial.print("state before loop = " + cur_state + "   ");
-  Serial.println("previous state before loop = " + previous_state);
-
-  if (cur_state != previous_state) {
-    leftStepper.stop();
-    rightStepper.stop();
-    delay(5000);
-  }
-
+void setup()
+{
+  Serial.begin(115200);
+  leftStepper.setMaxSpeed(300.0);  // must be equal to or greater than desired speed.
+  rightStepper.setMaxSpeed(300.0); // must be equal to or greater than desired speed.
+  read_sensors_and_set_speed();
   previous_state = cur_state;
+}
+
+
+void loop()
+{
+  int time_since_last_reading_left = abs(leftStepper.currentPosition() - last_sensor_reading_left);
+  int time_since_last_reading_right = abs(rightStepper.currentPosition() - last_sensor_reading_right);
+  Serial.println ("time since last reading left = " + String(time_since_last_reading_left));
+  Serial.println ("time since last reading right = " + String(time_since_last_reading_right));
+  if (time_since_last_reading_left >=20 && time_since_last_reading_right >=20) {
+    // Take readings from the sensors and set states
+    read_sensors_and_set_speed();
+    if (cur_state != previous_state) {
+      leftStepper.stop();
+      rightStepper.stop();
+      delay(5000);
+    }
+    previous_state = cur_state;
+  
+  }
 
   Serial.println("state = " + cur_state);
 
