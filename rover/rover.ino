@@ -12,8 +12,8 @@ const char* ssid     = "iPhone";
 const char* password = "12345678";
 char path[] = "/";
 char host[] = "172.20.10.4:5000";
-WebSocketClient webSocketClient;
-WiFiClient client;
+WebSocketClient *webSocketClient = new WebSocketClient();
+WiFiClient *client = new WiFiClient();
 
 
 //wall information for message to be sent to EC2
@@ -50,6 +50,28 @@ const float wheel_circumference = wheel_diameter * PI;
 AccelStepper leftStepper(AccelStepper::DRIVER, LEFT_STEP_PIN, LEFT_DIR_PIN);
 AccelStepper rightStepper(AccelStepper::DRIVER, RIGHT_STEP_PIN, RIGHT_DIR_PIN);
 
+//movement state machine
+#define TWO_WALLS 1
+#define FRONT_WALL 2
+#define LEFT_WALL 3
+#define RIGHT_WALL 4
+#define NO_WALL 5
+#define STATE_CHANGE 6
+
+//state variables
+int state;
+String previous_state;
+String cur_state;
+bool in_node = true; // boolean to tell whether we are in a node
+int frontSensorReading = 0;
+int leftSensorReading = 0;
+int rightSensorReading = 0;
+int last_sensor_reading_left = 0;
+int last_sensor_reading_right = 0;
+bool wall_on_left;
+bool wall_on_right;
+bool wall_in_front;
+
 
 //movement functions
 void turn_right_90(){
@@ -85,13 +107,66 @@ void turn360(){
   }
 }
 
+void set_speed(int left_sensor_reading, int right_sensor_reading) {
+  float difference = leftSensorReading - rightSensorReading;
+  float p = 1;
+  float weighted_difference = difference * p;
 
-float angleTurned(int initial_left_wheel_pos, int initial_right_wheel_pos,int final_left_wheel_pos,int final_right_wheel_pos,){
-  //all inputs should be in steps!!
-  float dist_travelled_r = (final_right_wheel_pos - initial_right_wheel_pos) * wheel_circumference /STEPS_PER_REVOLUTION;
-  float dist_travelled_l = (final_left_wheel_pos - initial_left_wheel_pos) * wheel_circumference /STEPS_PER_REVOLUTION;
-  
+  leftStepper.setSpeed(-(50.0 + weighted_difference));
+  rightStepper.setSpeed(50.0 - weighted_difference);
 }
+
+void set_wall_states() {
+  if (wall_in_front)
+    {
+      state = FRONT_WALL;
+      cur_state = "front wall";
+      leftStepper.setSpeed(0);
+      rightStepper.setSpeed(0);
+    }
+    else if (wall_on_left && wall_on_right && !wall_in_front)
+    {
+      state = TWO_WALLS;
+      cur_state = "two wall";
+      set_speed(leftSensorReading,rightSensorReading);
+    }
+  
+    else if (wall_on_left && !wall_on_right)
+    {
+      state = LEFT_WALL;
+      cur_state = "left wall";
+      set_speed(leftSensorReading,50);
+    }
+    else if (!wall_on_left && wall_on_right)
+    {
+      state = RIGHT_WALL;
+      cur_state = "right wall";
+      set_speed(50,rightSensorReading);
+    }
+    else
+    {
+      state = NO_WALL;
+      cur_state = "no wall";
+      leftStepper.setSpeed(-50);
+      rightStepper.setSpeed(50);
+    }
+}
+
+void read_sensors_and_set_speed() {
+    leftSensorReading = analogRead(leftSensorPin);
+    rightSensorReading = analogRead(rightSensorPin);
+    frontSensorReading = analogRead(frontSensorPin);
+    wall_in_front = frontSensorReading > 50;
+    wall_on_left = leftSensorReading > 50;
+    wall_on_right = rightSensorReading > 50;
+
+    set_wall_states();
+        
+    Serial.print("left wall: " + String(leftSensorReading) + "  ");
+    Serial.print("right wall: " + String(rightSensorReading) + "  ");
+    Serial.print("front wall: " + String(frontSensorReading) + "  ");
+}
+
 
 
 
@@ -105,13 +180,14 @@ void setup() {
   handshake(path,host, webSocketClient,client);
 
   //motor preamble
-  leftStepper.setMaxSpeed(200);
+  leftStepper.setMaxSpeed(400);
   leftStepper.setAcceleration(10);
-  rightStepper.setMaxSpeed(200);
+  rightStepper.setMaxSpeed(400);
   rightStepper.setAcceleration(10);
 
-  //Movement
-
+  //get initial sensor reading
+  read_sensors_and_set_speed();
+  previous_state = cur_state;
 }
 
 void loop() {
@@ -129,16 +205,16 @@ void loop() {
 
 
   //send node information to server
-  if(client.connected()) {
+  if(client->connected()) {
   message_to_send = "{\"x\":\"" + String(x) + "\",\"y\":\"" + String(y) + "\",\"f\":\""+ String(f) + "\",\"l\":\""+ String(l)+ "\",\"r\":\""+ String(r) + "\"}";
-  webSocketClient.sendData(message_to_send);
+  webSocketClient->sendData(message_to_send);
   }
   else {
     Serial.println("Reconnecting...");
     initWebSocket("172.20.10.4", 5000, client);
     handshake(path,host, webSocketClient,client);
     delay(100);
-    webSocketClient.sendData(message_to_send);
+    webSocketClient->sendData(message_to_send);
     }
     delay(500);
 }

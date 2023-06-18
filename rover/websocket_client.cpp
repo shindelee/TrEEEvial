@@ -21,8 +21,8 @@ void initWiFi(const char* ssid, const char* password) {
 
 
 //create web socket
-void initWebSocket(char ip_address[], int port_number, WiFiClient client){
-    if (client.connect(ip_address, port_number)) {
+void initWebSocket(char ip_address[], int port_number, WiFiClient *client){
+    if (client->connect(ip_address, port_number)) {
       Serial.println("Connected");
     } 
     else {
@@ -34,10 +34,10 @@ void initWebSocket(char ip_address[], int port_number, WiFiClient client){
 }
 
 
-void handshake(char path[], char host[], WebSocketClient webSocketClient, WiFiClient client) {
-    webSocketClient.path = path;
-    webSocketClient.host = host;
-    if (webSocketClient.handshake(client)) {
+void handshake(char path[], char host[], WebSocketClient *webSocketClient, WiFiClient *client) {
+    webSocketClient->path = path;
+    webSocketClient->host = host;
+    if (webSocketClient->handshake(*client)) {
       Serial.println("Handshake successful");
     } else {
       Serial.println("Handshake failed.");
@@ -47,18 +47,18 @@ void handshake(char path[], char host[], WebSocketClient webSocketClient, WiFiCl
     }
   }
 
-String receive_data(const char* ssid, const char* password, char path[], char host[], WebSocketClient webSocketClient, WiFiClient client, String message_to_send, bool start) {
+String receive_data(const char* ssid, const char* password, char path[], char host[], WebSocketClient *webSocketClient, WiFiClient *client, String message_to_send, bool start) {
   String message_received;
-  if (client.connected()) {
-    webSocketClient.getData(message_received);
+  if (client->connected()) {
+    webSocketClient->getData(message_received);
     while (start==false && message_received.length() <=0 && message_to_send != "") { //handle disconnection
       initWebSocket("172.20.10.4", 5000, client);
       handshake(path,host, webSocketClient,client);
       delay(500);
-      webSocketClient.sendData(message_to_send);
+      webSocketClient->sendData(message_to_send);
       Serial.println("Resending message");
       delay(1000);
-      webSocketClient.getData(message_received);
+      webSocketClient->getData(message_received);
     }
   }
   else{
@@ -68,10 +68,11 @@ String receive_data(const char* ssid, const char* password, char path[], char ho
     initWebSocket("172.20.10.4", 5000, client);
     handshake(path,host, webSocketClient, client); 
     delay(100);
-    webSocketClient.getData(message_received);
+    webSocketClient->getData(message_received);
     }
     return message_received;
 }
+
 
 
 
