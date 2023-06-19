@@ -6,5 +6,9 @@
 #include <AccelStepper.h>
 
 void turn_right_90();
+void turn_left_90();
+void turn_clockwise_360();
+float get_angle_turnedL();
+float get_angle_turnedR();
 
 #endif
