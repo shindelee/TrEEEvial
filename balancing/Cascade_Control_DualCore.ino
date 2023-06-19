@@ -12,7 +12,7 @@
 /********** PID **********/
 #include <PID_v1.h>
 
-double angle_kP = 7;  // PID gains for angle control
+double angle_kP = 10;  // PID gains for angle control
 double angle_kI = 0.2;
 double angle_kD = 0.8;
 
@@ -230,4 +230,6 @@ void loop() {
   Serial.println(stepperSpeed);
 
   prevAngle = CurrAngle;
+
+  delay(10); //delay on angle calculation
 }
