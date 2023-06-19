@@ -1,3 +1,12 @@
+#ifndef SHARED_VARIABLES_H
+#define SHARED_VARIABLES_H
+
+#include <WiFi.h>
+#include <WebSocketClient.h>
+
+extern WiFiClient* client;
+extern WebSocketClient* webSocketClient;
+
 // rover specs
 extern const float STEPS_PER_REVOLUTION;
 extern const float WHEEL_RADIUS;
@@ -60,3 +69,5 @@ extern const char* ssid;
 extern const char* password;
 extern char path[];
 extern char host[];
+
+#endif

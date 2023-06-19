@@ -21,8 +21,8 @@ void initWiFi(const char* ssid, const char* password) {
 
 
 
-//create web socket
-void initWebSocket(char ip_address[], int port_number, WiFiClient *client){
+// create web socket
+void initWebSocket(char ip_address[], int port_number, WiFiClient* client){
     if (client->connect(ip_address, port_number)) {
       Serial.println("Connected");
     } 
@@ -32,7 +32,9 @@ void initWebSocket(char ip_address[], int port_number, WiFiClient *client){
         // Hang on failure
       }
     }
+  
 }
+
 
 
 void handshake(char path[], char host[], WebSocketClient *webSocketClient, WiFiClient *client) {
@@ -53,7 +55,7 @@ String receive_data(const char* ssid, const char* password, char path[], char ho
   if (client->connected()) {
     webSocketClient->getData(message_received);
     while (start==false && message_received.length() <=0 && message_to_send != "") { //handle disconnection
-      initWebSocket("172.20.10.4", 5000, client);
+      initWebSocket("52.91.70.167", 5000, client);
       handshake(path,host, webSocketClient,client);
       delay(500);
       webSocketClient->sendData(message_to_send);
@@ -66,7 +68,7 @@ String receive_data(const char* ssid, const char* password, char path[], char ho
     Serial.println("Reconnecting...");
     initWiFi(ssid, password);
     delay(50);
-    initWebSocket("172.20.10.4", 5000, client);
+    initWebSocket("52.91.70.167", 5000, client);
     handshake(path,host, webSocketClient, client); 
     delay(100);
     webSocketClient->getData(message_received);

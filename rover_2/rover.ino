@@ -1,4 +1,5 @@
 //include header files
+
 #include "drive_functions.h"
 #include "websocket_client.h"
 #include "balancing.h"
@@ -7,13 +8,24 @@
 
 // define globals here
 // websocket and WiFi stuff
-const char* ssid     = "iPhone";
+
+const char* ssid     = "Shinde";
 const char* password = "12345678";
 char path[] = "/";
-char host[] = "172.20.10.4:5000";
+char host[] = "52.91.70.167:5000";
+
+
 WebSocketClient *webSocketClient = new WebSocketClient();
+
+// Use WiFiClient class to create TCP connections
 WiFiClient *client = new WiFiClient();
 
+/*
+WebSocketClient webSocketClient;
+
+// Use WiFiClient class to create TCP connections
+WiFiClient client;
+*/
 
 // wall information for message to be sent to EC2
 bool start = true;
@@ -76,113 +88,17 @@ bool wall_on_left;
 bool wall_on_right;
 bool wall_in_front;
 
-/*
-// movement functions
-void turn_right_90(){
-  leftStepper.setCurrentPosition(0);
-  rightStepper.setCurrentPosition(0);
-  leftStepper.move(108);
-  rightStepper.move(108);
-  while(rightStepper.distanceToGo() != 0 && leftStepper.distanceToGo() != 0) {
-    rightStepper.run();
-    leftStepper.run();
-  }
-}
-
-void turn_left_90(){
-  leftStepper.setCurrentPosition(0);
-  rightStepper.setCurrentPosition(0);
-  leftStepper.move(-108);
-  rightStepper.move(-108);
-  while(rightStepper.distanceToGo() != 0 && leftStepper.distanceToGo() != 0) {
-    rightStepper.run();
-    leftStepper.run();
-  }
-}
-
-void turn360(){
-  leftStepper.setCurrentPosition(0);
-  rightStepper.setCurrentPosition(0);
-  rightStepper.move(432);
-  leftStepper.move(432);
-  while(rightStepper.distanceToGo() != 0 && leftStepper.distanceToGo() != 0) {
-    rightStepper.run();
-    leftStepper.run();
-  }
-}
-
-void set_speed(int left_sensor_reading, int right_sensor_reading) {
-  float difference = leftSensorReading - rightSensorReading;
-  float p = 1;
-  float weighted_difference = difference * p;
-
-  leftStepper.setSpeed(-(50.0 + weighted_difference));
-  rightStepper.setSpeed(50.0 - weighted_difference);
-}
-
-void set_wall_states() {
-  if (wall_in_front)
-    {
-      state = FRONT_WALL;
-      cur_state = "front wall";
-      leftStepper.setSpeed(0);
-      rightStepper.setSpeed(0);
-    }
-    else if (wall_on_left && wall_on_right && !wall_in_front)
-    {
-      state = TWO_WALLS;
-      cur_state = "two wall";
-      set_speed(leftSensorReading,rightSensorReading);
-    }
-  
-    else if (wall_on_left && !wall_on_right)
-    {
-      state = LEFT_WALL;
-      cur_state = "left wall";
-      set_speed(leftSensorReading,50);
-    }
-    else if (!wall_on_left && wall_on_right)
-    {
-      state = RIGHT_WALL;
-      cur_state = "right wall";
-      set_speed(50,rightSensorReading);
-    }
-    else
-    {
-      state = NO_WALL;
-      cur_state = "no wall";
-      leftStepper.setSpeed(-50);
-      rightStepper.setSpeed(50);
-    }
-}
-
-void read_sensors_and_set_speed() {
-    leftSensorReading = analogRead(leftSensorPin);
-    rightSensorReading = analogRead(rightSensorPin);
-    frontSensorReading = analogRead(frontSensorPin);
-    wall_in_front = frontSensorReading > 50;
-    wall_on_left = leftSensorReading > 50;
-    wall_on_right = rightSensorReading > 50;
-
-    set_wall_states();
-        
-    Serial.print("left wall: " + String(leftSensorReading) + "  ");
-    Serial.print("right wall: " + String(rightSensorReading) + "  ");
-    Serial.print("front wall: " + String(frontSensorReading) + "  ");
-}
-
-*/
-
-
 void setup() {
   Serial.begin(115200);
 
   // EC2 Connection
   initWiFi(ssid, password);
   delay(50);
-  initWebSocket("172.20.10.4", 5000, client);
-  handshake(path,host, webSocketClient,client);
+  initWebSocket("52.91.70.167", 5000, client);
+  
+  handshake(path,host, webSocketClient, client);
 
+  
   // motor preamble
   leftStepper.setMaxSpeed(400);
   leftStepper.setAcceleration(10);
@@ -192,9 +108,12 @@ void setup() {
   // get initial sensor reading
   read_sensors_and_set_speed(&leftStepper, &rightStepper);
   previous_state = cur_state;
+  
 }
 
+
 void loop() {
+  
   //get directions from server
   message_received = receive_data(ssid,password,path,host, webSocketClient, client, message_to_send, start);
   start = false;
@@ -202,16 +121,19 @@ void loop() {
   Serial.println(message_received);
 
   //send node information to server
-  if(client->connected()) {
-  message_to_send = "{\"x\":\"" + String(x) + "\",\"y\":\"" + String(y) + "\",\"f\":\""+ String(f) + "\",\"l\":\""+ String(l)+ "\",\"r\":\""+ String(r) + "\"}";
-  webSocketClient->sendData(message_to_send);
+  if(client->connected()) 
+  {
+    message_to_send = "{\"x\":\"" + String(x) + "\",\"y\":\"" + String(y) + "\",\"f\":\""+ String(f) + "\",\"l\":\""+ String(l)+ "\",\"r\":\""+ String(r) + "\"}";
+    webSocketClient->sendData(message_to_send);
   }
   else {
     Serial.println("Reconnecting...");
-    initWebSocket("172.20.10.4", 5000, client);
-    handshake(path,host, webSocketClient,client);
+    initWebSocket("52.91.70.167", 5000, client);
+    handshake(path,host, webSocketClient, client);
     delay(100);
     webSocketClient->sendData(message_to_send);
-    }
-    delay(500);
+ }
+ 
+ delay(500);
+    
 }

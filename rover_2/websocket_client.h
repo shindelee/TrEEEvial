@@ -8,6 +8,7 @@
 #include "shared_variables.h"
 
 void initWiFi(const char* ssid, const char* password);
+void initWebSocket(char ip_address[], int port_number, WiFiClient *client);
 
 void initWebSocket(char ip_address[], int port_number, WiFiClient* client);
 

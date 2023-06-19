@@ -93,6 +93,7 @@ void read_sensors_and_set_speed(){
     Serial.print("front wall: " + String(frontSensorReading) + "  ");
 }
 
+/*
 float get_angle_turnedL(){
     long leftWheelSteps = leftStepper.currentPosition() - prevWheelStepsL; // Get the current position of the left stepper in steps
     prevWheelStepsL = leftStepper.currentPosition();
@@ -112,3 +113,4 @@ float get_angle_turnedR(){
     float angleTurnedDegreesR = angleTurnedRadiansR * (180.0 / PI);
     return angleTurnedDegreesR;
 }
+*/
