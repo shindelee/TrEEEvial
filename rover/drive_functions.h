@@ -10,5 +10,8 @@ void turn_left_90();
 void turn_clockwise_360();
 float get_angle_turnedL();
 float get_angle_turnedR();
+void set_speed(int left_sensor_reading, int right_sensor_reading);
+void set_wall_states();
+void read_sensors_and_set_speed();
 
 #endif

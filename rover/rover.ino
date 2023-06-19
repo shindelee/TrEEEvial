@@ -77,7 +77,7 @@ bool wall_on_left;
 bool wall_on_right;
 bool wall_in_front;
 
-
+/*
 // movement functions
 void turn_right_90(){
   leftStepper.setCurrentPosition(0);
@@ -171,7 +171,7 @@ void read_sensors_and_set_speed() {
     Serial.print("right wall: " + String(rightSensorReading) + "  ");
     Serial.print("front wall: " + String(frontSensorReading) + "  ");
 }
-
+*/
 
 
 
@@ -202,11 +202,6 @@ void loop() {
   Serial.print("Received data: ");
   Serial.println(message_received);
   
-
-  
-
-  
-
 
 
   //send node information to server
