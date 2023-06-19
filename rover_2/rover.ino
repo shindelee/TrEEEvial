@@ -14,6 +14,7 @@ char host[] = "172.20.10.4:5000";
 WebSocketClient *webSocketClient = new WebSocketClient();
 WiFiClient *client = new WiFiClient();
 
+
 // wall information for message to be sent to EC2
 bool start = true;
 String message_to_send = "";
