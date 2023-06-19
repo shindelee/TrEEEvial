@@ -5,9 +5,9 @@
 #include "uart.h"
 
 
-//define globals here
+// define globals here
 
-//websocket and WiFi stuff
+// websocket and WiFi stuff
 const char* ssid     = "iPhone";
 const char* password = "12345678";
 char path[] = "/";
@@ -16,7 +16,7 @@ WebSocketClient *webSocketClient = new WebSocketClient();
 WiFiClient *client = new WiFiClient();
 
 
-//wall information for message to be sent to EC2
+// wall information for message to be sent to EC2
 bool start = true;
 String message_to_send = "";
 String message_received = "";
@@ -26,31 +26,36 @@ int l = 0; //left wall
 int f = 0; //front wall
 int r = 0; //right wall
 
+// Define the baud rate
+#define BAUD_RATE 115200
 
 //motor pin interface
-#define LEFT_STEP_PIN 32 //A4
-#define LEFT_DIR_PIN 15 //D12
+#define LEFT_STEP_PIN 32    // A4
+#define LEFT_DIR_PIN 15     // D12
 
-#define RIGHT_STEP_PIN 33 //A3
-#define RIGHT_DIR_PIN 4 //D11
+#define RIGHT_STEP_PIN 33   // A3
+#define RIGHT_DIR_PIN 4     // D11
 
-//sensor pin interface
-const int leftSensorPin = 35; //a5
+#define RX_PIN 16           // D9 
+#define TX_PIN 17           // D8
+
+// sensor pin interface
+const int leftSensorPin = 35;   // A5
 const int frontSensorPin = 34;
-const int rightSensorPin = 39; //vn
+const int rightSensorPin = 39;  // vn
 
-//rover specs
+// rover specs
 #define STEPS_PER_REVOLUTION 200.0
 #define WHEEL_RADIUS 0.0325
 const float wheel_diameter = 2.0 * WHEEL_RADIUS;
 const float wheel_base = 0.14;
 const float wheel_circumference = wheel_diameter * PI;
 
-//motors
+// motors
 AccelStepper leftStepper(AccelStepper::DRIVER, LEFT_STEP_PIN, LEFT_DIR_PIN);
 AccelStepper rightStepper(AccelStepper::DRIVER, RIGHT_STEP_PIN, RIGHT_DIR_PIN);
 
-//movement state machine
+// movement state machine
 #define TWO_WALLS 1
 #define FRONT_WALL 2
 #define LEFT_WALL 3
@@ -73,7 +78,7 @@ bool wall_on_right;
 bool wall_in_front;
 
 
-//movement functions
+// movement functions
 void turn_right_90(){
   leftStepper.setCurrentPosition(0);
   rightStepper.setCurrentPosition(0);

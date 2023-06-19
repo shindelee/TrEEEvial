@@ -4,14 +4,6 @@
 // Define the baud rate
 #define BAUD_RATE 115200
 
-/* Initialize pins for communucation with vision
-
- * IO19 - Arduino D5 Vision RX
- * I018 - Arduino D6 Vision TX
- * GND - GNDM
-
-*/
-
 void setup()
 {
 
