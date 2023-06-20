@@ -48,6 +48,7 @@ export async function Tremaux (X,Y, parent_x, parent_y,r ,l, f, heading){
     //calculate direction of origin path
     const delta_y = Y - parent_y;
     const delta_x = X - parent_x;
+    
     console.log("X is type " + typeof(X) );
     console.log("parent X is of type " + typeof(parent_x));
     const rad2deg = 57.2957795130823209;
@@ -56,7 +57,6 @@ export async function Tremaux (X,Y, parent_x, parent_y,r ,l, f, heading){
         theta = theta + 360;
     }
     console.log("theta = " + theta);
-
     const visited = await get_coord(X,Y);
     console.log("have we visited here? " + visited);
     
