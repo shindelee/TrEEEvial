@@ -28,8 +28,7 @@ export async function Initialise () {
 
 
 
-export async function Tremaux (X,Y, parent_x, parent_y){
-    var msg;
+export async function Tremaux (X,Y, parent_x, parent_y,r ,l, f, heading){
     var paths = [];
     /* 
     unvisited maintains number of path visitations + wall info
@@ -49,8 +48,10 @@ export async function Tremaux (X,Y, parent_x, parent_y){
     //calculate direction of origin path
     const delta_y = Y - parent_y;
     const delta_x = X - parent_x;
+    console.log("X is type " + typeof(X) );
+    console.log("parent X is of type " + typeof(parent_x));
     const rad2deg = 57.2957795130823209;
-    var theta = rad2deg * Math.atan2(delta_x,delta_y);
+    var theta = heading;
     if (theta < 0 ) {
         theta = theta + 360;
     }
@@ -66,29 +67,29 @@ export async function Tremaux (X,Y, parent_x, parent_y){
     if (visited ==false) { //if we have not visited this node before
         if (theta <=45 || (theta > 315 && theta <=360)) { // origin path is north
             paths[0] = 1;
-            paths[1] = parseInt(message.l);
-            paths[2] = parseInt(message.f);
-            paths[3] = parseInt(message.r);
+            paths[1] = l;
+            paths[2] = f;
+            paths[3] = r;
         }
 
         if (theta <=135 && theta > 45) { // origin path is east
-            paths[0] = parseInt(message.r);
+            paths[0] = r;
             paths[1] = 1;
-            paths[2] = parseInt(message.l);
-            paths[3] = parseInt(message.f);
+            paths[2] = l;
+            paths[3] = f;
         }
 
         if (theta <= 225 && theta >135) { // origin path is south
-            paths[0] = parseInt(message.f);
-            paths[1] = parseInt(message.r);
+            paths[0] = f;
+            paths[1] = r;
             paths[2] = 1;
-            paths[3] = parseInt(message.l);
+            paths[3] = l;
         }
 
         if (theta <=315 && theta > 225) { // origin path is west
-            paths[0] = parseInt(message.l);
-            paths[1] = parseInt(message.f);
-            paths[2] = parseInt(message.r);
+            paths[0] = l;
+            paths[1] = f;
+            paths[2] = r;
             paths[3] = 1;
         }
     }
@@ -204,3 +205,4 @@ export async function Tremaux (X,Y, parent_x, parent_y){
     return "undefined";
 }
 
+Tremaux(5,4,0,0,1,1,0,67);
