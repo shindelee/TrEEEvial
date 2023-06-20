@@ -77,50 +77,198 @@ wire         sop, eop, in_valid, out_ready;
 
 ////////////////////////////////////////////////////////////////////////
 
+// Gaussian Filter
+
+reg[7:0] red_gauss_stage_1, red_gauss_stage_2, red_gauss_stage_3, red_gauss_stage_4, red_gauss_stage_5;
+reg[7:0] green_gauss_stage_1, green_gauss_stage_2, green_gauss_stage_3, green_gauss_stage_4, green_gauss_stage_5;
+reg[7:0] blue_gauss_stage_1, blue_gauss_stage_2, blue_gauss_stage_3, blue_gauss_stage_4, blue_gauss_stage_5;
+
+always @(posedge clk or posedge reset) begin
+	if (reset) begin
+		red_gauss_stage_1 <= 0;
+		red_gauss_stage_2 <= 0;
+		red_gauss_stage_3 <= 0;
+		red_gauss_stage_4 <= 0;
+		red_gauss_stage_5 <= 0;
+
+		green_gauss_stage_1 <= 0;
+		green_gauss_stage_2 <= 0;
+		green_gauss_stage_3 <= 0;
+		green_gauss_stage_4 <= 0;
+		green_gauss_stage_5 <= 0;
+
+		blue_gauss_stage_1 <= 0;
+		blue_gauss_stage_2 <= 0;
+		blue_gauss_stage_3 <= 0;
+		blue_gauss_stage_4 <= 0;
+		blue_gauss_stage_5 <= 0;
+
+	end else begin
+
+		red_gauss_stage_1 <= red;
+		red_gauss_stage_2 <= red_gauss_stage_1;
+		red_gauss_stage_3 <= red_gauss_stage_2;
+		red_gauss_stage_4 <= red_gauss_stage_3;
+		red_gauss_stage_5 <= red_gauss_stage_4;
+
+		green_gauss_stage_1 <= green;
+		green_gauss_stage_2 <= green_gauss_stage_1;
+		green_gauss_stage_3 <= green_gauss_stage_2;
+		green_gauss_stage_4 <= green_gauss_stage_3;
+		green_gauss_stage_5 <= green_gauss_stage_4;
+
+		blue_gauss_stage_1 <= blue;
+		blue_gauss_stage_2 <= blue_gauss_stage_1;
+		blue_gauss_stage_3 <= blue_gauss_stage_2;
+		blue_gauss_stage_4 <= blue_gauss_stage_3;
+		blue_gauss_stage_5 <= blue_gauss_stage_4;
+	end
+end
+
+reg [7:0] gauss_red, gauss_green, gauss_blue;
+
+reg [14:0] temp_b1, temp_b2, temp_b3, temp_b4, temp_b5;
+reg [14:0] temp_r1, temp_r2, temp_r3, temp_r4, temp_r5;
+reg [14:0] temp_g1, temp_g2, temp_g3, temp_g4, temp_g5;
+
+reg [14:0] temp_sum_r, temp_sum_g, temp_sum_b;
+
+always @(*) begin
+
+	if (x < 2) begin
+		gauss_red = red;
+		gauss_green = green;
+		gauss_blue = blue;
+	end 
+
+	// 11'h2
+	if (x % IMAGE_W > IMAGE_W - 2 ) begin
+		gauss_red = red_gauss_stage_5;
+		gauss_green = green_gauss_stage_5;
+		gauss_blue = blue_gauss_stage_5;
+	end 
+
+	else begin
+
+		gauss_red = (8 * red_gauss_stage_1 + 31 * red_gauss_stage_2 + 49 * red_gauss_stage_3 + 31 * red_gauss_stage_4 + 8 * red_gauss_stage_5) >> 7; 
+		gauss_green = (8 * green_gauss_stage_1 + 31 * green_gauss_stage_2 + 49 * green_gauss_stage_3 + 31 * green_gauss_stage_4 + 8 * green_gauss_stage_5) >> 7;
+		gauss_blue = (8 * blue_gauss_stage_1 + 31 * blue_gauss_stage_2 + 49 * blue_gauss_stage_3 + 31 * blue_gauss_stage_4 + 8 * blue_gauss_stage_5) >> 7;
+
+	end 
+end
+
+// 5 consecutive pixels 
+reg red_detect_1, red_detect_2, red_detect_3 , red_detect_4, red_detect_5;
+reg blue_detect_1, blue_detect_2, blue_detect_3 , blue_detect_4, blue_detect_5;
+reg yellow_detect_1, yellow_detect_2, yellow_detect_3, yellow_detect_4, yellow_detect_5;
+
+initial begin
+	red_detect_1 = 0;
+	red_detect_2 = 0;
+	red_detect_3 = 0;
+	red_detect_4 = 0;
+	red_detect_5 = 0;
+
+	blue_detect_1 = 0;
+	blue_detect_2 = 0;
+	blue_detect_3 = 0;
+	blue_detect_4 = 0;
+	blue_detect_5 = 0;
+
+	yellow_detect_1 = 0;
+	yellow_detect_2 = 0;
+	yellow_detect_3 = 0;
+	yellow_detect_4 = 0;
+	yellow_detect_5 = 0;
+end
+
+always @(posedge clk)begin
+	red_detect_1 <= red_detect;
+	red_detect_2 <= red_detect_1;
+	red_detect_3 <= red_detect_2;
+	red_detect_4 <= red_detect_3;
+	red_detect_5 <= red_detect_4;
+
+	blue_detect_1 <= blue_detect;
+	blue_detect_2 <= blue_detect_1;
+	blue_detect_3 <= blue_detect_2;
+	blue_detect_4 <= blue_detect_3;
+	blue_detect_5 <= blue_detect_4;
+
+	yellow_detect_1 <= yellow_detect;
+	yellow_detect_2 <= yellow_detect_1;
+	yellow_detect_3 <= yellow_detect_2;
+	yellow_detect_4 <= yellow_detect_3;
+	yellow_detect_5 <= yellow_detect_4;
+end
+
+
+/*
+wire[9:0] hue;
+wire[7:0] saturation, value, min;
+
+///Conversion from RGB to HSV
+assign value = (red > green) ? ((red > blue) ? red[7:0] : blue[7:0]) : (green > blue) ? green[7:0] : blue[7:0];						
+assign min = (red < green)? ((red<blue) ? red[7:0] : blue[7:0]) : (green < blue) ? green [7:0] : blue[7:0];
+assign saturation = (value - min)* 255 / value;
+assign hue = (red == green && red == blue) ? 0 :((value != red)? (value != green) ? (((240*((value - min))+ (60* (red - green)))/(value-min))>>1):
+                ((120*(value-min)+60*(blue - red))/(value - min)>>1): 
+                (blue < green) ? ((60*(green - blue)/(value - min))>>1): (((360*(value-min) +(60*(green - blue)))/(value - min))>>1));
+					 
+wire red_detect, blue_detect, yellow_detect;
+			 
+assign yellow_detect = (22 < hue && hue < 31) && (130 < saturation && saturation < 244 ) && (value > 151);
+assign red_detect = ((hue > 7 && hue <= 18) && (saturation > 160 && saturation < 237) && (value > 160 && value < 240));
+assign blue_detect = ( hue > 80 && hue < 156) && (saturation > 16 && saturation < 145) && (30 < value && value < 100);
+*/
+
 // RGB -> HSV conversion:
-// H: 0 - 360, S: 0 - 1, V: 0 - 1
+// H: 0 - 360, S: 0 - 255, V: 0 - 255
+
+
 wire [7:0] r, g, b;
-wire [7:0] cmax, cmin, delta, sat, val;
+wire [7:0] cmax, cmin, delta, sat, val, min;
 wire [8:0] hue_temp, hue;
+
 
 assign r = red / 255; 
 assign b = blue / 255;
 assign g = green / 255;
 
+assign min = (red < green)? ((red<blue) ? red[7:0] : blue[7:0]) : (green < blue) ? green [7:0] : blue[7:0];
 assign cmax = ((r >= g) & (r >= b)) ? r : ((g >= b) & (g >= r)) ? g : b;
 assign cmin = ((r <= g) & (r <= b)) ? r : ((g <= b) & (g <= r)) ? g : b;
 assign delta = cmax - cmin;
 
-assign hue_temp = (delta == 0) ? 0 : (cmax == r) ? (60 * (g - b) / delta)
-                                   : (cmax == g) ? (120 + 60 * (b - r) / delta)
-                                   : (240 + 60 * (r - g) / delta);
+/*
+assign hue_temp = (delta == 0) ? 0 : (cmax == r) ? (60 * ((g - b) / delta))
+                                   : (cmax == g) ? (120 + 60 * ((b - r) / delta))
+                                   : (240 + 60 * ((r - g) / delta));
 
 assign hue = (hue_temp < 0) ? hue_temp + 360 : hue_temp;
-assign sat = (cmax == 0) ? 0 : delta / cmax;
-assign val = cmax; 
+*/
+assign val = (red > green) ? ((red > blue) ? red[7:0] : blue[7:0]) : (green > blue) ? green[7:0] : blue[7:0];
+assign hue = (red == green && red == blue) ? 0 :((val != red)? (val != green) ? (((240*((val - min))+ (60* (red - green)))/(val-min))>>1):
+                ((120*(val-min)+60*(blue - red))/(val - min)>>1): 
+                (blue < green) ? ((60*(green - blue)/(val - min))>>1): (((360*(val-min) +(60*(green - blue)))/(val - min))>>1));
+
+assign sat = (val - min)* 255 / val;
 
 // HSV
-
 wire red_detect, blue_detect, yellow_detect;
-assign red_detect = red[7] & ~green[7] & ~blue[7];
-assign blue_detect = (hue > 175) & (hue < 260) & sat > 4/10 & val > 8/10;
-assign yellow_detect = (hue > 35) & (hue < 63) & sat > 4/10 & val > 8/10; 
-
-/*
-// RGB values
-// Detect red, blue, yellow, white areas
-
-wire red_detect, blue_detect, yellow_detect, white_detect;
-assign red_detect = red[7] & ~green[7] & ~blue[7];
-assign blue_detect = ~red[7] & ~green[7] & blue[7];
-assign yellow_detect = red[7] & green[7] & ~blue[7] & red[6] & green[6];
-assign white_detect = (red[7:4] == 4'b1111) & (green[7:4] == 4'b1111) & (blue[7:4] == 4'b1111);
-*/
+assign red_detect = red[7] && ~blue[7] && ~green[7] && red[6];
+assign yellow_detect = (hue > 10) && (hue < 30) && sat > 150 && sat < 240 && val < 240 && val > 155;
+// assign blue_detect = (hue > 185) && (hue < 260) && sat > 20 && val > git 20 && sat < 150 && val < 120;
+assign blue_detect = ~red[7] && blue[7] && ~green[7] && blue[6];
 
 // Find boundary of cursor box
 
 // Highlight detected areas
-wire [23:0] red_high, blue_high, yellow_high;
+wire red_high, blue_high, yellow_high;
+
+assign red_high = red_detect_1 && red_detect_2 && red_detect_3 && red_detect_4 && red_detect_5;
+assign blue_high = blue_detect_1 && blue_detect_2 && blue_detect_3 && blue_detect_4 && blue_detect_5;
+assign yellow_high = yellow_detect_1 && yellow_detect_2 && yellow_detect_3 && yellow_detect_4 && yellow_detect_5;
 
 // Greyscale conversion
 assign grey = green[7:1] + red[7:2] + blue[7:2]; 
@@ -128,10 +276,10 @@ assign grey = green[7:1] + red[7:2] + blue[7:2];
 
 // Highlighting detected areas for new image
 wire [23:0] detectedAreaRGB;
-assign detectedAreaRGB  = red_detect ? {8'hff, 8'h0, 8'h0} : 
-                          blue_detect ? {8'h0, 8'h0, 8'hff} :
-						  yellow_detect ? {8'hff, 8'hff, 8'h0} :
+assign detectedAreaRGB  = yellow_high ? {8'hff, 8'hff, 8'h0} : red_high ? {8'hff, 8'h0, 8'h0} : 
+                          blue_high ? {8'h0, 8'h0, 8'hff} :
                           {grey, grey, grey};
+
 
 // Show bounding box without line intersections
 wire [23:0] new_image;
@@ -145,12 +293,10 @@ assign bb_active_yellow = ((x == left_yellow | x == right_yellow) & (y <= bottom
 // assign bb_active_blue = (x == left_blue) | (x == right_blue) | (y == top_blue) | (y == bottom_blue);
 // assign bb_active_yellow = (x == left_yellow) | (x == right_yellow) | (y == top_yellow) | (y == bottom_yellow);
 
-// assign bb_active = (x == left) | (x == right) | (y == top) | (y == bottom);
-
 assign new_image = bb_active_red ? {8'hff, 8'h0, 8'h0} 
-				 : bb_active_blue ? {8'h0, 8'h0, 8'hff} 
-				 : bb_active_yellow ? {8'hff, 8'hff, 8'h0} 
-				 : detectedAreaRGB;
+						: bb_active_blue ? {8'h0, 8'h0, 8'hff} 
+						: bb_active_yellow ? {8'hff, 8'hff, 8'h0} 
+						: detectedAreaRGB;
 
 // Switch output pixels depending on mode switch
 // Don't modify the start-of-packet word - it's a packet discriptor
@@ -162,74 +308,35 @@ assign {red_out, green_out, blue_out} = (mode & ~sop & packet_video) ? new_image
 
 reg [10:0] x, y;
 reg packet_video;
-reg [10:0] pixel_in, pixel_out;
-
-reg [7:0] buffer [4:0][4:0];
-reg [31:0] row, col, sum; // Move sum here
-
-localparam [7:0] kernel[5][5] = {
-    {1,  4,  6,  4,  1},
-    {4, 16, 24, 16,  4},
-    {6, 24, 36, 24,  6},
-    {4, 16, 24, 16,  4},
-    {1,  4,  6,  4,  1}
-};
-
 always@(posedge clk) begin
 	if (sop) begin
-		x <= 11'h0;
+		x <= 11'h0;                           // start (x, y) at (0, 0)
 		y <= 11'h0;
-		packet_video <= (blue[3:0] == 3'h0);
+		packet_video <= (blue[3:0] == 3'h0);  // ?
 	end
 	else if (in_valid) begin
-		if (x == IMAGE_W-1) begin
+		if (x == IMAGE_W-1) begin   // read the entire row of image pixels x = 0 ~ IMAGE_W - 1 then read the next row above
 			x <= 11'h0;
 			y <= y + 11'h1;
 		end
 		else begin
 			x <= x + 11'h1;
 		end
-
-		// Shift the pixel values in the buffer to make room for the new pixel.
-		for (row=0; row<4; row=row+1) begin
-			for (col=0; col<4; col=col+1) begin
-				buffer[row][col] <= buffer[row][col+1];
-			end
-			buffer[row][4] <= buffer[row+1][4];
-		end
-		for (col=0; col<4; col=col+1) begin
-			buffer[4][col] <= buffer[4][col+1];
-		end
-		buffer[4][4] <= new_pixel;
-
-		// Compute the convolution with the kernel.
-		sum = 0;
-		for (row=0; row<5; row=row+1) begin
-			for (col=0; col<5; col=col+1) begin
-				sum = sum + buffer[row][col] * kernel[row][col];
-			end
-		end
-
-		// Normalize.
-		pixel_out <= sum >>> 8;
 	end
 end
 
-endmodule
-
-
-// Find first and last pixels 
+wire centre = x > 260 && x < 380 && y < 300 && y > 180;
 
 // Find first and last red pixels
+
 reg [10:0] red_x_min, red_y_min, red_x_max, red_y_max;
+
 always@(posedge clk) begin
-	if (red_detect & in_valid) begin	
-	
-	// Update bounds when the pixel is red
+	if (red_high & in_valid & centre) begin	
 		if (x < red_x_min) red_x_min <= x;
 		if (x > red_x_max) red_x_max <= x;
 		if (y < red_y_min) red_y_min <= y;
-		red_y_max <= y;
+		if (y > red_y_max) red_y_max <= y;
 	end
 	
 	if (sop & in_valid) begin	
@@ -244,14 +351,13 @@ end
 
 // Find first and last blue pixels
 reg [10:0] blue_x_min, blue_y_min, blue_x_max, blue_y_max;
+
 always@(posedge clk) begin
-	if (blue_detect & in_valid) begin	
-	
-	// Update bounds when the pixel is blue
+	if (blue_high & in_valid & centre) begin	
 		if (x < blue_x_min) blue_x_min <= x;
 		if (x > blue_x_max) blue_x_max <= x;
 		if (y < blue_y_min) blue_y_min <= y;
-		blue_y_max <= y;
+		if (y > blue_y_max) blue_y_max <= y;
 	end
 	
 	if (sop & in_valid) begin	
@@ -266,15 +372,15 @@ end
 
 // Find first and last yellow pixels
 reg [10:0] yellow_x_min, yellow_y_min, yellow_x_max, yellow_y_max;
+
 always@(posedge clk) begin
-	if (yellow_detect & in_valid) begin	
-	
-	// Update bounds when the pixel is yellow
+	if (yellow_high & in_valid & centre) begin
 		if (x < yellow_x_min) yellow_x_min <= x;
 		if (x > yellow_x_max) yellow_x_max <= x;
 		if (y < yellow_y_min) yellow_y_min <= y;
-		yellow_y_max <= y;
+		if (y > yellow_y_max) yellow_y_max <= y;
 	end
+
 	if (sop & in_valid) begin	
 	
 	// Reset bounds on start of packet
@@ -284,6 +390,7 @@ always@(posedge clk) begin
 		yellow_y_max <= 0;
 	end
 end
+
 
 // Process bounding box at the end of the frame.
 reg [2:0] msg_state;
@@ -314,7 +421,6 @@ always@(posedge clk) begin
 		right_yellow <= yellow_x_max;
 		top_yellow <= yellow_y_min;
 		bottom_yellow <= yellow_y_max;
-		
 		
 		/*
 		left <= x_min;
@@ -494,7 +600,6 @@ end
 
 // Fetch next word from message buffer after read from READ_MSG
 assign msg_buf_rd = s_chipselect & s_read & ~read_d & ~msg_buf_empty & (s_address == `READ_MSG);
-						
 
 endmodule
 
