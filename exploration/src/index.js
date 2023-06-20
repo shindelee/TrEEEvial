@@ -1,9 +1,8 @@
-import { Initialise, Tremaux } from "../src/tremaux.js";
+//import { Initialise, Tremaux } from "../src/tremaux.js";
 import { server as WebSocketServer } from 'websocket';
 import { Odometry } from "../src/dead_reckoning.js";
 import { triangulation } from "../src/Triangulation.js";
 import * as http from 'http';
-import { Console } from "console";
 
 
  var start = true; //get from front end
@@ -62,7 +61,7 @@ import { Console } from "console";
 
                 if (start) {
                     console.log("breakpoint... Initialising")
-                    await Initialise();
+                    //await Initialise();
                     start = false;
                     parent_x = 0;
                     parent_y = 0;
@@ -97,9 +96,10 @@ import { Console } from "console";
                 
                 console.log("x-coord = " +x_coord + "y-coord = " +y_coord);
                     
-                directions = await Tremaux(x_coord,y_coord, parent_x, parent_y, right_wall, left_wall,front_wall, 67);
+                //directions = await Tremaux(x_coord,y_coord, parent_x, parent_y, right_wall, left_wall,front_wall, 67);
                 parent_x = x_coord;
                 parent_y = y_coord;
+                directions = "hi";
 
              }
 

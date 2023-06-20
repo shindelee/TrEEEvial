@@ -2,12 +2,7 @@ import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { PutCommand, DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 
 const client = new DynamoDBClient({
-  region: "x",
-  endpoint: "http://localhost:8000",
-  credentials: {
-    accessKeyId: "abcd",
-    secretAccessKey: "1234",
-  },
+  region: "us-east-1",
 });
 const docClient = DynamoDBDocumentClient.from(client);
 
