@@ -1,66 +1,8 @@
-/*
-#include <AccelStepper.h>
-//#include <elapsedMillis.h>
-#include <Math.h>
-
-#define LEFT_STEP_PIN 33 // A3
-#define LEFT_DIR_PIN 15  // D12
-
-// Define the motor interface pins for the right wheel
-#define RIGHT_STEP_PIN 32 // A4
-#define RIGHT_DIR_PIN 4   // D11
-
-// Define the steps per revolution for your stepper motors
-#define STEPS_PER_REVOLUTION 200.0
-#define WHEEL_RADIUS 0.0325
-
-// light sensor pins
-const int leftSensorPin = 34;  // A0 for now
-const int frontSensorPin = 39; // A1 for now
-const int rightSensorPin = 35; // A5
-*/
-float wheelDiameter = 2 * WHEEL_RADIUS;
-float wheelBase = 0.14;
-float wheelCircumference = wheelDiameter * PI;
-
-// keep track of current wall
-
-AccelStepper leftStepper(AccelStepper::DRIVER, LEFT_STEP_PIN, LEFT_DIR_PIN);
-AccelStepper rightStepper(AccelStepper::DRIVER, RIGHT_STEP_PIN, RIGHT_DIR_PIN);
-
-// State definitions
-#define TWO_WALLS 2
-#define FRONT_WALL 1
-#define LEFT_WALL 3
-#define RIGHT_WALL 4
-#define NO_WALL 5
-#define STATE_CHANGE 6
-
-// State variables
-int state;
-String cur_state;
-bool in_node = true; // boolean to tell whether we are in a node
-int frontSensorReading = 0;
-int leftSensorReading = 0;
-int rightSensorReading = 0;
-int last_sensor_reading_left = 0;
-int last_sensor_reading_right = 0;
-bool wall_on_left;
-bool wall_on_right;
-bool wall_in_front;
-int state_history[5];
-int left_sensor_history[5];
-int right_sensor_history[5];
-int sensor_threshold = 50;
-
+#include "movement_state_machine.h"
+#include "shared_variables.h"
 
 //functions
 void update_state_history() {
-//    state_history[9] =state_history[8];
-//    state_history[8] =state_history[7];
-//    state_history[7] =state_history[6];
-//    state_history[6] =state_history[5];
-//    state_history[5] =state_history[4];
     state_history[4] =state_history[3];
     state_history[3] =state_history[2];
     state_history[2] =state_history[1];
@@ -120,7 +62,7 @@ void set_speed(int left_sensor_reading, int right_sensor_reading, int required_s
 }
 
 
-void set_wall_states() {
+void set_wall_states(AccelStepper *leftStepper, AccelStepper *rightStepper) {
   if (wall_in_front)
     {
       state = FRONT_WALL;
@@ -162,7 +104,7 @@ void set_wall_states() {
 }
 
 
-void leave_node(){
+void leave_node(AccelStepper *leftStepper, AccelStepper *rightStepper){
     Serial.println("turning 90 to the right!");
   leftStepper.setCurrentPosition(0);
   rightStepper.setCurrentPosition(0);
@@ -202,7 +144,7 @@ void read_sensors_and_set_speed() {
 }
 
 
-void turn_right_90(){
+void turn_right_90(AccelStepper *leftStepper, AccelStepper *rightStepper){
   Serial.println("turning 90 to the right!");
   leftStepper.setCurrentPosition(0);
   rightStepper.setCurrentPosition(0);

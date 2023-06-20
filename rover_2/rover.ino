@@ -1,4 +1,4 @@
-//include header files
+// include header files
 
 #include "drive_functions.h"
 #include "websocket_client.h"
@@ -31,28 +31,28 @@ WiFiClient client;
 bool start = true;
 String message_to_send = "";
 String message_received = "";
-int x = 0; //x coordinate
-int y = 0; //y coordinate
-int l = 0; //left wall
-int f = 0; //front wall
-int r = 0; //right wall
+int x = 0; // x coordinate
+int y = 0; // y coordinate
+int l = 0; // left wall
+int f = 0; // front wall
+int r = 0; // right wall
 
 // Define the baud rate
-#define BAUD_RATE 115200
+const long int BAUD_RATE = 115200;
 
 //motor pin interface
-#define LEFT_STEP_PIN 33    // A3
-#define LEFT_DIR_PIN 15     // D12
+const int LEFT_STEP_PIN = 33;    // A3
+const int LEFT_DIR_PIN = 15;     // D12
 
-#define RIGHT_STEP_PIN 32   // A4
-#define RIGHT_DIR_PIN 4     // D11
+const int RIGHT_STEP_PIN = 32;   // A4
+const int RIGHT_DIR_PIN = 4;     // D11
 
-#define RX_PIN 16           // D9 
-#define TX_PIN 17           // D8
+const int RX_PIN = 16;          // D9 
+const int TX_PIN = 17;           // D8
 
 // sensor pin interface
-const int leftSensorPin = 34;   // A5
-const int frontSensorPin = 39;
+const int leftSensorPin = 34;   // A5 for now
+const int frontSensorPin = 39;  // A1 for now 
 const int rightSensorPin = 35;  // vn
 
 // rover specs
@@ -87,6 +87,10 @@ int last_sensor_reading_right = 0;
 bool wall_on_left;
 bool wall_on_right;
 bool wall_in_front;
+int state_history[5];
+int left_sensor_history[5];
+int right_sensor_history[5];
+int sensor_threshold = 50;
 
 void setup() {
   Serial.begin(115200);
