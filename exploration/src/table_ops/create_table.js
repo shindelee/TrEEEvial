@@ -1,7 +1,7 @@
 import { CreateTableCommand, DynamoDBClient } from "@aws-sdk/client-dynamodb";
 
 const client = new DynamoDBClient({
-
+  region: "us-east-1"
 });
 
 export const create_table = async () => {
