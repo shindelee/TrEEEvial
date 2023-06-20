@@ -108,8 +108,6 @@ export async function Odometry(Ml, Mr){
     vN[k] = delta_mod_PN[k]/delta_t;
     vE[k] = delta_mod_PE[k]/delta_t;
     */
-    PN[k+1] = Math.floor(PN[k+1]/3);
-    PE[k+1] = Math.floor(PE[k+1]/3);
 
     console.log("y-axis:", PN[k+1]);
     console.log("x-axis:", PE[k+1]);
@@ -119,4 +117,3 @@ export async function Odometry(Ml, Mr){
     return return_array;
 }
 
-Odometry(0, 1);
