@@ -10,7 +10,7 @@ extern WebSocketClient* webSocketClient;
 // rover specs
 extern const float STEPS_PER_REVOLUTION;
 extern const float WHEEL_RADIUS;
-extern const float wheel_diameter;
+extern const float wheelDiameter;
 extern const float wheelBase;
 extern const float wheelCircumference;
 
@@ -18,10 +18,10 @@ extern const float wheelCircumference;
 extern const long int BAUD_RATE;
 
 //motor pin interface
-extern const int LEFT_STEP_PIN;    // A4
+extern const int LEFT_STEP_PIN;    // A3
 extern const int LEFT_DIR_PIN;     // D12
 
-extern const int RIGHT_STEP_PIN;   // A3
+extern const int RIGHT_STEP_PIN;   // A4
 extern const int RIGHT_DIR_PIN;     // D11
 
 extern const int RX_PIN;           // D9 

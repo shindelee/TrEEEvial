@@ -41,26 +41,26 @@ int r = 0; //right wall
 #define BAUD_RATE 115200
 
 //motor pin interface
-#define LEFT_STEP_PIN 32    // A4
+#define LEFT_STEP_PIN 33    // A3
 #define LEFT_DIR_PIN 15     // D12
 
-#define RIGHT_STEP_PIN 33   // A3
+#define RIGHT_STEP_PIN 32   // A4
 #define RIGHT_DIR_PIN 4     // D11
 
 #define RX_PIN 16           // D9 
 #define TX_PIN 17           // D8
 
 // sensor pin interface
-const int leftSensorPin = 35;   // A5
-const int frontSensorPin = 34;
-const int rightSensorPin = 39;  // vn
+const int leftSensorPin = 34;   // A5
+const int frontSensorPin = 39;
+const int rightSensorPin = 35;  // vn
 
 // rover specs
 const float STEPS_PER_REVOLUTION = 200.0;
 const float WHEEL_RADIUS = 0.0325;
-const float wheel_diameter = 2.0 * WHEEL_RADIUS;
+const float wheelDiameter = 2.0 * WHEEL_RADIUS;
 const float wheelBase = 0.14;
-const float wheelCircumference = wheel_diameter * PI;
+const float wheelCircumference = wheelDiameter * PI;
 
 // motors
 AccelStepper leftStepper(AccelStepper::DRIVER, LEFT_STEP_PIN, LEFT_DIR_PIN);
