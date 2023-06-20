@@ -119,3 +119,4 @@ export async function Odometry(Ml, Mr){
     return return_array;
 }
 
+Odometry(0, 1);
