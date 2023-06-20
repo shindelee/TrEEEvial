@@ -2,14 +2,18 @@
 #include <WebSocketsClient.h>
 
 WebSocketsClient webSocket;
-unsigned long pingTime;
 
-const char* ssid     = "Shinde";
-const char* password = "12345678";
-char host[] = "52.91.70.167:5000";
+const char* ssid = "your_SSID";
+const char* password =  "your_PASSWORD";
+const char* websocket_server = "server_IP_or_hostname";
+
+unsigned long messageTimestamp;
+unsigned long rttSum = 0;
+unsigned int messageCount = 0;
 
 void setup() {
   Serial.begin(115200);
+
   WiFi.begin(ssid, password);
 
   while (WiFi.status() != WL_CONNECTED) {
@@ -17,38 +21,32 @@ void setup() {
     Serial.println("Connecting to WiFi...");
   }
 
-  Serial.println(WiFi.localIP());
-
-  webSocket.begin(host, 5000, "/"); // replace with your EC2 public address and port
+  webSocket.begin(websocket_server, 80, "/"); // 80 is the port. Adjust accordingly.
   webSocket.onEvent(webSocketEvent);
-  webSocket.setReconnectInterval(5000);
 }
 
 void loop() {
   webSocket.loop();
-  
-  if (millis() - pingTime > 5000) { // Send ping every 5 seconds
-    pingTime = millis();
-    String pingMsg = String(pingTime);
-    webSocket.sendTXT(pingMsg);
+
+  if(messageCount < 500) {
+    messageTimestamp = micros();
+    String message = String(messageTimestamp);
+    webSocket.sendTXT(message);
+    delay(100);
   }
 }
 
-void webSocketEvent(WStype_t type, uint8_t * payload, size_t length) {
+void webSocketEvent(WStype_t type, uint8_t* payload, size_t length) {
   switch(type) {
-    case WStype_DISCONNECTED:
-      Serial.println("[WSc] Disconnected!");
-      break;
-    case WStype_CONNECTED:
-      Serial.println("[WSc] Connected!");
-      break;
     case WStype_TEXT: {
-      unsigned long pongTime = millis();
-      unsigned long pingTime = atol((const char *)payload);
-      unsigned long rtt = pongTime - pingTime;
-      Serial.print("Round Trip Time: ");
-      Serial.println(rtt);
-      break;
+      unsigned long echoTimestamp = strtoul((const char *)payload, NULL, 10);
+      unsigned long rtt = micros() - echoTimestamp;
+
+      rttSum += rtt;
+      messageCount++;
+      float rttAvg = rttSum / (float)messageCount;
+      Serial.println("Average RTT: " + String(rttAvg, 2));
     }
+    break;
   }
 }
