@@ -3,6 +3,7 @@ import { server as WebSocketServer } from 'websocket';
 import { Odometry } from "../src/dead_reckoning.js";
 import { triangulation } from "../src/Triangulation.js";
 import * as http from 'http';
+import { Console } from "console";
 
 
  var start = true; //get from front end
@@ -55,6 +56,7 @@ import * as http from 'http';
              var received_message = message.utf8Data;
              if (received_message != buffer) {
                 var json = JSON.parse(received_message);
+                console.log("message received" + json);
              
                 // console.log("starting? " + start);
 
@@ -65,38 +67,42 @@ import * as http from 'http';
                     parent_x = 0;
                     parent_y = 0;
                 }
+
                 console.log("received message!!");
                 console.log("left wheel revolutions = " + json.x);
                 console.log("right wheel revolutions = " + json.y);
 
-                const coords_odo = Odometry(json.x,json.y);
+                const coords_odo = await Odometry(parseInt(json.x),parseInt(json.y));
+                console.log(coords_odo);
                 //0th element is x coordinate, 1st is y
-
                 
-
-                if (json.alpha == 0 || json.beta == 0){
+                //need to remember previous x, y and theta, and add together
+                    
+                if (parseInt(json.alpha) == 0 || parseInt(json.beta) == 0){
                     x_coord = coords_odo[0];
                     y_coord = coords_odo[1];
                 }
                 else{
                     // weighted median average filter 
-                    const coords_triangulation = triangulation([], [], [], json.alpha, json.beta);
+                    var coords_triangulation = await triangulation([0, 0], [1, 7], [5, 3], json.alpha, json.beta);
                     x_coord = coords_odo[0] * 0.7 + coords_triangulation[0] * 0.3;
                     y_coord = coords_odo[1] * 0.7 + coords_triangulation[1] * 0.3;
                 }
+
+                console.log("x_coord is of type" + typeof(x_coord));
+
+                var left_wall = parseInt(json.l);
+                var right_wall = parseInt(json.r);
+                var front_wall = parseInt(json.f);
                 
+                console.log("x-coord = " +x_coord + "y-coord = " +y_coord);
                     
-                directions = await Tremaux(x_coord,y_coord, parent_x, parent_y);
+                directions = await Tremaux(x_coord,y_coord, parent_x, parent_y, right_wall, left_wall,front_wall, 67);
                 parent_x = x_coord;
                 parent_y = y_coord;
 
              }
 
-             else {
-                console.log("duplicate message sent");
-             }
-
-             buffer = received_message;
              console.log("sent direction = " + directions);
              connection.sendUTF(directions);
          }

@@ -115,7 +115,8 @@ export async function Odometry(Ml, Mr){
     console.log("x-axis:", PE[k+1]);
     const y_val = PN[k+1];
     const x_val = PE[k+1];
-    const return_array = [x_val, y_val];
+    const return_array = [x_val, y_val,phi[k+1]];
     return return_array;
 }
 
+Odometry(0, 1);
