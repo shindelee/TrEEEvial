@@ -166,6 +166,7 @@ export async function triangulation(p1, p2, p3, alpha, beta) {
 */
     [x_target, y_target] = intersection(xc1, yc1, r1, xc2, yc2, r2, xc3, yc3, r3);
     console.log(x_target, y_target);
+    return [x_target,y_target];
     /*
     plot(x_target, y_target, {
         color: 'cyan',

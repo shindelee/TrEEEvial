@@ -1,7 +1,12 @@
 import { ListTablesCommand, DynamoDBClient } from "@aws-sdk/client-dynamodb";
 
 const client = new DynamoDBClient({
-  region: "us-east-1",
+  region: "x",
+  endpoint: "http://localhost:8000",
+  credentials: {
+    accessKeyId: "abcd",
+    secretAccessKey: "1234",
+  },
 });
 
 export const table_list = async () => {
