@@ -1,4 +1,4 @@
-//import { Initialise, Tremaux } from "../src/tremaux.js";
+import { Initialise, Tremaux } from "../src/tremaux.js";
 import { server as WebSocketServer } from 'websocket';
 import { Odometry } from "../src/dead_reckoning.js";
 import { triangulation } from "../src/Triangulation.js";
@@ -12,6 +12,8 @@ import * as http from 'http';
 //  var seq_no = 0;
  var directions = "";
  var buffer = "";
+ var_x_accurate = 0;
+ var y_accurate = 0;
  var x_coord;
  var y_coord;
 
@@ -61,7 +63,7 @@ import * as http from 'http';
 
                 if (start) {
                     console.log("breakpoint... Initialising")
-                    //await Initialise();
+                    await Initialise();
                     start = false;
                     parent_x = 0;
                     parent_y = 0;
@@ -78,28 +80,31 @@ import * as http from 'http';
                 //need to remember previous x, y and theta, and add together
                     
                 if (parseInt(json.alpha) == 0 || parseInt(json.beta) == 0){
-                    x_coord = coords_odo[0];
-                    y_coord = coords_odo[1];
+                    x_accurate = coords_odo[0] + x_accurate;
+                    y_accurate = coords_odo[1] + y_accurate;
                 }
                 else{
-                    // weighted median average filter 
+                    // weighted median average filter, need to update triangulation
                     var coords_triangulation = await triangulation([0, 0], [1, 7], [5, 3], json.alpha, json.beta);
-                    x_coord = coords_odo[0] * 0.7 + coords_triangulation[0] * 0.3;
-                    y_coord = coords_odo[1] * 0.7 + coords_triangulation[1] * 0.3;
+                    x_accurate = (coords_odo[0] * 0.7 + coords_triangulation[0] * 0.3) + x_accurate;
+                    y_accurate = (coords_odo[1] * 0.7 + coords_triangulation[1] * 0.3) + y_accurate;
                 }
 
-                console.log("x_coord is of type" + typeof(x_coord));
+                x_coord = Math.floor(x_accurate/3);
+                y_coord = Math.floor(y_accurate/3);
+
 
                 var left_wall = parseInt(json.l);
                 var right_wall = parseInt(json.r);
                 var front_wall = parseInt(json.f);
                 
-                console.log("x-coord = " +x_coord + "y-coord = " +y_coord);
-                    
-                //directions = await Tremaux(x_coord,y_coord, parent_x, parent_y, right_wall, left_wall,front_wall, 67);
-                parent_x = x_coord;
-                parent_y = y_coord;
-                directions = "hi";
+                console.log("x-coord = " + x_coord + "y-coord = " +y_coord);
+                
+                if(x_coord == parent_x && y_coord == parent_y) {
+                    directions = await Tremaux(x_coord,y_coord, parent_x, parent_y, right_wall, left_wall,front_wall, coords_odo[2]);
+                    parent_x = x_coord;
+                    parent_y = y_coord;
+                }
 
              }
 
