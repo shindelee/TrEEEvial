@@ -61,14 +61,16 @@ import * as http from 'http';
              
                 // console.log("starting? " + start);
 
-                if (start) {
+                if (start) { //at the beginning
                     console.log("breakpoint... Initialising")
                     await Initialise();
+                    directions = await Tremaux(0, 0, 0, 0, right_wall, left_wall,front_wall, 0);
                     start = false;
                     parent_x = 0;
                     parent_y = 0;
                 }
 
+                else{
                 console.log("received message!!");
                 console.log("left wheel revolutions = " + json.x);
                 console.log("right wheel revolutions = " + json.y);
@@ -111,6 +113,7 @@ import * as http from 'http';
              console.log("sent direction = " + directions);
              connection.sendUTF(directions);
          }
+        }
      });
  
  
