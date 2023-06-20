@@ -22,7 +22,7 @@ function InitialAlignment(Theta, Phi, Hx, Hy){
     const phi = lambda - alpha;
 }
 
-function Odometry(Ml, Mr){
+export async function Odometry(Ml, Mr){
     /*
     InitialAlignment(Theta, Phi, Hx, Hy);
 
@@ -113,6 +113,9 @@ function Odometry(Ml, Mr){
 
     console.log("y-axis:", PN[k+1]);
     console.log("x-axis:", PE[k+1]);
+    const y_val = PN[k+1];
+    const x_val = PE[k+1];
+    const return_array = [x_val, y_val];
+    return return_array;
 }
 
-Odometry(10118, 9882);

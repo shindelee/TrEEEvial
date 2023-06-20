@@ -1,7 +1,7 @@
 import { Initialise, Tremaux } from "../src/tremaux.js";
 import { server as WebSocketServer } from 'websocket';
-// import { Odometry } from "../dead_reckoning.js";
-// import { test } from "../../vision/ipynb.js";
+import { Odometry } from "../src/dead_reckoning.js";
+import { triangulation } from "../src/Triangulation.js";
 import * as http from 'http';
 
 
@@ -12,6 +12,8 @@ import * as http from 'http';
 //  var seq_no = 0;
  var directions = "";
  var buffer = "";
+ var x_coord;
+ var y_coord;
 
 //display matrix
  
@@ -64,29 +66,30 @@ import * as http from 'http';
                     parent_y = 0;
                 }
                 console.log("received message!!");
-                console.log("x = " + json.x);
-                console.log("y = " + json.y);
-                console.log("red_x_min = " + json.red_x_min);
-                console.log("red_x_max = " + json.red_x_max);
-                console.log("red_y_min = " + json.red_y_min);
-                console.log("red_y_max = " + json.red_y_max);
-                console.log("blue_x_min = " + json.blue_x_min);
-                console.log("blue_x_max = " + json.blue_x_max);
-                console.log("blue_y_min = " + json.blue_y_min);
-                console.log("blue_y_max = " + json.blue_y_max);
-                console.log("yellow_x_min = " + json.yellow_x_min);
-                console.log("yellow_x_max = " + json.yellow_x_max);
-                console.log("yellow_y_min = " + json.yellow_y_min);
-                console.log("yellow_y_max = " + json.yellow_y_max);
+                console.log("left wheel revolutions = " + json.x);
+                console.log("right wheel revolutions = " + json.y);
 
-                console.log("triang_x = ");
-                console.log("triang_y = ");
+                const coords_odo = Odometry(json.x,json.y);
+                //0th element is x coordinate, 1st is y
+
                 
-                //  console.log("expecting sequence number: " );
-                //  if (seq_no == json.seq_no) {
+
+                if (json.alpha == 0 || json.beta == 0){
+                    x_coord = coords_odo[0];
+                    y_coord = coords_odo[1];
+                }
+                else{
+                    // weighted median average filter 
+                    const coords_triangulation = triangulation([], [], [], json.alpha, json.beta);
+                    x_coord = coords_odo[0] * 0.7 + coords_triangulation[0] * 0.3;
+                    y_coord = coords_odo[1] * 0.7 + coords_triangulation[1] * 0.3;
+                }
+                
                     
-                directions = await Tremaux(json, parent_x, parent_y);
-                parent_x = json.x;
+                directions = await Tremaux(x_coord,y_coord, parent_x, parent_y);
+                parent_x = x_coord;
+                parent_y = y_coord;
+
              }
 
              else {
