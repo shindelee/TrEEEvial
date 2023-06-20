@@ -11,3 +11,7 @@ if (FRONT_WALL) {
     turn_180();
   }
 }
+
+if (change_state && lost_wall) {
+  if (state == LEFT_WALL)
+}
