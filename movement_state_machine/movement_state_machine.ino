@@ -1,5 +1,6 @@
 #include <AccelStepper.h>
 //#include <elapsedMillis.h>
+#include <Math.h>
 
 #define LEFT_STEP_PIN 33 // A3
 #define LEFT_DIR_PIN 15  // D12
@@ -49,7 +50,7 @@ bool wall_in_front;
 int state_history[5];
 int left_sensor_history[5];
 int right_sensor_history[5];
-int sensor_threshold = 30;
+int sensor_threshold = 50;
 
 
 //functions
@@ -110,8 +111,8 @@ void initialise_right_sensor_history() {
 void set_speed(int left_sensor_reading, int right_sensor_reading, int required_speed) {
   int difference = left_sensor_reading - right_sensor_reading;
   Serial.print ("difference = " + String(difference) + "   ");
-  int p = 1;
-  int weighted_difference = difference * p;
+  int weighted_difference = static_cast<int>(difference * 0.4);
+  Serial.print ("weighted difference = " + String(weighted_difference) + "   ");
 
   leftStepper.setSpeed(-(required_speed + weighted_difference));
   rightStepper.setSpeed(required_speed - weighted_difference);
@@ -140,14 +141,14 @@ void set_wall_states() {
     {
       state = LEFT_WALL;
       cur_state = "left wall";
-      set_speed(leftSensorReading, sensor_threshold + 20, sensor_threshold + 20);
+      set_speed(leftSensorReading, sensor_threshold + 40, sensor_threshold + 40);
       
     }
     else if (!wall_on_left && wall_on_right)
     {
       state = RIGHT_WALL;
       cur_state = "right wall";
-        set_speed(sensor_threshold + 20,rightSensorReading, sensor_threshold + 20);
+        set_speed(sensor_threshold + 40,rightSensorReading, sensor_threshold + 40);
     }
     else
     {
@@ -161,14 +162,17 @@ void set_wall_states() {
 
 
 void leave_node(){
-    Serial.println("leaving node...");
-    leftStepper.move(-200);
-    rightStepper.move(200);
-    
-    while(abs(leftStepper.distanceToGo()) >0) {
-      leftStepper.run();
-      rightStepper.run();
-    }
+    Serial.println("turning 90 to the right!");
+  leftStepper.setCurrentPosition(0);
+  rightStepper.setCurrentPosition(0);
+  leftStepper.move(-200);
+  rightStepper.move(200);
+  leftStepper.setSpeed(-50);
+  rightStepper.setSpeed(50);
+  while(rightStepper.distanceToGo() != 0 && leftStepper.distanceToGo() != 0) {
+    rightStepper.runSpeed();
+    leftStepper.runSpeed();
+  }
     read_sensors_and_set_speed();
 
     
@@ -203,9 +207,11 @@ void turn_right_90(){
   rightStepper.setCurrentPosition(0);
   leftStepper.move(108);
   rightStepper.move(108);
+  leftStepper.setSpeed(50);
+  rightStepper.setSpeed(50);
   while(rightStepper.distanceToGo() != 0 && leftStepper.distanceToGo() != 0) {
-    rightStepper.run();
-    leftStepper.run();
+    rightStepper.runSpeed();
+    leftStepper.runSpeed();
   }
 }
 
@@ -241,36 +247,36 @@ void loop()
     change_state = change_state && (state_history[3]!= state_history[4]);
 
     bool lost_wall = (abs(left_sensor_history[4] - leftSensorReading) > 40) || (abs(right_sensor_history[4] - rightSensorReading) > 40);
-    if ((change_state && lost_wall) || frontSensorReading > sensor_threshold) {
-      Serial.println("state change!");
+    if ((change_state) || state == FRONT_WALL) { //entering a node
+      Serial.println("in a node!");
       leftStepper.stop();
       rightStepper.stop();
+
+      if (state != FRONT_WALL) {
+        leftStepper.move(-30);
+        rightStepper.move(30);
+        leftStepper.setSpeed(-20);
+        rightStepper.setSpeed(20);
+        while (abs(leftStepper.distanceToGo()) >0) {
+          Serial.println(leftStepper.distanceToGo());
+          leftStepper.runSpeed();
+          rightStepper.runSpeed();
+        }
+      }
+      else {
+        delay(2000);
+        turn_right_90();
+        delay(1000);
+        leave_node();
+      }
       
+      read_sensors_and_set_speed();
+      delay(2000);
       initialise_state_history();
       initialise_left_sensor_history();
       initialise_right_sensor_history();
 
-//      if (state != FRONT_WALL) {
-  //      Serial.println("moving to centre");
-  //      leftStepper.move(-50);
-  //      rightStepper.move(50);
-  //
-  //      while (abs(leftStepper.distanceToGo()) >0) {
-  //        Serial.println(leftStepper.distanceToGo());
-  //        leftStepper.run();
-  //        rightStepper.run();
-  //      }
-//      }
-//      Serial.println("I'm here");
-//      read_sensors();
-//
-//      delay(2000);
-//
-//      //get instructions here!
-//      turn_right_90();
-//
-//      leave_node();
-//      
+  
     }
   
   }
@@ -281,6 +287,5 @@ void loop()
   //run the stepper
   leftStepper.runSpeed();
   rightStepper.runSpeed();
-
 
 }
