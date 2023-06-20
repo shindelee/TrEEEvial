@@ -113,7 +113,7 @@ function intersection(xc1, yc1, r1, xc2, yc2, r2, xc3, yc3, r3) {
     }
 }
   
-function triangulation(p1, p2, p3, alpha, beta) {
+export async function triangulation(p1, p2, p3, alpha, beta) {
     var cir1, cir2, cir3, r1, r2, r3, x_target, xc1, xc2, xc3, y_target, yc1, yc2, yc3;
     [xc1, yc1, r1] = circle(p1, p2, 2 * alpha);
     [xc2, yc2, r2] = circle(p2, p3, 2 * beta);

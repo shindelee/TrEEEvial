@@ -22,7 +22,7 @@ function InitialAlignment(Theta, Phi, Hx, Hy){
     const phi = lambda - alpha;
 }
 
-function Odometry(Ml, Mr){
+export async function Odometry(Ml, Mr){
     /*
     InitialAlignment(Theta, Phi, Hx, Hy);
 
