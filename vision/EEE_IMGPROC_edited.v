@@ -83,6 +83,26 @@ reg[7:0] red_gauss_stage_1, red_gauss_stage_2, red_gauss_stage_3, red_gauss_stag
 reg[7:0] green_gauss_stage_1, green_gauss_stage_2, green_gauss_stage_3, green_gauss_stage_4, green_gauss_stage_5;
 reg[7:0] blue_gauss_stage_1, blue_gauss_stage_2, blue_gauss_stage_3, blue_gauss_stage_4, blue_gauss_stage_5;
 
+initial begin
+		red_gauss_stage_1 = 0;
+		red_gauss_stage_2 = 0;
+		red_gauss_stage_3 = 0;
+		red_gauss_stage_4 = 0;
+		red_gauss_stage_5 = 0;
+
+		green_gauss_stage_1 = 0;
+		green_gauss_stage_2 = 0;
+		green_gauss_stage_3 = 0;
+		green_gauss_stage_4 = 0;
+		green_gauss_stage_5 = 0;
+
+		blue_gauss_stage_1 = 0;
+		blue_gauss_stage_2 = 0;
+		blue_gauss_stage_3 = 0;
+		blue_gauss_stage_4 = 0;
+		blue_gauss_stage_5 = 0;
+end
+
 always @(posedge clk) begin
 	red_gauss_stage_1 <= red;
 	red_gauss_stage_2 <= red_gauss_stage_1;
@@ -112,7 +132,6 @@ reg [14:0] temp_g1, temp_g2, temp_g3, temp_g4, temp_g5;
 
 reg [14:0] temp_sum_r, temp_sum_g, temp_sum_b;
 
-
 always @(*) begin
 
 	if (x < 2) begin
@@ -130,29 +149,9 @@ always @(*) begin
 
 	else begin
 
-		temp_r1 = 8 * red_gauss_stage_1; 
-		temp_r2 = 31 * red_gauss_stage_2;
-		temp_r3 = 49 * red_gauss_stage_3;
-		temp_r4 = 31 * red_gauss_stage_4;
-		temp_r5 = 8 * red_gauss_stage_5;
-		temp_sum_r = temp_r1 + temp_r2 + temp_r3 + temp_r4 + temp_r5;
-		gauss_red = temp_sum_r [14:7];
-
-		temp_g1 = 8 * green_gauss_stage_1; 
-		temp_g2 = 31 * green_gauss_stage_2;
-		temp_g3 = 49 * green_gauss_stage_3;
-		temp_g4 = 31 * green_gauss_stage_4;
-		temp_g5 = 8 * green_gauss_stage_5;
-		temp_sum_g = temp_g1 + temp_g2 + temp_g3 + temp_g4 + temp_g5;
-		gauss_green = temp_sum_g [14:7];
-
-		temp_b1 = 8 * blue_gauss_stage_1; 
-		temp_b2 = 31 * blue_gauss_stage_2;
-		temp_b3 = 49 * blue_gauss_stage_3;
-		temp_b4 = 31 * blue_gauss_stage_4;
-		temp_b5 = 8 * blue_gauss_stage_5;
-		temp_sum_b = temp_b1 + temp_b2 + temp_b3 + temp_b4 + temp_b5;
-		gauss_blue = temp_sum_b [14:7];
+		gauss_red = (8 * red_gauss_stage_1 + 31 * red_gauss_stage_2 + 49 * red_gauss_stage_3 + 31 * red_gauss_stage_4 + 8 * red_gauss_stage_5) >> 7; 
+		gauss_green = (8 * green_gauss_stage_1 + 31 * green_gauss_stage_2 + 49 * green_gauss_stage_3 + 31 * green_gauss_stage_4 + 8 * green_gauss_stage_5) >> 7;
+		gauss_blue = (8 * blue_gauss_stage_1 + 31 * blue_gauss_stage_2 + 49 * blue_gauss_stage_3 + 31 * blue_gauss_stage_4 + 8 * blue_gauss_stage_5) >> 7;
 
 	end 
 end
@@ -180,7 +179,6 @@ initial begin
 	yellow_detect_3 = 0;
 	yellow_detect_4 = 0;
 	yellow_detect_5 = 0;
-
 end
 
 always @(posedge clk)begin
@@ -249,17 +247,18 @@ assign hue_temp = (delta == 0) ? 0 : (cmax == r) ? (60 * ((g - b) / delta))
 assign hue = (hue_temp < 0) ? hue_temp + 360 : hue_temp;
 */
 assign val = (red > green) ? ((red > blue) ? red[7:0] : blue[7:0]) : (green > blue) ? green[7:0] : blue[7:0];
-assign hue = (red == green && red == blue) ? 0 :((val != red)? (val != green) ? (((240*((val - min))+ (60* (red - green)))/(val-min))>>1):
-                ((120*(val-min)+60*(blue - red))/(val - min)>>1): 
-                (blue < green) ? ((60*(green - blue)/(val - min))>>1): (((360*(val-min) +(60*(green - blue)))/(val - min))>>1));
+assign hue = (red == green && red == blue) ? 0 :((val != red)? (val != green) ? (((240 * ((val - min))+ (60 * (red - green)))/(val-min)) >> 1):
+                ((120 * (val-min) + 60 * (blue - red))/(val - min) >> 1): 
+                (blue < green) ? ((60 * (green - blue)/(val - min)) >> 1): (((360 * (val-min) +(60 * (green - blue)))/(val - min)) >> 1));
 
 assign sat = (val - min)* 255 / val;
 
 // HSV
 wire red_detect, blue_detect, yellow_detect;
 assign red_detect = red[7] && ~blue[7] && ~green[7] && red[6];
+// assign red_detect = ((hue > 0 && hue < 15) || (hue > 340 && hue < 360)) && sat > 150 && sat < 250 && val < 240 && val > 155;
 assign yellow_detect = (hue > 10) && (hue < 30) && sat > 150 && sat < 240 && val < 240 && val > 155;
-// assign blue_detect = (hue > 185) && (hue < 260) && sat > 20 && val > git 20 && sat < 150 && val < 120;
+// assign blue_detect = (hue > 185) && (hue < 260) && sat > 20 && val > 20 && sat < 150 && val < 120;
 assign blue_detect = ~red[7] && blue[7] && ~green[7] && blue[6];
 
 // Find boundary of cursor box
