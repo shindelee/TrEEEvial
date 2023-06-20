@@ -83,46 +83,45 @@ reg[7:0] red_gauss_stage_1, red_gauss_stage_2, red_gauss_stage_3, red_gauss_stag
 reg[7:0] green_gauss_stage_1, green_gauss_stage_2, green_gauss_stage_3, green_gauss_stage_4, green_gauss_stage_5;
 reg[7:0] blue_gauss_stage_1, blue_gauss_stage_2, blue_gauss_stage_3, blue_gauss_stage_4, blue_gauss_stage_5;
 
-always @(posedge clk or posedge reset) begin
-	if (reset) begin
-		red_gauss_stage_1 <= 0;
-		red_gauss_stage_2 <= 0;
-		red_gauss_stage_3 <= 0;
-		red_gauss_stage_4 <= 0;
-		red_gauss_stage_5 <= 0;
+initial begin
+		red_gauss_stage_1 = 0;
+		red_gauss_stage_2 = 0;
+		red_gauss_stage_3 = 0;
+		red_gauss_stage_4 = 0;
+		red_gauss_stage_5 = 0;
 
-		green_gauss_stage_1 <= 0;
-		green_gauss_stage_2 <= 0;
-		green_gauss_stage_3 <= 0;
-		green_gauss_stage_4 <= 0;
-		green_gauss_stage_5 <= 0;
+		green_gauss_stage_1 = 0;
+		green_gauss_stage_2 = 0;
+		green_gauss_stage_3 = 0;
+		green_gauss_stage_4 = 0;
+		green_gauss_stage_5 = 0;
 
-		blue_gauss_stage_1 <= 0;
-		blue_gauss_stage_2 <= 0;
-		blue_gauss_stage_3 <= 0;
-		blue_gauss_stage_4 <= 0;
-		blue_gauss_stage_5 <= 0;
+		blue_gauss_stage_1 = 0;
+		blue_gauss_stage_2 = 0;
+		blue_gauss_stage_3 = 0;
+		blue_gauss_stage_4 = 0;
+		blue_gauss_stage_5 = 0;
+end
 
-	end else begin
+always @(posedge clk) begin
+	red_gauss_stage_1 <= red;
+	red_gauss_stage_2 <= red_gauss_stage_1;
+	red_gauss_stage_3 <= red_gauss_stage_2;
+	red_gauss_stage_4 <= red_gauss_stage_3;
+	red_gauss_stage_5 <= red_gauss_stage_4;
 
-		red_gauss_stage_1 <= red;
-		red_gauss_stage_2 <= red_gauss_stage_1;
-		red_gauss_stage_3 <= red_gauss_stage_2;
-		red_gauss_stage_4 <= red_gauss_stage_3;
-		red_gauss_stage_5 <= red_gauss_stage_4;
+	green_gauss_stage_1 <= green;
+	green_gauss_stage_2 <= green_gauss_stage_1;
+	green_gauss_stage_3 <= green_gauss_stage_2;
+	green_gauss_stage_4 <= green_gauss_stage_3;
+	green_gauss_stage_5 <= green_gauss_stage_4;
 
-		green_gauss_stage_1 <= green;
-		green_gauss_stage_2 <= green_gauss_stage_1;
-		green_gauss_stage_3 <= green_gauss_stage_2;
-		green_gauss_stage_4 <= green_gauss_stage_3;
-		green_gauss_stage_5 <= green_gauss_stage_4;
+	blue_gauss_stage_1 <= blue;
+	blue_gauss_stage_2 <= blue_gauss_stage_1;
+	blue_gauss_stage_3 <= blue_gauss_stage_2;
+	blue_gauss_stage_4 <= blue_gauss_stage_3;
+	blue_gauss_stage_5 <= blue_gauss_stage_4;
 
-		blue_gauss_stage_1 <= blue;
-		blue_gauss_stage_2 <= blue_gauss_stage_1;
-		blue_gauss_stage_3 <= blue_gauss_stage_2;
-		blue_gauss_stage_4 <= blue_gauss_stage_3;
-		blue_gauss_stage_5 <= blue_gauss_stage_4;
-	end
 end
 
 reg [7:0] gauss_red, gauss_green, gauss_blue;

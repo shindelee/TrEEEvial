@@ -3,6 +3,8 @@
 
 #include <WiFi.h>
 #include <WebSocketClient.h>
+#include <AccelStepper.h>
+#include <Math.h>
 
 extern WiFiClient* client;
 extern WebSocketClient* webSocketClient;
@@ -10,7 +12,7 @@ extern WebSocketClient* webSocketClient;
 // rover specs
 extern const float STEPS_PER_REVOLUTION;
 extern const float WHEEL_RADIUS;
-extern const float wheel_diameter;
+extern const float wheelDiameter;
 extern const float wheelBase;
 extern const float wheelCircumference;
 
@@ -18,10 +20,10 @@ extern const float wheelCircumference;
 extern const long int BAUD_RATE;
 
 //motor pin interface
-extern const int LEFT_STEP_PIN;    // A4
+extern const int LEFT_STEP_PIN;    // A3
 extern const int LEFT_DIR_PIN;     // D12
 
-extern const int RIGHT_STEP_PIN;   // A3
+extern const int RIGHT_STEP_PIN;   // A4
 extern const int RIGHT_DIR_PIN;     // D11
 
 extern const int RX_PIN;           // D9 
@@ -53,6 +55,10 @@ extern int last_sensor_reading_right;
 extern bool wall_on_left;
 extern bool wall_on_right;
 extern bool wall_in_front;
+extern int state_history[5];
+extern int left_sensor_history[5];
+extern int right_sensor_history[5];
+extern int sensor_threshold 
 
 // wall information for message to be sent to EC2
 extern bool start;
