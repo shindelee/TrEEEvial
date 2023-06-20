@@ -113,6 +113,9 @@ function Odometry(Ml, Mr){
 
     console.log("y-axis:", PN[k+1]);
     console.log("x-axis:", PE[k+1]);
+    const y_val = PN[k+1];
+    const x_val = PE[k+1];
+    const return_array = [x_val, y_val];
+    return return_array;
 }
 
-Odometry(10118, 9882);

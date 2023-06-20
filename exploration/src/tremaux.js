@@ -28,9 +28,7 @@ export async function Initialise () {
 
 
 
-export async function Tremaux (message, parent_x, parent_y){
-    const X = parseInt(message.x);
-    const Y = parseInt(message.y);
+export async function Tremaux (X,Y, parent_x, parent_y){
     var msg;
     var paths = [];
     /* 
