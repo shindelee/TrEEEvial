@@ -27,7 +27,7 @@ float size_bb(float min_x, float max_x, float min_y, float max_y){
     return size;
 }
 
-void beacon_detection(AccelStepper *leftStepper, AccelStepper *rightStepper){
+void beacon_detection(){
     if (Serial1.available() >= 4)
     {
         byte m1 = Serial1.read();    // read the bytes into byte variables 'b1' to 'b4'
@@ -70,8 +70,8 @@ void beacon_detection(AccelStepper *leftStepper, AccelStepper *rightStepper){
                 bool blue_detect = is_in_frame(numbers[4], numbers[6], numbers[5], numbers[7]);
                 bool yellow_detect = is_in_frame(numbers[8], numbers[10], numbers[9], numbers[11]);
 
-                int left_wheel_revs = leftStepper->currentPosition();
-                int right_wheel_revs = rightStepper->currentPosition();
+                int left_wheel_revs = leftStepper.currentPosition();
+                int right_wheel_revs = rightStepper.currentPosition();
 
                 if (red_detect || yellow_detect) 
                 {

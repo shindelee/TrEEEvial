@@ -1,5 +1,5 @@
-#ifndef DRIVE_FUNCTIONS_H
-#define DRIVE_FUNCTIONS_H
+#ifndef MOVEMENT_STATE_MACHINE_H
+#define MOVEMENT_STATE_MACHINE_H
 
 #include <AccelStepper.h> 
 #include <Math.h>
@@ -11,11 +11,11 @@ void initialise_state_history();
 void initialise_left_sensor_history();
 void initialise_right_sensor_history();
 void set_speed(int left_sensor_reading, int right_sensor_reading, int required_speed);
-void set_wall_states(AccelStepper *leftStepper, AccelStepper *rightStepper);
-void leave_node(AccelStepper *leftStepper, AccelStepper *rightStepper);
+void set_wall_states();
+void leave_node();
 void read_sensors();
 void read_sensors_and_set_speed();
-void turn_right_90(AccelStepper *leftStepper, AccelStepper *rightStepper);
+void turn_right_90();
 
 
 #endif

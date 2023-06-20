@@ -62,7 +62,7 @@ void set_speed(int left_sensor_reading, int right_sensor_reading, int required_s
 }
 
 
-void set_wall_states(AccelStepper *leftStepper, AccelStepper *rightStepper) {
+void set_wall_states() {
   if (wall_in_front)
     {
       state = FRONT_WALL;
@@ -104,8 +104,8 @@ void set_wall_states(AccelStepper *leftStepper, AccelStepper *rightStepper) {
 }
 
 
-void leave_node(AccelStepper *leftStepper, AccelStepper *rightStepper){
-    Serial.println("turning 90 to the right!");
+void leave_node(){
+  Serial.println("turning 90 to the right!");
   leftStepper.setCurrentPosition(0);
   rightStepper.setCurrentPosition(0);
   leftStepper.move(-200);
@@ -144,7 +144,7 @@ void read_sensors_and_set_speed() {
 }
 
 
-void turn_right_90(AccelStepper *leftStepper, AccelStepper *rightStepper){
+void turn_right_90(){
   Serial.println("turning 90 to the right!");
   leftStepper.setCurrentPosition(0);
   rightStepper.setCurrentPosition(0);
@@ -158,7 +158,7 @@ void turn_right_90(AccelStepper *leftStepper, AccelStepper *rightStepper){
   }
 }
 
-
+/*
 void setup()
 {
   Serial.begin(115200);
@@ -172,8 +172,8 @@ void setup()
   
     
 }
-
-
+*/
+/*
 void loop()
 {
   int time_since_reading_left = abs(leftStepper.currentPosition() - last_sensor_reading_left);
@@ -232,3 +232,4 @@ void loop()
   rightStepper.runSpeed();
 
 }
+*/

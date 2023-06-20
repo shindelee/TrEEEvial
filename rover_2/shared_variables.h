@@ -9,6 +9,9 @@
 extern WiFiClient* client;
 extern WebSocketClient* webSocketClient;
 
+extern AccelStepper leftStepper;
+extern AccelStepper rightStepper;
+
 // rover specs
 extern const float STEPS_PER_REVOLUTION;
 extern const float WHEEL_RADIUS;
@@ -58,7 +61,7 @@ extern bool wall_in_front;
 extern int state_history[5];
 extern int left_sensor_history[5];
 extern int right_sensor_history[5];
-extern int sensor_threshold 
+extern int sensor_threshold; 
 
 // wall information for message to be sent to EC2
 extern bool start;

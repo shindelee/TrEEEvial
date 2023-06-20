@@ -5,6 +5,7 @@
 #include "balancing.h"
 #include "uart.h"
 #include "shared_variables.h"
+#include "movement_state_machine.h"
 
 // define globals here
 // websocket and WiFi stuff
@@ -13,7 +14,6 @@ const char* ssid     = "Shinde";
 const char* password = "12345678";
 char path[] = "/";
 char host[] = "52.91.70.167:5000";
-
 
 WebSocketClient *webSocketClient = new WebSocketClient();
 
@@ -110,7 +110,7 @@ void setup() {
   rightStepper.setAcceleration(10);
 
   // get initial sensor reading
-  read_sensors_and_set_speed(&leftStepper, &rightStepper);
+  read_sensors_and_set_speed();
   previous_state = cur_state;
   
 }
