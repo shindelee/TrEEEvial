@@ -59,8 +59,8 @@ function Odometry(Ml, Mr){
     let delta_mod_PN = [0, 0, 0];
     let delta_mod_PE = [0, 0, 0];
     let phi = [0, 0, 0]
-    let PN = [0, 0, 0];
-    let PE = [0, 0, 0];
+    let PN = [0, 0, 0]; // y-coordinate [past, present, future]
+    let PE = [0, 0, 0]; // x-coordinate [past, present, future]
     let Theta = 0;
     let Phi = 0;
     const k = 1;

@@ -1,5 +1,7 @@
 import { Initialise, Tremaux } from "../src/tremaux.js";
 import { server as WebSocketServer } from 'websocket';
+// import { Odometry } from "../dead_reckoning.js";
+// import { test } from "../../vision/ipynb.js";
 import * as http from 'http';
 
 
@@ -77,6 +79,8 @@ import * as http from 'http';
                 console.log("yellow_y_min = " + json.yellow_y_min);
                 console.log("yellow_y_max = " + json.yellow_y_max);
 
+                console.log("triang_x = ");
+                console.log("triang_y = ");
                 
                 //  console.log("expecting sequence number: " );
                 //  if (seq_no == json.seq_no) {
