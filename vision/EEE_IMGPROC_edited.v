@@ -77,6 +77,8 @@ wire         sop, eop, in_valid, out_ready;
 
 ////////////////////////////////////////////////////////////////////////
 
+// Gaussian Filter
+
 reg[7:0] red_gauss_stage_1, red_gauss_stage_2, red_gauss_stage_3, red_gauss_stage_4, red_gauss_stage_5;
 reg[7:0] green_gauss_stage_1, green_gauss_stage_2, green_gauss_stage_3, green_gauss_stage_4, green_gauss_stage_5;
 reg[7:0] blue_gauss_stage_1, blue_gauss_stage_2, blue_gauss_stage_3, blue_gauss_stage_4, blue_gauss_stage_5;
@@ -102,12 +104,7 @@ always @(posedge clk) begin
 
 end
 
-// Gaussian Filter
 reg [7:0] gauss_red, gauss_green, gauss_blue;
-
-// reg [7:0] red_gauss_stage_1, red_gauss_stage_2, red_gauss_stage_3, red_gauss_stage_4, red_gauss_stage_5;
-// reg [7:0] green_gauss_stage_1, green_gauss_stage_2, green_gauss_stage_3, green_gauss_stage_4, green_gauss_stage_5;
-// reg [7:0] blue_gauss_stage_1, blue_gauss_stage_2, blue_gauss_stage_3, blue_gauss_stage_4, blue_gauss_stage_5;
 
 reg [14:0] temp_b1, temp_b2, temp_b3, temp_b4, temp_b5;
 reg [14:0] temp_r1, temp_r2, temp_r3, temp_r4, temp_r5;
@@ -159,71 +156,6 @@ always @(*) begin
 
 	end 
 end
-
-/*
-// Median Filter
-
-wire [7:0] median_red, median_green, median_blue;
-reg [7:0] blue_median_stage_1, blue_median_stage_2, blue_median_stage_3, blue_median_stage_4, blue_median_stage_5;
-reg [7:0] red_median_stage_1, red_median_stage_2, red_median_stage_3, red_median_stage_4, red_median_stage_5;
-reg [7:0] green_median_stage_1, green_median_stage_2, green_median_stage_3, green_median_stage_4, red_median_stage_5;
-
-always @(posedge clk) begin
-	red_median_stage_1 <= gauss_red;
-	red_median_stage_2 <= red_median_stage_1;
-	red_median_stage_3 <= red_median_stage_2;
-	red_median_stage_4 <= red_median_stage_3;
-	red_median_stage_5 <= red_median_stage_4;
-
-	green_median_stage_1 <= gauss_green;
-	green_median_stage_2 <= green_median_stage_1;
-	green_median_stage_3 <= green_median_stage_2;
-	green_median_stage_4 <= green_median_stage_3;
-	green_median_stage_5 <= green_median_stage_4;
-
-	blue_median_stage_1 <= gauss_blue;
-	blue_median_stage_2 <= blue_median_stage_1;
-	blue_median_stage_3 <= blue_median_stage_2;
-	blue_median_stage_4 <= blue_median_stage_3;
-	blue_median_stage_5 <= blue_median_stage_4;
-end
-
-Median_Filter medRed(
-	.x(x),
-	.gaussian(gauss_red),
-	.reg_stage5(red_median_stage_5),
-	.one(red_median_stage_1),
-	.two(red_median_stage_2),
-	.three(red_median_stage_3),
-	.four(red_median_stage_4),
-	.five(red_median_stage_5),
-	.result(median_red)
-);
-
-Median_Filter medGreen(
-	.x(x),
-	.gaussian(gauss_green),
-	.reg_stage5(green_median_stage_5),
-	.one(green_median_stage_1),
-	.two(green_median_stage_2),
-	.three(green_median_stage_3),
-	.four(green_median_stage_4),
-	.five(green_median_stage_5),
-	.result(median_green)
-);
-
-Median_Filter medBlue(
-	.x(x),
-	.gaussian(gauss_blue),
-	.reg_stage5(blue_median_stage_5),
-	.one(blue_median_stage_1),
-	.two(blue_median_stage_2),
-	.three(blue_median_stage_3),
-	.four(blue_median_stage_4),
-	.five(blue_median_stage_5),
-	.result(median_blue)
-);
-*/
 
 // 5 consecutive pixels 
 reg red_detect_1, red_detect_2, red_detect_3 , red_detect_4, red_detect_5;
@@ -304,12 +236,6 @@ assign r = red / 255;
 assign b = blue / 255;
 assign g = green / 255;
 
-/*
-assign r = red >> 8; 
-assign b = blue >> 8;
-assign g = green >> 8;
-*/
-
 assign min = (red < green)? ((red<blue) ? red[7:0] : blue[7:0]) : (green < blue) ? green [7:0] : blue[7:0];
 assign cmax = ((r >= g) & (r >= b)) ? r : ((g >= b) & (g >= r)) ? g : b;
 assign cmin = ((r <= g) & (r <= b)) ? r : ((g <= b) & (g <= r)) ? g : b;
@@ -339,9 +265,6 @@ assign blue_detect = ~red[7] && blue[7] && ~green[7] && blue[6];
 // Find boundary of cursor box
 
 // Highlight detected areas
-// wire [23:0] red_high, blue_high, yellow_high;
-
-
 wire red_high, blue_high, yellow_high;
 
 assign red_high = red_detect_1 && red_detect_2 && red_detect_3 && red_detect_4 && red_detect_5;
@@ -499,7 +422,6 @@ always@(posedge clk) begin
 		right_yellow <= yellow_x_max;
 		top_yellow <= yellow_y_min;
 		bottom_yellow <= yellow_y_max;
-		
 		
 		/*
 		left <= x_min;
@@ -679,43 +601,6 @@ end
 
 // Fetch next word from message buffer after read from READ_MSG
 assign msg_buf_rd = s_chipselect & s_read & ~read_d & ~msg_buf_empty & (s_address == `READ_MSG);
-
-/*
-module comparator(
-    input [7:0] A,
-    input [7:0] B,
-    output reg [7:0] smaller,
-    output reg [7:0] larger
-);
-
-always @(*) begin
-    if(A < B) begin
-		smaller = A;
-		larger = B;
-	end
-	else begin
-		smaller = B;
-		larger = A;
-	end
-end
-
-module Median_Filter(
-	input[10:0] x,
-	input [7:0] gaussian,
-	input[7:0] reg_stage5,
-	input[7:0] one,
-	input[7:0] two,
-	input[7:0] three,
-	input[7:0] four,
-	input[7:0] five,
-	output[7:0] result
-	
-	
-);
-
-
-
-*/	
 
 endmodule
 
