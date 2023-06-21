@@ -1,4 +1,4 @@
-function createWallAroundPath(matrix, pathIndexes, proximity, range, specifiedPathCell, angularDirection, leftWall, frontWall, rightWall) {
+function createWallAroundPath(matrix, pathIndexes, proximity, range, initialPathCell, specifiedPathCell, angularDirection, leftWall, frontWall, rightWall) {
     // Helper function to check if an index is valid within the matrix bounds
     function isValidIndex(row, col) {
       return row >= 0 && row < matrix.length && col >= 0 && col < matrix[0].length;
@@ -85,6 +85,26 @@ function createWallAroundPath(matrix, pathIndexes, proximity, range, specifiedPa
           if (isWithinAngularDirection(degrees, angularDirection + 90, range)) {
             matrix[row][col] = 0; // Remove wall cells within proximity and specified angular direction
           }
+        }
+      }
+    }
+
+    // Remove the back wall of the inital position.
+    // Find wall cells within proximity of the specified path cell and remove them based on the angular direction
+    for (let row = Math.max(0, initialPathCell[0] - (proximity)); row <= Math.min(matrix.length - 1, initialPathCell[0] + proximity); row++) {
+      for (let col = Math.max(0, initialPathCell[1] - (proximity)); col <= Math.min(matrix[row].length - 1, initialPathCell[1] + proximity); col++) {
+        if (matrix[row][col] !== 1) continue; // Skip cells that are not wall cells
+        const angle = Math.atan2(row - initialPathCell[0], col - initialPathCell[1]);
+        const degrees = angle * (180 / Math.PI);
+        var reversedAngularDirection = 0;
+        if(angularDirection > 0){
+          reversedAngularDirection = -180 + angularDirection;
+        }
+        else{
+          reversedAngularDirection = 180 + angularDirection;
+        }
+        if (isWithinAngularDirection(degrees, reversedAngularDirection, range)) {
+          matrix[row][col] = 0; // Remove wall cells within proximity and specified angular direction
         }
       }
     }
