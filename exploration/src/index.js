@@ -64,7 +64,7 @@ import * as http from 'http';
                 if (start) { //at the beginning
                     console.log("breakpoint... Initialising")
                     await Initialise();
-                    directions = await Tremaux(0, 0, 0, 0, right_wall, left_wall,front_wall, 0);
+                    directions = await Tremaux(0, 0, 0, -0.1, right_wall, left_wall,front_wall, 0);
                     start = false;
                     parent_x = 0;
                     parent_y = 0;
@@ -75,7 +75,7 @@ import * as http from 'http';
                 console.log("left wheel revolutions = " + json.x);
                 console.log("right wheel revolutions = " + json.y);
 
-                const coords_odo = await Odometry(parseInt(json.x),parseInt(json.y));
+                const coords_odo = await Odometry(parseInt(json.x) , parseInt(json.y));
                 console.log(coords_odo);
                 //0th element is x coordinate, 1st is y
                 
@@ -87,7 +87,7 @@ import * as http from 'http';
                 }
                 else{
                     // weighted median average filter, need to update triangulation
-                    var coords_triangulation = await triangulation([0, 0], [1, 7], [5, 3], json.alpha, json.beta);
+                    var coords_triangulation = await triangulation([0, 0], [1, 7], [5, 3], parseInt(json.alpha), parseInt(json.beta));
                     x_accurate = (coords_odo[0] * 0.7 + coords_triangulation[0] * 0.3) + x_accurate;
                     y_accurate = (coords_odo[1] * 0.7 + coords_triangulation[1] * 0.3) + y_accurate;
                 }
@@ -100,13 +100,11 @@ import * as http from 'http';
                 var right_wall = parseInt(json.r);
                 var front_wall = parseInt(json.f);
                 
-                console.log("x-coord = " + x_coord + "y-coord = " +y_coord);
-                
-                if(x_coord == parent_x && y_coord == parent_y) {
-                    directions = await Tremaux(x_coord,y_coord, parent_x, parent_y, right_wall, left_wall,front_wall, coords_odo[2]);
-                    parent_x = x_coord;
-                    parent_y = y_coord;
-                }
+                console.log("x-coord = " + x_coord + " , y-coord = " +y_coord);
+        
+                directions = await Tremaux(x_coord,y_coord, parent_x, parent_y, right_wall, left_wall,front_wall, coords_odo[2]);
+                parent_x = x_coord;
+                parent_y = y_coord;
 
              }
 

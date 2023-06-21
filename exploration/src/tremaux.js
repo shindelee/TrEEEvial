@@ -95,45 +95,72 @@ export async function Tremaux (X,Y, parent_x, parent_y,r ,l, f, heading){
     }
     else { //if visited before
         paths = await query_visited(X,Y);
-        if (theta <=45 && theta > 315) { // origin path is north
-            paths[0] = paths[0] + 1;
+        if (!(X==parent_x && Y==parent_y)){
+            if (theta <=45 || theta > 315) { // origin path is north
+                paths[0] = paths[0] + 1;
+            }
+
+            if (theta <=135 && theta > 45) { // origin path is east
+                paths[1] = paths[0] + 1;
+            }
+
+            if (theta <= 225 && theta >135) { // origin path is south
+                paths[2] = paths[2] + 1;
+            }
+
+            if (theta <=315 && theta > 225) { // origin path is west
+                paths[3] = paths[3] + 1;
+            }
         }
 
-        if (theta <=135 && theta > 45) { // origin path is east
-            paths[1] = paths[0] + 1;
+        else {
+            if ((theta <=45 || theta > 315) && f == 1) { // origin path is north
+                paths[2] = 2
+            }
+
+            if (theta <=135 && theta > 45 && f == 1) { // origin path is east
+                paths[3] = 2;
+            }
+
+            if (theta <= 225 && theta >135 && f ==1) { // origin path is south
+                paths[0] = 2;
+            }
+
+            if (theta <=315 && theta > 225) { // origin path is west
+                paths[1] = 2;
+            }
         }
 
-        if (theta <= 225 && theta >135) { // origin path is south
-            paths[2] = paths[2] + 1;
-        }
 
-        if (theta <=315 && theta > 225) { // origin path is west
-            paths[3] = paths[3] + 1;
-        }
+
     }
 
     //find the path least travelled
-    var least_travelled_path = 0;
-    for (let i = 1; i < paths.length; i++) {
-        if (paths[i] < paths[least_travelled_path]) {
-            least_travelled_path = i;
+
+    if (!(X==parent_x && Y==parent_y) || (X==parent_x && Y==parent_y && front_wall ==1)) {
+        var least_travelled_path = 0;
+        for (let i = 1; i < paths.length; i++) {
+            if (paths[i] < paths[least_travelled_path]) {
+                least_travelled_path = i;
+            }
         }
-    }
-    console.log("let's go down path #" + least_travelled_path);
+        console.log("let's go down path #" + least_travelled_path);
 
-    if (paths[least_travelled_path] == 2) {
-        return "done traversing"; //done!!
-    }
-    //increment the minimum path
-    paths[least_travelled_path] = paths[least_travelled_path] + 1;
-    // console.log("new updated paths array: " + paths);
+        if (paths[least_travelled_path] == 2) {
+            return "done traversing"; //done!!
+        }
+        //increment the minimum path
+        paths[least_travelled_path] = paths[least_travelled_path] + 1;
+        // console.log("new updated paths array: " + paths);
 
-    if (visited) {
-        await update_visited(X,Y,paths);
-    }
-    else {
-        console.log (paths);
-        await add_node(X,Y,parent_x, parent_y, paths);
+        if (visited) {
+            await update_visited(X,Y,paths);
+        }
+        else {
+            console.log (paths);
+            await add_node(X,Y,parent_x, parent_y, paths);
+        }
+
     }
 
     //TODO: store more than one parent!!
