@@ -13,8 +13,8 @@
 #include <PID_v1.h>
 
 double angle_kP = 475;  // PID gains for angle control
-double angle_kI = 0;
-double angle_kD = 90;
+double angle_kI = 0.05;
+double angle_kD = 98;
 
 double velocity_kP = 0.1;  // PID gains for velocity control
 double velocity_kI = 0.01;
@@ -67,6 +67,7 @@ void setup(void) {
 
 
   Serial.begin(115200);
+  pinMode(12, OUTPUT); //setup LED
   Wire.begin();
 
   byte status = mpu.begin();
@@ -76,10 +77,12 @@ void setup(void) {
 
 
   Serial.println(F("Calculating offsets, do not move MPU6050"));
+  digitalWrite(12, HIGH); //switch on LED
   delay(1000);
   // mpu.upsideDownMounting = true; // uncomment this line if the MPU6050 is mounted upside-down
   mpu.calcOffsets();  // gyro and accelero
   Serial.println("Done!\n");
+  digitalWrite(12, LOW);   //switch off LED
 
 
   /*
