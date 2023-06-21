@@ -11,7 +11,7 @@
 const char *ssid = "iPhone";
 const char *password = "12345678";
 char path[] = "/";
-char host[] = "172.20.10.4:5000";
+char host[] = "13.51.172.210:5000";
 int seq_no;
 int counter = 0;
 int array_count[7] = {0, 1, 1, 0, 1, 0, 0};
@@ -46,7 +46,7 @@ void initWiFi()
 // create web socket
 void initWebSocket()
 {
-  if (client.connect("172.20.10.4", 5000))
+  if (client.connect("13.51.172.210", 5000))
   {
     Serial.println("Connected");
   }
@@ -95,8 +95,8 @@ void setup()
 void loop()
 {
   int error = 1;
-  int x = 10*counter;
-  int y = 10*(counter+1);
+  int x = 100*counter;
+  int y = 100*(counter+1);
   int f= array_count[counter];
   int l= array_count[counter+1];
   int r= array_count[counter+2];

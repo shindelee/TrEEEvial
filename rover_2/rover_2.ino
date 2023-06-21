@@ -180,7 +180,7 @@ void loop() {
 
       if (message_received == "left") {
         turn_left_90(); 
-        message_received = send_data(test[count], test[count + 1], test2[count], test2[count+1] , test2[count+2], tri_sequence, 0, 0);
+        message_received = send_data(left_pos, right_pos, left_wall, right_wall, front_wall, tri_sequence, 0, 0);
         leftStepper.setCurrentPosition(0);
         rightStepper.setCurrentPosition(0);
       }

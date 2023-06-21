@@ -11,34 +11,15 @@ import * as http from 'http';
  var buffer = "";
  var x_accurate = 0;
  var y_accurate = 0;
- var x_coord;
- var y_coord;
+ var x_coord = 0;
+ var y_coord = 0;
  var heading = 0;
  var server;
-
-
-// const initializePromise = new Promise((resolve, reject) => {
-//     http.createServer(async function(request, response) {
-//       console.log((new Date()) + ' Received request for ' + request.url);
-//       response.writeHead(404);
-//       response.end();
-//       await Initialise();
-//       parent_x = 0;
-//       parent_y = -0.1;
-//       resolve(); // Resolve the promise when initialization is complete
-//     }).listen(5000, function() {
-//       console.log((new Date()) + ' Server is listening on port 5000');
-//     });
-//   });
-  
-//   // Wait for the promise to resolve before continuing
-//   await initializePromise;
 
  var server = http.createServer(async function(request, response) {
      console.log((new Date()) + ' Received request for ' + request.url);
      response.writeHead(404);
      response.end();
-
  });
 
  server.listen(5000, function() {
@@ -53,9 +34,6 @@ import * as http from 'http';
      httpServer: server,
      autoAcceptConnections: false
  });
-
- 
- 
 
 
  function originIsAllowed(origin) {
@@ -101,16 +79,19 @@ import * as http from 'http';
                 
                 //need to remember previous x, y and theta, and add together
                     
-                if (parseInt(json.alpha) == 0 || parseInt(json.beta) == 0){
-                    x_accurate = coords_odo[0] + x_accurate;
-                    y_accurate = coords_odo[1] + y_accurate;
+                // if (parseInt(json.alpha) == 0 || parseInt(json.beta) == 0){
+                    x_accurate = coords_odo[0]*100 + x_accurate;
+                    y_accurate = coords_odo[1]*100 + y_accurate;
+                // }
+                // else{
+                //     // weighted median average filter, need to update triangulation
+                //     var coords_triangulation = await triangulation([0, 0], [1, 7], [5, 3], parseInt(json.alpha), parseInt(json.beta));
+                //     x_accurate = (coords_odo[0]*100 * 0.7 + coords_triangulation[0] * 0.3 * 100) + x_accurate;
+                //     y_accurate = (coords_odo[1]*100 * 0.7 + coords_triangulation[1] * 0.3) + y_accurate;
                 }
-                else{
-                    // weighted median average filter, need to update triangulation
-                    var coords_triangulation = await triangulation([0, 0], [1, 7], [5, 3], parseInt(json.alpha), parseInt(json.beta));
-                    x_accurate = (coords_odo[0] * 0.7 + coords_triangulation[0] * 0.3) + x_accurate;
-                    y_accurate = (coords_odo[1] * 0.7 + coords_triangulation[1] * 0.3) + y_accurate;
-                }
+
+                console.log("x_accurate = " + x_accurate);
+                console.log("y_accurate = " + y_accurate);
 
                 x_coord = Math.floor(x_accurate/3);
                 y_coord = Math.floor(y_accurate/3);
@@ -132,7 +113,7 @@ import * as http from 'http';
 
              console.log("sent direction = " + directions);
              connection.sendUTF(directions);
-         }
+        //  }
         
      });
  
