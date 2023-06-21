@@ -12,19 +12,19 @@
 /********** PID **********/
 #include <PID_v1.h>
 
-double angle_kP = 480;  // PID gains for angle control
+double angle_kP = 475;  // PID gains for angle control
 double angle_kI = 0;
 double angle_kD = 90;
 
 double velocity_kP = 0.1;  // PID gains for velocity control
 double velocity_kI = 0.01;
 double velocity_kD = 0.3;
-int LIMIT = 6400;
+int LIMIT = 12800;
 
 double CENTRE = 0;          // centre of gravity
 unsigned long previousTime;  // Previous timestamp
 
-double maxAcceleration = 6400.0;  // Maximum acceleration in steps/s^2
+double maxAcceleration = 12800.0;  // Maximum acceleration in steps/s^2
 int targetVelocity = 0;           // Target velocity in steps/s
 int currentVelocity = 0;          // Current velocity in steps/s
 int stepperSpeed = 0;             // Stepper motor speed in steps/s
@@ -187,10 +187,10 @@ void loop() {
   unsigned long deltaTime = currentTime - previousTime;  // Time difference since the last iteration
 
   //Use MPULight
-  if (deltaTime >= 10) {
+  if (deltaTime >= 20) {
     mpu.update();
     compAngle = mpu.getAngleY();
-  }
+  
 
   // Velocity PID control
   // velocitySetpoint = 0;  // Set the target velocity as the output of the angle PID
@@ -248,4 +248,5 @@ void loop() {
   Serial.println(stepperSpeed);
 
   previousTime = currentTime;  // Update previousTime with the current timestamp
+  }
 }
