@@ -10,24 +10,24 @@
 /********** PID **********/
 #include <PID_v1.h>
 
-double angle_kP = 60;  // PID gains for angle control
+double angle_kP = 575;  // PID gains for angle control
 double angle_kI = 0;
-double angle_kD = 30;
+double angle_kD = 60;
 
 double velocity_kP = 0.001;  // PID gains for velocity control
 double velocity_kI = 0.001;
 double velocity_kD = 0.01;
 
-int LIMIT = 400;
+int LIMIT = 6400; // each step = 400, 
 
 float accY;                  // Accelerometer reading for Y-axis
 float velocity = 0.0;        // Current velocity
 unsigned long previousTime;  // Previous timestamp
 const float dampingFactor = 0.95;  // Damping factor to limit velocity accumulation
 
-double CENTRE = -1.2; // centre of gravity 
+double CENTRE = -2; // centre of gravity 
 
-double maxAcceleration = 130.0;  // Maximum acceleration in steps/s^2
+double maxAcceleration = 6400.0;  // Maximum acceleration in steps/s^2
 int targetVelocity = 0;          // Target velocity in steps/s
 int currentVelocity = 0;         // Current velocity in steps/s
 int stepperSpeed = 0;            // Stepper motor speed in steps/s
@@ -51,7 +51,7 @@ Adafruit_MPU6050 mpu;
 float accAngle = 0;     // Angle calculated from accelerometer
 float gyroRate = 0;     // Angular rate from gyroscope
 float compAngle = 0;    // Complementary angle
-const float alpha = 0.98;  // Complementary filter coefficient
+const float alpha = 0.99;  // Complementary filter coefficient
 
 AccelStepper stepper1(AccelStepper::DRIVER, stepPinLeft, dirPinLeft);    // Create an instance of AccelStepper for left motor
 AccelStepper stepper2(AccelStepper::DRIVER, stepPinRight, dirPinRight);  // Create an instance of AccelStepper for right motor
@@ -141,6 +141,7 @@ void loop() {
   unsigned long currentTime = millis();  // Current timestamp
   unsigned long deltaTime = currentTime - previousTime;  // Time difference since the last iteration
 
+  if (deltaTime >= 10){
   sensors_event_t a, g, temp;
   mpu.getEvent(&a, &g, &temp);
 
@@ -156,9 +157,10 @@ void loop() {
   Serial.print("Complementary Angle: ");
   Serial.print(compAngle);
   Serial.print("\t\t");
+  }
 
-  if (deltaTime >= 10) {  // Sample the accelerometer every 10 milliseconds (adjust as needed)
-    previousTime = currentTime;  // Update previousTime with the current timestamp
+  if (deltaTime >= 33) {  // Sample the accelerometer every 33 milliseconds (adjust as needed)
+    
 
     sensors_event_t a, g, temp;
     mpu.getEvent(&a, &g, &temp);
@@ -169,13 +171,13 @@ void loop() {
     velocity = dampingFactor * (velocity + (accY * deltaTime) / 1000.0);  // Convert deltaTime to seconds
 
     // Print the current velocity
+    Serial.print("Velocity: ");
+    Serial.print(velocity);
+    Serial.print("\t\t");
     
   }
 
-  Serial.print("Velocity: ");
-  Serial.print(velocity);
-  Serial.print("\t\t");
-
+  
   // Velocity PID control
   velocitySetpoint = 0;  // Set the target velocity as the output of the angle PID
   velocityInput = velocity;
@@ -188,7 +190,7 @@ void loop() {
   velocityPid.Compute();
 
   // Angle PID control
-  angleSetpoint = velocityOutput;  // Desired angle (set as per your requirements)
+  angleSetpoint = CENTRE;  // Desired angle for 1 PID,  for casecade use output of velocity PID
   angleInput = compAngle;
 
   // Serial.print("Angle error: ");
@@ -219,7 +221,7 @@ void loop() {
   stepperSpeed = targetVelocity;
 
   //Dead band angle
-  if (compAngle < CENTRE + 1.5 && compAngle > CENTRE - 1.5) {
+  if (compAngle < CENTRE + 0.5 && compAngle > CENTRE - 0.5) {
     stepperSpeed = 0;
     currentVelocity = 0;
   }
@@ -227,9 +229,6 @@ void loop() {
   Serial.print(" Stepper : ");
   Serial.println(stepperSpeed);
 
-  //prevAngle = compAngle;
-
-   //delay(2); //delay on angle calculation
-
+  previousTime = currentTime;  // Update previousTime with the current timestamp
    
 }
