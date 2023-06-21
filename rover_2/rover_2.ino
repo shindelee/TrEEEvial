@@ -170,10 +170,10 @@ void loop() {
       int left_pos = (int)leftStepper.currentPosition();
       int right_pos = (int)rightStepper.currentPosition();
       int tri_sequence[3] = {1,0,2};
-//      message_received = send_data(left_pos, right_pos, left_wall, right_wall, front_wall, tri_sequence, 0, 0);
+      message_received = send_data(left_pos, right_pos, left_wall, right_wall, front_wall, tri_sequence, 0, 0);
       leftStepper.setCurrentPosition(0);
       rightStepper.setCurrentPosition(0);
-      message_received = send_data(left_pos, right_pos, 1, 1, 0, tri_sequence, 0, 0);
+      // message_received = send_data(left_pos, right_pos, 1, 1, 0, tri_sequence, 0, 0);
       initialise_state_history();
 //      initialise_left_sensor_history();
 //      initialise_right_sensor_history();

@@ -225,27 +225,31 @@ assign blue_detect = ( hue > 80 && hue < 156) && (saturation > 16 && saturation 
 // H: 0 - 360, S: 0 - 255, V: 0 - 255
 
 
-wire [7:0] r, g, b;
+// wire [7:0] r, g, b;
+
 wire [7:0] cmax, cmin, delta, sat, val, min;
 wire [8:0] hue_temp, hue;
 
-
+/*
 assign r = red / 255; 
 assign b = blue / 255;
 assign g = green / 255;
+*/
 
 assign min = (red < green)? ((red<blue) ? red[7:0] : blue[7:0]) : (green < blue) ? green [7:0] : blue[7:0];
+
+/*
 assign cmax = ((r >= g) & (r >= b)) ? r : ((g >= b) & (g >= r)) ? g : b;
 assign cmin = ((r <= g) & (r <= b)) ? r : ((g <= b) & (g <= r)) ? g : b;
 assign delta = cmax - cmin;
 
-/*
 assign hue_temp = (delta == 0) ? 0 : (cmax == r) ? (60 * ((g - b) / delta))
                                    : (cmax == g) ? (120 + 60 * ((b - r) / delta))
                                    : (240 + 60 * ((r - g) / delta));
 
 assign hue = (hue_temp < 0) ? hue_temp + 360 : hue_temp;
 */
+
 assign val = (red > green) ? ((red > blue) ? red[7:0] : blue[7:0]) : (green > blue) ? green[7:0] : blue[7:0];
 assign hue = (red == green && red == blue) ? 0 :((val != red)? (val != green) ? (((240 * ((val - min))+ (60 * (red - green)))/(val-min)) >> 1):
                 ((120 * (val-min) + 60 * (blue - red))/(val - min) >> 1): 
