@@ -254,4 +254,4 @@ console.log(aStarAlgorithm(startRow, startCol, endRow, endCol, graph));
 //    ]
 
 
-//export { aStarAlgorithm };
+export { aStarAlgorithm };

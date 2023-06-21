@@ -14,7 +14,7 @@ function newMazeState(mazeMatrix, prev_pos, cur_pos, widenIndex){
 
     // Make every coordinate that's part of the path into 3 in the matrix.
     for(let i = 0; i < widenedPath.length; i++){
-      mazeMatrix[widenedPath[i][0]][widenedPath[i][1]] = 3;
+      mazeMatrix[widenedPath[i][0]][widenedPath[i][1]] = 0;
     }
 
     // Indicate the current position of the rover.
