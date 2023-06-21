@@ -7,11 +7,11 @@ function TableComp(props) {
             return <td className='maze_wall_cell'>
             </td>
         }
-        else if(x === 0){
+        else if(x === 3){
             return <td className='maze_empty_cell'>
             </td>
         }
-        else if(x === 3){
+        else if(x === 0){
             return <td className='maze_unexplored_cell'>
             </td>
         }

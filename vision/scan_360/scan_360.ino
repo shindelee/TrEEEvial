@@ -12,8 +12,8 @@
 #define STEPS_PER_REVOLUTION 200.0
 #define WHEEL_RADIUS 0.0325
 const float wheel_diameter = 2.0 * WHEEL_RADIUS;
-const float wheel_base = 0.14;
-const float wheel_circumference = wheel_diameter * PI;
+const float wheelBase = 0.14;
+const float wheelCircumference = wheel_diameter * PI;
 uint32_t message;
 
 struct WheelTurns
@@ -36,11 +36,48 @@ WheelTurns red(0, 0);
 WheelTurns blue(0, 0);
 WheelTurns yellow(0, 0);
 
+WheelTurns first_beacon(0, 0);
+WheelTurns second_beacon(0, 0);
+WheelTurns third_beacon(0, 0);
+
+float alpha = 0.0;
+float theta = 0.0;
+
+// the beacon order
+int sequence[3] = {0, 0, 0};
+int count = 0;
+
+int rednom = 10;
+int yellownom = 11;
+int bluenom = 12;
+
+bool red_flag = true;
+bool yellow_flag = true;
+bool blue_flag = true;
+
 // functions
 
-bool is_in_frame(int x_min, int x_max, int y_min, int y_max)
+float get_angle_turnedL(long currWheelStepsL, long prevWheelStepsL){
+    long difference = currWheelStepsL - prevWheelStepsL; 
+    float leftWheelRevs = difference / STEPS_PER_REVOLUTION; 
+    float distanceTravelledL = leftWheelRevs * wheelCircumference;
+    float angleTurnedRadiansL = distanceTravelledL / wheelBase;
+    float angleTurnedDegreesL = angleTurnedRadiansL * (180.0 / PI);
+    return angleTurnedDegreesL;
+} 
+
+float get_angle_turnedR(long currWheelStepsR, long prevWheelStepsR){
+    long difference = currWheelStepsR - prevWheelStepsR; 
+    float rightWheelRevs = difference / STEPS_PER_REVOLUTION; 
+    float distanceTravelledR = rightWheelRevs * wheelCircumference;
+    float angleTurnedRadiansR = distanceTravelledR / wheelBase;
+    float angleTurnedDegreesR = angleTurnedRadiansR * (180.0 / PI);
+    return angleTurnedDegreesR;
+}
+
+bool is_in_frame(int x_min, int y_min, int x_max, int y_max)
 {
-  return x_min > 240 && x_max < 400 && y_min > 180 && y_max < 300;
+  return (x_min > 220 && x_min < 300) || (x_max > 240 && x_max < 400) || (y_min > 240 && y_min < 300) || (y_max > 280 && y_max < 380);
 }
 
 float size_bb(float min_x, float max_x, float min_y, float max_y)
@@ -51,29 +88,31 @@ float size_bb(float min_x, float max_x, float min_y, float max_y)
 
 void setup()
 {
-  leftStepper.setMaxSpeed(40);
-  leftStepper.setAcceleration(10);
-  rightStepper.setMaxSpeed(40);
-  rightStepper.setAcceleration(10);
+  Serial.begin(115200);
+  Serial1.begin(115200, SERIAL_8N1, RX_PIN, TX_PIN);
+
+  leftStepper.setAcceleration(20);
+  rightStepper.setAcceleration(20);
+  leftStepper.setMaxSpeed(10);
+  rightStepper.setMaxSpeed(10);
 }
 
 void loop()
 {
-  Serial.begin(115200);
-  Serial1.begin(115200, SERIAL_8N1, RX_PIN, TX_PIN);
   leftStepper.setCurrentPosition(0);
   rightStepper.setCurrentPosition(0);
   uint32_t numbers[14];
   Serial.println("initialising");
 
-  for (int i = 0; i < 43; i++)
+  // full 360 deg turn after the for loop
+  for (int i = 0; i < 46; i++)
   {
-    Serial.println("entering loop");
     leftStepper.setSpeed(10);
-    leftStepper.setSpeed(10);
-    rightStepper.move(10);
+    rightStepper.setSpeed(10);
     leftStepper.move(10);
+    rightStepper.move(10);
 
+    
     if (Serial1.available() >= 4)
     {
       byte m1 = Serial1.read(); // read the bytes into byte variables 'b1' to 'b4'
@@ -110,58 +149,130 @@ void loop()
 
             // To extract bits 27 through 16, we again use a bitwise AND, then shift the result right 16 places.
             numbers[2 * i + 1] = (hexadeci[i] & 0x0FFF0000) >> 16;
-          }
-          bool red_detect = is_in_frame(numbers[0], numbers[2], numbers[1], numbers[3]);
-          bool blue_detect = is_in_frame(numbers[4], numbers[6], numbers[5], numbers[7]);
-          bool yellow_detect = is_in_frame(numbers[8], numbers[10], numbers[9], numbers[11]);
-
-          int left_wheel_revs = leftStepper.currentPosition();
-          int right_wheel_revs = rightStepper.currentPosition();
-
-          if (red_detect || yellow_detect)
-          {
-            float red_size = size_bb(numbers[0], numbers[2], numbers[1], numbers[3]);
-            float yellow_size = size_bb(numbers[8], numbers[10], numbers[9], numbers[11]);
-
-            if (yellow_size > 0.5 * red_size)
-            {
-              yellow.l = left_wheel_revs;
-              yellow.r = right_wheel_revs;
-              Serial.println("yellow detected!!");
-              Serial.println("left wheel revs = " + String(yellow.l));
-              Serial.println("right wheel revs = " + String(yellow.r));
-            }
-            else
-            {
-              red.l = left_wheel_revs;
-              red.r = right_wheel_revs;
-              Serial.println("red detected!!");
-              Serial.println("left wheel revs = " + String(red.l));
-              Serial.println("right wheel revs = " + String(red.r));
-            }
-          }
-
-          else if (blue_detect)
-          {
-            blue.l = left_wheel_revs;
-            blue.r = right_wheel_revs;
-            Serial.println("yellow detected!!");
-            Serial.println("left wheel revs = " + String(blue.l));
-            Serial.println("right wheel revs = " + String(blue.r));
-          }
+          }  
         }
       }
-
-      Serial.println("done turning one turn!");
-    }
-
-    Serial.println(numbers[0]);
-
-    while (rightStepper.distanceToGo() != 0 && leftStepper.distanceToGo() != 0)
+    
+      while (rightStepper.distanceToGo() != 0 && leftStepper.distanceToGo() != 0)
+      {
+        rightStepper.runSpeed();
+        leftStepper.runSpeed();
+      }
+    
+      for (int j = 0; j < 12; j++)
     {
-      rightStepper.runSpeed();
-      leftStepper.runSpeed();
+       Serial.print("numbers: " + String(numbers[j]));
+       Serial.print(" ");
     }
+
+    bool red_detect = is_in_frame(numbers[0], numbers[1], numbers[2], numbers[3]);
+    bool blue_detect = is_in_frame(numbers[4], numbers[5], numbers[6], numbers[7]);
+    bool yellow_detect = is_in_frame(numbers[8], numbers[9], numbers[10], numbers[11]);
+
+    int left_wheel_revs = leftStepper.currentPosition();
+    int right_wheel_revs = rightStepper.currentPosition();
+
+    if(yellow_detect && red_detect && yellow_flag)
+    {
+      yellow.l = left_wheel_revs;
+      yellow.r = right_wheel_revs;
+      Serial.println("yellow detected!!");
+      Serial.println("left wheel revs = " + String(yellow.l));
+      Serial.println("right wheel revs = " + String(yellow.r));
+      yellow_flag = false;
+      sequence[count] = yellownom;
+      count += 1;
+    }
+    else if(red_detect && red_flag)
+    {
+      red.l = left_wheel_revs;
+      red.r = right_wheel_revs;
+      Serial.println("red detected!!");
+      Serial.println("left wheel revs = " + String(red.l));
+      Serial.println("right wheel revs = " + String(red.r));
+      red_flag = false;
+      sequence[count] = rednom;
+      count += 1;
+    }
+    else if(blue_detect && blue_flag)
+    {
+      blue.l = left_wheel_revs;
+      blue.r = right_wheel_revs;
+      Serial.println("blue detected!!");
+      Serial.println("left wheel revs = " + String(blue.l));
+      Serial.println("right wheel revs = " + String(blue.r));
+      blue_flag = false;
+      sequence[count] = bluenom;
+      count += 1;
+    }
+    
+    }
+
+    Serial.println("done turning one turn!");
+    
   }
-  Serial.println("done turning!");
+ 
+  Serial.println("done 360 turning!");
+
+  switch(sequence[0]){
+    case 10: // red
+      first_beacon.l = red.l;
+      first_beacon.r = red.r;
+      break;
+    case 11: // yellow
+      first_beacon.l = yellow.l;
+      first_beacon.r = yellow.r;
+      break;
+    case 12: // blue
+      first_beacon.l = blue.l;
+      first_beacon.r = blue.r;
+      break;
+    default: 
+    // code to be executed if variable doesn't match any cases
+    Serial.println("No match found");
+  }
+
+  switch(sequence[1]){
+    case 10: // red
+      second_beacon.l = red.l;
+      second_beacon.r = red.r;
+      break;
+    case 11: // yellow
+      second_beacon.l = yellow.l;
+      second_beacon.r = yellow.r;
+      break;
+    case 12: // blue
+      second_beacon.l = blue.l;
+      second_beacon.r = blue.r;
+      break;
+    default: 
+    // code to be executed if variable doesn't match any cases
+    Serial.println("No match found");
+  }
+
+  switch(sequence[2]){
+    case 10: // red
+      third_beacon.l = red.l;
+      third_beacon.r = red.r;
+      break;
+    case 11: // yellow
+      third_beacon.l = yellow.l;
+      third_beacon.r = yellow.r;
+      break;
+    case 12: // blue
+      third_beacon.l = blue.l;
+      third_beacon.r = blue.r;
+      break;
+    default: 
+    // code to be executed if variable doesn't match any cases
+    Serial.println("No match found");
+  }
+
+  
+  alpha = 0.5 * (get_angle_turnedL(second_beacon.l, first_beacon.l) + get_angle_turnedR(second_beacon.r, first_beacon.r));
+  theta =  0.5 * (get_angle_turnedL(third_beacon.l, second_beacon.l) + get_angle_turnedR(third_beacon.r, second_beacon.r));
+
+  Serial.println("alpha: " + String(alpha));
+  Serial.println("theta: " + String(theta));
+  
 }
