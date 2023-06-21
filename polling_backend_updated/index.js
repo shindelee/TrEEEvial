@@ -62,24 +62,14 @@ app.get("/tableData33", (req, res) => {
 });
 
 app.get("/shortestPath", (req, res) => {
-    aStarAlgorithm(15, 15, 100, 100, State)
+    var coordinates = aStarAlgorithm(20, 20, 150, 155, State);
+    for(let k = 0; k < coordinates.length; k++){
+        State[coordinates[k][0]][coordinates[k][1]] = 4;
+    }
     setTimeout(()=>{
         res.json(
             {
             "shortestPath": State
-            /*
-            [
-            [2,0,0,0,1,0,0,0,0],
-            [4,1,1,1,1,1,0,1,0],
-            [4,4,0,0,0,1,0,1,0],
-            [1,4,1,0,1,1,0,1,0],
-            [1,4,1,0,1,1,0,1,0],
-            [1,4,1,0,0,0,0,1,0],
-            [1,4,1,1,1,1,0,1,0],
-            [1,4,4,4,4,4,4,4,4],
-            [1,1,1,1,1,0,0,0,4]
-            ]
-            */
         })
     }, 1000);
 });
@@ -147,10 +137,6 @@ app.get("/pollServer", (req, res) => {
     newMazeState(State, [150,155], [130, 190], widenBy);
     newMazeState(State, [130,190], [130, 155], widenBy);
     newMazeState(State, [130,155], [150, 155], widenBy);
-    var coordinates = aStarAlgorithm(20, 20, 150, 155, State);
-    for(let k = 0; k < coordinates.length; k++){
-        State[coordinates[k][0]][coordinates[k][1]] = 4;
-    }
     var myArray = [];
     for(let i = 0; i < 366; i++){
         myArray.push(State[i]);

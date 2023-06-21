@@ -74,7 +74,9 @@ function App() {
                 onFailure= {pollingFailure}
                 promise={fetchData} // custom api calling function that should return a promise
                 render={({ startPolling, stopPolling, isPolling }) => {
-                // return <div>{tableData33}<br/><br/></div>;
+                return isPolling ? (
+                    <Button1 onClick={stopPolling}>Stop Polling</Button1>
+                ) : null;
                 }}
             />
             <Router>
