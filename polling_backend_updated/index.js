@@ -1,10 +1,5 @@
 import { newMazeState } from "./newMazeState.js";
 import { aStarAlgorithm } from "./astar.js";
-
-//const express = require("express");
-//const cors = require('cors');
-//const path = require('path');
-
 import express from 'express';
 import cors from 'cors';
 
@@ -90,24 +85,7 @@ const widenBy = 6;
 
 app.get("/pollServer", (req, res) => {
     var d = new Date();
-    /*
-    newMazeState(State, [60,0], [[60, 60], 0, 0, 0, 0], Params, 1);
-    newMazeState(State, [60,60], [[4, 60], -90, 1, 1, 1], Params, 0);
-    newMazeState(State, [4,60], [[60, 60], 90, 0, 0, 0], Params, 0);
-    newMazeState(State, [60,60], [[60, 115], 0, 1, 1, 1], Params, 0);
-    newMazeState(State, [60,115], [[60, 60], 180, 0, 0, 0], Params, 0);
-    newMazeState(State, [60,60], [[115, 60], 90, 1, 1, 1], Params, 0);
-    */
-
-    // Large diagonal cross-junction case.
-    /*
-    newMazeState(State, [1,0], [[60, 60], 45, 0, 0, 0], Params, 1);
-    newMazeState(State, [60,60], [[1, 119], -45, 1, 1, 1], Params, 0);
-    newMazeState(State, [1,119], [[60, 60], 135, 0, 0, 0], Params, 0);
-    newMazeState(State, [60,60], [[119, 119], 45, 1, 1, 1], Params, 0);
-    newMazeState(State, [119,119], [[60, 60], -135, 0, 0, 0], Params, 0);
-    newMazeState(State, [60,60], [[119, 1], 135, 0, 0, 0], Params, 0);
-    */
+    
 
     // Instructions from actual maze and Tremaux.
     newMazeState(State, [20,20], [20, 60], widenBy);
