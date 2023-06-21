@@ -2,8 +2,15 @@ import { getGridSquares } from './squares_intersected4.js';
 import { widenPathWithSquares } from './path_widening3.js';
 
 function newMazeState(mazeMatrix, prev_pos, cur_pos, widenIndex){
+
+  function isValidIndex(row, col) {
+    return row >= 0 && row < mazeMatrix.length && col >= 0 && col < mazeMatrix[0].length;
+  }
+
     // Remove the rover indication from the previous position.
-    mazeMatrix[prev_pos[0]][prev_pos[1]] = 0;
+    if(isValidIndex(prev_pos[0], prev_pos[1])){
+      mazeMatrix[prev_pos[0]][prev_pos[1]] = 0;
+    }
 
     // Find the path taken.
     var path = getGridSquares(prev_pos[0], prev_pos[1], cur_pos[0], cur_pos[1]);
@@ -12,13 +19,17 @@ function newMazeState(mazeMatrix, prev_pos, cur_pos, widenIndex){
     // Surround the path with walls.
     //createWallAroundPath(mazeMatrix, widenedPath.squares, mazeParams[1], mazeParams[2], [prev_pos[0]+node_change_y, prev_pos[1]+node_change_x], tuple[0], tuple[1], tuple[2], tuple[3], tuple[4]);
 
-    // Make every coordinate that's part of the path into 3 in the matrix.
+    // Make every coordinate that's part of the path into 0 in the matrix.
     for(let i = 0; i < widenedPath.length; i++){
-      mazeMatrix[widenedPath[i][0]][widenedPath[i][1]] = 0;
+      if(isValidIndex(widenedPath[i][0], widenedPath[i][1])){
+        mazeMatrix[widenedPath[i][0]][widenedPath[i][1]] = 0;
+      }
     }
 
     // Indicate the current position of the rover.
-    mazeMatrix[cur_pos[0]][cur_pos[1]] = 2;
+    if(isValidIndex(prev_pos[0], prev_pos[1])){
+      mazeMatrix[cur_pos[0]][cur_pos[1]] = 2;
+    }
 }
 
 /*

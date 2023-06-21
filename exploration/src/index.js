@@ -74,7 +74,17 @@ app.get("/shortestPath", (req, res) => {
 
 app.get("/pollServer", (req, res) => {
     var d = new Date();
-    newMazeState(State, [parent_y, parent_x], [y_coord, x_coord], widenBy);
+
+    var x = Math.round(parseInt(x_coord));
+    var y = Math.round(parseInt(y_coord));
+    var p_x = Math.round(parseInt(parent_x));
+    var p_y = Math.round(parseInt(parent_y));
+    console.log(Math.round(x_coord), " type is " + typeof(x_coord) );
+    console.log(Math.round(y_coord))
+    console.log(Math.round(parent_x), " type is " + typeof(parent_x) );
+    console.log(Math.round(parent_y))
+    newMazeState(State, [p_y, p_x], [y, x], widenBy);
+    // newMazeState(State, [10, 10], [100, 100], widenBy);
     var myArray = [];
     for(let i = 0; i < 366; i++){
         myArray.push(State[i]);
