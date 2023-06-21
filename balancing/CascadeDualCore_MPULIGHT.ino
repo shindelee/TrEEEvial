@@ -12,9 +12,9 @@
 /********** PID **********/
 #include <PID_v1.h>
 
-double angle_kP = 500;  // PID gains for angle control
+double angle_kP = 480;  // PID gains for angle control
 double angle_kI = 0;
-double angle_kD = 85;
+double angle_kD = 90;
 
 double velocity_kP = 0.1;  // PID gains for velocity control
 double velocity_kI = 0.01;
@@ -235,7 +235,7 @@ void loop() {
   stepperSpeed = targetVelocity;
 
   //Dead band angle
-  if (compAngle < CENTRE + 0.5 && compAngle > CENTRE - 0.5) {
+  if (compAngle < CENTRE + 1.5 && compAngle > CENTRE - 1.5) {
     stepperSpeed = 0;
     currentVelocity = 0;
   }
