@@ -1,4 +1,4 @@
-import { Initialise, Tremaux } from "../src/tremaux.js";
+import { Initialise, Tremaux, myCallback } from "../src/tremaux.js";
 import { server as WebSocketServer } from 'websocket';
 import { Odometry } from "../src/dead_reckoning.js";
 import { triangulation } from "../src/Triangulation.js";
@@ -12,7 +12,7 @@ import * as http from 'http';
 //  var seq_no = 0;
  var directions = "";
  var buffer = "";
- var_x_accurate = 0;
+ var x_accurate = 0;
  var y_accurate = 0;
  var x_coord;
  var y_coord;
@@ -57,13 +57,29 @@ import * as http from 'http';
              var received_message = message.utf8Data;
              if (received_message != buffer) {
                 var json = JSON.parse(received_message);
-                console.log("message received" + json);
+                console.log("message received" + received_message);
              
                 // console.log("starting? " + start);
 
                 if (start) { //at the beginning
-                    console.log("breakpoint... Initialising")
+
+                    var coords_odo = await Odometry(parseInt(json.x) , parseInt(json.y));
+                    console.log(coords_odo);
+                    
+                    x_accurate = coords_odo[0] + x_accurate;
+                    y_accurate = coords_odo[1] + y_accurate;
+    
+                    x_coord = Math.floor(x_accurate/3);
+                    y_coord = Math.floor(y_accurate/3);
+
+                    var left_wall = parseInt(json.l);
+                    var right_wall = parseInt(json.r);
+                    var front_wall = parseInt(json.f);
+                    
+                    console.log("breakpoint... Initialising");
                     await Initialise();
+
+                    console.log("x-coord = " + x_coord + " , y-coord = " +y_coord);
                     directions = await Tremaux(0, 0, 0, -0.1, right_wall, left_wall,front_wall, 0);
                     start = false;
                     parent_x = 0;
@@ -75,7 +91,7 @@ import * as http from 'http';
                 console.log("left wheel revolutions = " + json.x);
                 console.log("right wheel revolutions = " + json.y);
 
-                const coords_odo = await Odometry(parseInt(json.x) , parseInt(json.y));
+                var coords_odo = await Odometry(parseInt(json.x) , parseInt(json.y));
                 console.log(coords_odo);
                 //0th element is x coordinate, 1st is y
                 
@@ -99,6 +115,8 @@ import * as http from 'http';
                 var left_wall = parseInt(json.l);
                 var right_wall = parseInt(json.r);
                 var front_wall = parseInt(json.f);
+                console.log("left_wall: " + left_wall);
+                console.log("right_wall: " + right_wall);
                 
                 console.log("x-coord = " + x_coord + " , y-coord = " +y_coord);
         

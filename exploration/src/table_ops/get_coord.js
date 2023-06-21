@@ -4,7 +4,7 @@ import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient, GetCommand } from "@aws-sdk/lib-dynamodb";
 
 const client = new DynamoDBClient({
-  region: "us-east-1",
+  region: "eu-north-1",
 });
 
 const docClient = DynamoDBDocumentClient.from(client);

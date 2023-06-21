@@ -10,19 +10,35 @@ import {get_coord} from "../src/table_ops/get_coord.js";
 // {x,y,left,right,forward, turning_angle}
 //node_info(x,y,parent_x,parent_y,unvisited,visited_count)
 // 0 means path, 1 means wall
+export function myCallback() {
+    // Code to be executed after the timeout
+    console.log('Timeout complete!');
+  }
+  
+
 
 export async function Initialise () {
-    // console.log("breakpoint 1");
+    console.log("breakpoint 1");
     let tables = await table_list();
-    // console.log("breakpoint 2");
+    console.log("breakpoint 2");
     if (tables.TableNames.includes("Node_Information")) {
-        // console.log("breakpoint 3");
+
+        console.log("deleting old_table");
         await delete_table();
-        // console.log("breakpoint 4");
-        await create_table();
+        setTimeout(myCallback, 3000);
+
+        console.log("creating new table");
+        // await create_table();
+        setTimeout(()=>{
+            create_table()},3000);
+
+        // setTimeout(()=>{
+        //     myCallback()},3000);
     }
     else {
+        console.log("table does not exist anyway..")
         create_table();
+        setTimeout(myCallback, 2000);
     }
 };
 
@@ -137,7 +153,7 @@ export async function Tremaux (X,Y, parent_x, parent_y,r ,l, f, heading){
 
     //find the path least travelled
 
-    if (!(X==parent_x && Y==parent_y) || (X==parent_x && Y==parent_y && front_wall ==1)) {
+    if (!(X==parent_x && Y==parent_y) || (X==parent_x && Y==parent_y && f ==1)) {
         var least_travelled_path = 0;
         for (let i = 1; i < paths.length; i++) {
             if (paths[i] < paths[least_travelled_path]) {

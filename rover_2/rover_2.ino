@@ -10,10 +10,10 @@
 // define globals here
 // websocket and WiFi stuff
 
-const char* ssid     = "Shinde";
+const char* ssid     = "iPhone";
 const char* password = "12345678";
 char path[] = "/";
-char host[] = "52.91.70.167:5000";
+char host[] = "13.51.172.210:5000";
 
 WebSocketClient *webSocketClient = new WebSocketClient();
 
@@ -98,7 +98,7 @@ void setup() {
   // EC2 Connection
   initWiFi(ssid, password);
   delay(50);
-  initWebSocket("52.91.70.167", 5000, client);
+  initWebSocket("13.51.172.210", 5000, client);
   handshake(path,host, webSocketClient, client);
 
   
@@ -152,7 +152,14 @@ void loop() {
       }    
       read_sensors();
       //for triangulation sequence array, 0- blue, 1-red, 2-yellow
-      message_received = send_data(leftStepper.position(), rightStepper.position(), int(wall_on_left), int(wall_on_right), int(wall_in_front), [1,0,2], 0, 0)
+      int left_wall = (int)wall_on_left;
+      int right_wall =  (int) wall_on_right;
+      int front_wall = (int) wall_in_front;
+      int left_pos = (int)leftStepper.currentPosition();
+      int right_pos = (int)rightStepper.currentPosition();
+      int tri_sequence[3] = {1,0,2};
+      message_received = send_data(left_pos, right_pos, left_wall, right_wall, front_wall, tri_sequence, 0, 0);
+//      message_received = send_data(left_pos, right_pos, 1, 1, 0, tri_sequence, 0, 0);
       initialise_state_history();
       initialise_left_sensor_history();
       initialise_right_sensor_history();

@@ -17,19 +17,6 @@ import { Initialise, Tremaux } from "../src/tremaux.js";
 // if (start) {
 // await Initialise();
 // start = false;
-var parent_x = 0;
-var parent_y = 0;
-// }
-
-
-const message = '{"x":"1", "y": "3", "l": "1", "f": "2", "r": "0"}'
-const json = JSON.parse(message);
-var directions = await Tremaux(json, parent_x, parent_y);
-parent_x = json.x;
-parent_y = json.y;
-if (directions == "done traversing") {
-console.log ("exploration done!")
-}
-console.log(directions);
+await Initialise();
 
 
