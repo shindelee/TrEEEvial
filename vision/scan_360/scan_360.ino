@@ -36,8 +36,24 @@ WheelTurns red(0, 0);
 WheelTurns blue(0, 0);
 WheelTurns yellow(0, 0);
 
+WheelTurns first_beacon(0, 0);
+WheelTurns second_beacon(0, 0);
+WheelTurns third_beacon(0, 0);
+
 float alpha = 0.0;
 float theta = 0.0;
+
+// the beacon order
+int sequence[3] = {0, 0, 0};
+int count = 0;
+
+int rednom = 10;
+int yellownom = 11;
+int bluenom = 12;
+
+bool red_flag = true;
+bool yellow_flag = true;
+bool blue_flag = true;
 
 // functions
 
@@ -156,29 +172,38 @@ void loop()
     int left_wheel_revs = leftStepper.currentPosition();
     int right_wheel_revs = rightStepper.currentPosition();
 
-    if(yellow_detect && red_detect)
+    if(yellow_detect && red_detect && yellow_flag)
     {
       yellow.l = left_wheel_revs;
       yellow.r = right_wheel_revs;
       Serial.println("yellow detected!!");
       Serial.println("left wheel revs = " + String(yellow.l));
       Serial.println("right wheel revs = " + String(yellow.r));
+      yellow_flag = false;
+      sequence[count] = yellownom;
+      count += 1;
     }
-    else if(red_detect)
+    else if(red_detect && red_flag)
     {
       red.l = left_wheel_revs;
       red.r = right_wheel_revs;
       Serial.println("red detected!!");
       Serial.println("left wheel revs = " + String(red.l));
       Serial.println("right wheel revs = " + String(red.r));
+      red_flag = false;
+      sequence[count] = rednom;
+      count += 1;
     }
-    else if(blue_detect)
+    else if(blue_detect && blue_flag)
     {
       blue.l = left_wheel_revs;
       blue.r = right_wheel_revs;
       Serial.println("blue detected!!");
       Serial.println("left wheel revs = " + String(blue.l));
       Serial.println("right wheel revs = " + String(blue.r));
+      blue_flag = false;
+      sequence[count] = bluenom;
+      count += 1;
     }
     
     }
@@ -189,11 +214,65 @@ void loop()
  
   Serial.println("done 360 turning!");
 
-  /*
-  alpha = 0.5 * (get_angle_turnedL(red.l, blue.l) + get_angle_turnedR(red.r, blue.r));
-  theta =  0.5 * (get_angle_turnedL(yellow.l, red.l) + get_angle_turnedR(yellow.r, red.r));
+  switch(sequence[0]){
+    case 10: // red
+      first_beacon.l = red.l;
+      first_beacon.r = red.r;
+      break;
+    case 11: // yellow
+      first_beacon.l = yellow.l;
+      first_beacon.r = yellow.r;
+      break;
+    case 12: // blue
+      first_beacon.l = blue.l;
+      first_beacon.r = blue.r;
+      break;
+    default: 
+    // code to be executed if variable doesn't match any cases
+    Serial.println("No match found");
+  }
+
+  switch(sequence[1]){
+    case 10: // red
+      second_beacon.l = red.l;
+      second_beacon.r = red.r;
+      break;
+    case 11: // yellow
+      second_beacon.l = yellow.l;
+      second_beacon.r = yellow.r;
+      break;
+    case 12: // blue
+      second_beacon.l = blue.l;
+      second_beacon.r = blue.r;
+      break;
+    default: 
+    // code to be executed if variable doesn't match any cases
+    Serial.println("No match found");
+  }
+
+  switch(sequence[2]){
+    case 10: // red
+      third_beacon.l = red.l;
+      third_beacon.r = red.r;
+      break;
+    case 11: // yellow
+      third_beacon.l = yellow.l;
+      third_beacon.r = yellow.r;
+      break;
+    case 12: // blue
+      third_beacon.l = blue.l;
+      third_beacon.r = blue.r;
+      break;
+    default: 
+    // code to be executed if variable doesn't match any cases
+    Serial.println("No match found");
+  }
+
+  
+  alpha = 0.5 * (get_angle_turnedL(second_beacon.l, first_beacon.l) + get_angle_turnedR(second_beacon.r, first_beacon.r));
+  theta =  0.5 * (get_angle_turnedL(third_beacon.l, second_beacon.l) + get_angle_turnedR(third_beacon.r, second_beacon.r));
 
   Serial.println("alpha: " + String(alpha));
   Serial.println("theta: " + String(theta));
-  */
+  
 }
