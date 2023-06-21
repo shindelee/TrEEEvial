@@ -77,6 +77,36 @@ String receive_data(const char* ssid, const char* password, char path[], char ho
 }
 
 
+String send_data(int left_wheel_revs, int right_wheel_revs, int left_wall_presence, int right_wall_presence, int front_wall_presence, int triangulation_sequence[3], int a_alpha, int a_beta) {
+  if(client->connected()) 
+  {
+    message_to_send = "{\"x\":\"" + String(left_wheel_revs) + "\",\"y\":\"" + String(right_wheel_revs) + "\",\"f\":\""+ String(front_wall_presence) + "\",\"l\":\""+ String(left_wall_presence)+ "\",\"r\":\""+ String(right_wall_presence) + "\",\"alpha\":\"" + String(a_alpha) + "\",\"beta\":\"" + String(a_beta) + "\",\"seq\":\"[" + String(triangulation_sequence[0]) + "," + String(triangulation_sequence[1]) + "," + String(triangulation_sequence[2]) + "]" + "\"}";
+    webSocketClient->sendData(message_to_send);
+  }
+  else {
+    Serial.println("Reconnecting...");
+    initWebSocket("52.91.70.167", 5000, client);
+    handshake(path,host, webSocketClient, client);
+    delay(100);
+    webSocketClient->sendData(message_to_send);
+    while(!(client->connected())) {
+      delay(7000); //wait for server to restart or WifI come back on
+      initWiFi(ssid, password);
+      initWebSocket("52.91.70.167", 5000, client);
+      handshake(path,host, webSocketClient, client);
+    }
+ }
+ 
+ delay(500);
+  
+  //get directions from server
+  String recv = receive_data(ssid,password,path,host, webSocketClient, client, message_to_send, start);
+  start = false;
+  Serial.print("Received data: ");
+  Serial.println(recv);
+  return recv
+}
+
 
 
 

@@ -15,7 +15,7 @@ void set_wall_states();
 void leave_node();
 void read_sensors();
 void read_sensors_and_set_speed();
-void turn_right_90();
+
 
 
 #endif

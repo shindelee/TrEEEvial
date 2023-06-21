@@ -108,17 +108,16 @@ void leave_node(){
   Serial.println("turning 90 to the right!");
   leftStepper.setCurrentPosition(0);
   rightStepper.setCurrentPosition(0);
-  leftStepper.move(-200);
-  rightStepper.move(200);
-  leftStepper.setSpeed(-50);
-  rightStepper.setSpeed(50);
-  while(rightStepper.distanceToGo() != 0 && leftStepper.distanceToGo() != 0) {
+  for (int i =0; i < 5; i++) {
+    leftStepper.move(-20);
+    rightStepper.move(20);
+    leftStepper.setSpeed(-20);
+    rightStepper.setSpeed(20);
+    while(rightStepper.distanceToGo() != 0 && leftStepper.distanceToGo() != 0) {
     rightStepper.runSpeed();
     leftStepper.runSpeed();
   }
-    read_sensors_and_set_speed();
-
-    
+  }
    
 }
 
@@ -142,94 +141,3 @@ void read_sensors_and_set_speed() {
     Serial.print("right: " + String(rightSensorReading) + "  ");
     Serial.print("front: " + String(frontSensorReading) + "  ");
 }
-
-
-void turn_right_90(){
-  Serial.println("turning 90 to the right!");
-  leftStepper.setCurrentPosition(0);
-  rightStepper.setCurrentPosition(0);
-  leftStepper.move(108);
-  rightStepper.move(108);
-  leftStepper.setSpeed(50);
-  rightStepper.setSpeed(50);
-  while(rightStepper.distanceToGo() != 0 && leftStepper.distanceToGo() != 0) {
-    rightStepper.runSpeed();
-    leftStepper.runSpeed();
-  }
-}
-
-/*
-void setup()
-{
-  Serial.begin(115200);
-  leftStepper.setMaxSpeed(300.0);  // must be equal to or greater than desired speed.
-  rightStepper.setMaxSpeed(300.0); // must be equal to or greater than desired speed.
-  read_sensors_and_set_speed();
-  initialise_state_history();
-
-  initialise_left_sensor_history();
-  initialise_right_sensor_history();
-  
-    
-}
-*/
-/*
-void loop()
-{
-  int time_since_reading_left = abs(leftStepper.currentPosition() - last_sensor_reading_left);
-  int time_since_reading_right = abs(rightStepper.currentPosition() - last_sensor_reading_right);
-  if (state == FRONT_WALL || (time_since_reading_left >=20 || time_since_reading_right >=20))
-  {
-    // Take readings from the sensors and set states
-    read_sensors_and_set_speed();
-    
-    
-    bool change_state = (state_history[0] == state_history[1]);
-    change_state = change_state && (state_history[1]== state_history[2]);
-    change_state = change_state && (state_history[2]== state_history[3]);
-    change_state = change_state && (state_history[3]!= state_history[4]);
-
-    bool lost_wall = (abs(left_sensor_history[4] - leftSensorReading) > 40) || (abs(right_sensor_history[4] - rightSensorReading) > 40);
-    if ((change_state) || state == FRONT_WALL) { //entering a node
-      Serial.println("in a node!");
-      leftStepper.stop();
-      rightStepper.stop();
-
-      if (state != FRONT_WALL) {
-        leftStepper.move(-30);
-        rightStepper.move(30);
-        leftStepper.setSpeed(-20);
-        rightStepper.setSpeed(20);
-        while (abs(leftStepper.distanceToGo()) >0) {
-          Serial.println(leftStepper.distanceToGo());
-          leftStepper.runSpeed();
-          rightStepper.runSpeed();
-        }
-      }
-      else {
-        delay(2000);
-        turn_right_90();
-        delay(1000);
-        leave_node();
-      }
-      
-      read_sensors_and_set_speed();
-      delay(2000);
-      initialise_state_history();
-      initialise_left_sensor_history();
-      initialise_right_sensor_history();
-
-  
-    }
-  
-  }
-
-  Serial.print("left speed = " + String(leftStepper.speed()) + "   ");
-  Serial.println("right speed = " + String(rightStepper.speed()));
-
-  //run the stepper
-  leftStepper.runSpeed();
-  rightStepper.runSpeed();
-
-}
-*/
