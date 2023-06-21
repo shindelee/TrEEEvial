@@ -16,6 +16,7 @@ import * as http from 'http';
  var y_accurate = 0;
  var x_coord;
  var y_coord;
+ var heading = 0;
 
 //display matrix
  
@@ -75,12 +76,12 @@ import * as http from 'http';
                     var left_wall = parseInt(json.l);
                     var right_wall = parseInt(json.r);
                     var front_wall = parseInt(json.f);
-                    
+
                     console.log("breakpoint... Initialising");
                     await Initialise();
 
                     console.log("x-coord = " + x_coord + " , y-coord = " +y_coord);
-                    directions = await Tremaux(0, 0, 0, -0.1, right_wall, left_wall,front_wall, 0);
+                    directions = await Tremaux(0, 0, 0, -0.1, right_wall, left_wall,front_wall, heading);
                     start = false;
                     parent_x = 0;
                     parent_y = 0;
@@ -92,6 +93,13 @@ import * as http from 'http';
                 console.log("right wheel revolutions = " + json.y);
 
                 var coords_odo = await Odometry(parseInt(json.x) , parseInt(json.y));
+                heading = heading + coords_odo[2];
+                if (heading < 0 ) {
+                    heading = heading + 360;
+                }
+                if (heading > 360) {
+                    heading = heading - 360;
+                }
                 console.log(coords_odo);
                 //0th element is x coordinate, 1st is y
                 
