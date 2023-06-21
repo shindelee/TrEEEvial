@@ -74,23 +74,36 @@ const int RIGHT_WALL = 4;
 const int NO_WALL = 5;
 const int STATE_CHANGE = 6;
 
+//ultrasound state machine
+const int ULTRA_TWO_WALLS = 1;
+const int ULTRA_FRONT_WALL = 2;
+const int ULTRA_LEFT_WALL = 3;
+const int ULTRA_RIGHT_WALL = 4;
+const int ULTRA_NO_WALL = 5;
+
 //state variables
 int state;
 String previous_state;
 String cur_state;
 bool in_node = true; // boolean to tell whether we are in a node
-int frontSensorReading = 0;
-int leftSensorReading = 0;
-int rightSensorReading = 0;
-int last_sensor_reading_left = 0;
-int last_sensor_reading_right = 0;
+float frontSensorReading = 0;
+float leftSensorReading = 0;
+float rightSensorReading = 0;
+float last_sensor_reading_left = 0;
+float last_sensor_reading_right = 0;
 bool wall_on_left;
 bool wall_on_right;
 bool wall_in_front;
 int state_history[5];
-int left_sensor_history[5];
-int right_sensor_history[5];
-int sensor_threshold = 50;
+//int left_sensor_history[5];
+//int right_sensor_history[5];
+int sensor_setpoint = 8;
+int sensor_upper_bound = 10;
+
+
+//test stuff
+int test[10] = {204,204,93,93,,12,-12,460,-460,274,626};
+int test2[10] = {1,0,1,1,1,0,1,1,0,0};
 
 void setup() {
   Serial.begin(115200);
@@ -112,8 +125,8 @@ void setup() {
   read_sensors_and_set_speed();
   previous_state = cur_state;
 
-  initialise_left_sensor_history();
-  initialise_right_sensor_history();
+//  initialise_left_sensor_history();
+//  initialise_right_sensor_history();
   
 }
 
@@ -123,21 +136,19 @@ void loop() {
   int time_since_reading_left = abs(leftStepper.currentPosition() - last_sensor_reading_left);
   int time_since_reading_right = abs(rightStepper.currentPosition() - last_sensor_reading_right);
   if (state == FRONT_WALL || (time_since_reading_left >=20 || time_since_reading_right >=20))
-  {
-    // Take readings from the sensors and set states
-    read_sensors_and_set_speed();
-    
-    
+  { 
     bool change_state = (state_history[0] == state_history[1]);
     change_state = change_state && (state_history[1]== state_history[2]);
     change_state = change_state && (state_history[2]== state_history[3]);
     change_state = change_state && (state_history[3]!= state_history[4]);
 
-    bool lost_wall = (abs(left_sensor_history[4] - leftSensorReading) > 40) || (abs(right_sensor_history[4] - rightSensorReading) > 40);
-    if ((change_state) || state == FRONT_WALL) { //entering a node
+    if ((change_state)) { //entering a node
+      // Take readings from the sensors and set states
       Serial.println("in a node!");
       leftStepper.stop();
       rightStepper.stop();
+      leftStepper.setSpeed(0);
+      rightStepper.setSpeed(0);
 
       if (state != FRONT_WALL) {
         leftStepper.move(-30);
@@ -150,6 +161,7 @@ void loop() {
           rightStepper.runSpeed();
         }
       }    
+      
       read_sensors();
       //for triangulation sequence array, 0- blue, 1-red, 2-yellow
       int left_wall = (int)wall_on_left;
@@ -158,23 +170,35 @@ void loop() {
       int left_pos = (int)leftStepper.currentPosition();
       int right_pos = (int)rightStepper.currentPosition();
       int tri_sequence[3] = {1,0,2};
-      message_received = send_data(left_pos, right_pos, left_wall, right_wall, front_wall, tri_sequence, 0, 0);
-//      message_received = send_data(left_pos, right_pos, 1, 1, 0, tri_sequence, 0, 0);
+//      message_received = send_data(left_pos, right_pos, left_wall, right_wall, front_wall, tri_sequence, 0, 0);
+      leftStepper.setCurrentPosition(0);
+      rightStepper.setCurrentPosition(0);
+      message_received = send_data(left_pos, right_pos, 1, 1, 0, tri_sequence, 0, 0);
       initialise_state_history();
-      initialise_left_sensor_history();
-      initialise_right_sensor_history();
+//      initialise_left_sensor_history();
+//      initialise_right_sensor_history();
 
       if (message_received == "left") {
         turn_left_90(); 
+        message_received = send_data(test[count], test[count + 1], test2[count], test2[count+1] , test2[count+2], tri_sequence, 0, 0);
+        leftStepper.setCurrentPosition(0);
+        rightStepper.setCurrentPosition(0);
       }
       else if (message_received == "right") {
         turn_right_90();
+        message_received = send_data(left_pos, right_pos, left_wall, right_wall, front_wall, tri_sequence, 0, 0);
+        leftStepper.setCurrentPosition(0);
+        rightStepper.setCurrentPosition(0);
       }
 
       else if (message_received == "u-turn") {
         turn_180();
+        message_received = send_data(left_pos, right_pos, left_wall, right_wall, front_wall, tri_sequence, 0, 0);
+        leftStepper.setCurrentPosition(0);
+        rightStepper.setCurrentPosition(0);
       }
     }
+    read_sensors_and_set_speed();
   }
 
   Serial.print("left speed = " + String(leftStepper.speed()) + "   ");

@@ -14,6 +14,10 @@ export function myCallback() {
     // Code to be executed after the timeout
     console.log('Timeout complete!');
   }
+
+function delay(ms) {
+return new Promise((resolve) => setTimeout(resolve, ms));
+}
   
 
 
@@ -21,30 +25,28 @@ export async function Initialise () {
     console.log("breakpoint 1");
     let tables = await table_list();
     console.log("breakpoint 2");
+    console.log("does the table exist??" + tables.TableNames.includes("Node_Information"));
     if (tables.TableNames.includes("Node_Information")) {
-
         console.log("deleting old_table");
         await delete_table();
-        setTimeout(myCallback, 3000);
+        // setTimeout(myCallback, 3000);
+        await delay(3000);
 
         console.log("creating new table");
         // await create_table();
-        setTimeout(()=>{
-            create_table()},3000);
-
-        // setTimeout(()=>{
-        //     myCallback()},3000);
+        await create_table();
+        await delay(3000);
     }
     else {
         console.log("table does not exist anyway..")
-        create_table();
-        setTimeout(myCallback, 2000);
+        await create_table();
+        await delay(1000);
     }
 };
 
 
 
-export async function Tremaux (X,Y, parent_x, parent_y,r ,l, f, heading){
+export async function Tremaux (X,Y, Parent_x, Parent_y,r ,l, f, heading){
     var paths = [];
     /* 
     unvisited maintains number of path visitations + wall info
@@ -62,11 +64,11 @@ export async function Tremaux (X,Y, parent_x, parent_y,r ,l, f, heading){
      */
 
     //calculate direction of origin path
-    const delta_y = Y - parent_y;
-    const delta_x = X - parent_x;
+    const delta_y = Y - Parent_y;
+    const delta_x = X - Parent_x;
     
     console.log("X is type " + typeof(X) );
-    console.log("parent X is of type " + typeof(parent_x));
+    console.log("parent X is of type " + typeof(Parent_x));
     const rad2deg = 57.2957795130823209;
     var theta = heading;
     if (theta < 0 ) {
@@ -111,7 +113,7 @@ export async function Tremaux (X,Y, parent_x, parent_y,r ,l, f, heading){
     }
     else { //if visited before
         paths = await query_visited(X,Y);
-        if (!(X==parent_x && Y==parent_y)){
+        if (!(X==Parent_x && Y==Parent_y)){
             if (theta <=45 || theta > 315) { // origin path is north
                 paths[0] = paths[0] + 1;
             }
@@ -153,7 +155,7 @@ export async function Tremaux (X,Y, parent_x, parent_y,r ,l, f, heading){
 
     //find the path least travelled
 
-    if (!(X==parent_x && Y==parent_y) || (X==parent_x && Y==parent_y && f ==1)) {
+    if (!(X==Parent_x && Y==Parent_y) || (X==Parent_x && Y==Parent_y && f ==1)) {
         var least_travelled_path = 0;
         for (let i = 1; i < paths.length; i++) {
             if (paths[i] < paths[least_travelled_path]) {
@@ -169,12 +171,18 @@ export async function Tremaux (X,Y, parent_x, parent_y,r ,l, f, heading){
         paths[least_travelled_path] = paths[least_travelled_path] + 1;
         // console.log("new updated paths array: " + paths);
 
+        console.log("adding x: " + X);
+        console.log("adding y: " + Y);
+        console.log("parent_x" + Parent_x);
+        console.log("parent_x" + Parent_y);
+        console.log(paths);
+
         if (visited) {
             await update_visited(X,Y,paths);
         }
         else {
             console.log (paths);
-            await add_node(X,Y,parent_x, parent_y, paths);
+            await add_node(X,Y,Parent_x, Parent_y, paths);
         }
 
     }

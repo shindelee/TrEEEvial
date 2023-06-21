@@ -50,18 +50,35 @@ extern int state;
 extern String previous_state;
 extern String cur_state;
 extern bool in_node; // boolean to tell whether we are in a node
-extern int frontSensorReading;
-extern int leftSensorReading;
-extern int rightSensorReading;
-extern int last_sensor_reading_left;
-extern int last_sensor_reading_right;
+extern float frontSensorReading;
+extern float leftSensorReading;
+extern float rightSensorReading;
+extern float last_sensor_reading_left;
+extern float last_sensor_reading_right;
 extern bool wall_on_left;
 extern bool wall_on_right;
 extern bool wall_in_front;
 extern int state_history[5];
-extern int left_sensor_history[5];
-extern int right_sensor_history[5];
-extern int sensor_threshold; 
+extern int sensor_threshold;
+//extern float left_sensor_history[5];
+//extern float right_sensor_history[5];
+extern int sensor_setpoint;
+extern int sensor_upper_bound;
+
+
+//ultrasound sensors
+extern const int trigPinLeft;
+extern const int trigPinRight;
+extern const int trigPinFront;
+extern const int echoPinLeft;
+extern const int echoPinRight;
+extern const int echoPinFront;
+
+extern long distance_left;
+extern long distance_right;
+extern long distance_front;
+
+
 
 // wall information for message to be sent to EC2
 extern bool start;

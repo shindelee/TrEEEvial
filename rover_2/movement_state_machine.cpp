@@ -10,21 +10,21 @@ void update_state_history() {
     state_history[0] =state;
 }
 
-void update_left_sensor_history() {
-  left_sensor_history[4] = left_sensor_history[3];
-  left_sensor_history[3] = left_sensor_history[2];
-  left_sensor_history[2] = left_sensor_history[1];
-  left_sensor_history[1] = left_sensor_history[0];
-  left_sensor_history[0] = leftSensorReading;
-}
-
-void update_right_sensor_history() {
-  right_sensor_history[4] = right_sensor_history[3];
-  right_sensor_history[3] = right_sensor_history[2];
-  right_sensor_history[2] = right_sensor_history[1];
-  right_sensor_history[1] = right_sensor_history[0];
-  right_sensor_history[0] = rightSensorReading;
-}
+//void update_left_sensor_history() {
+//  left_sensor_history[4] = left_sensor_history[3];
+//  left_sensor_history[3] = left_sensor_history[2];
+//  left_sensor_history[2] = left_sensor_history[1];
+//  left_sensor_history[1] = left_sensor_history[0];
+//  left_sensor_history[0] = leftSensorReading;
+//}
+//
+//void update_right_sensor_history() {
+//  right_sensor_history[4] = right_sensor_history[3];
+//  right_sensor_history[3] = right_sensor_history[2];
+//  right_sensor_history[2] = right_sensor_history[1];
+//  right_sensor_history[1] = right_sensor_history[0];
+//  right_sensor_history[0] = rightSensorReading;
+//}
 
 void initialise_state_history() {
   state_history[0] =state;
@@ -34,27 +34,27 @@ void initialise_state_history() {
   state_history[4] =state;
 }
 
-void initialise_left_sensor_history() {
-  left_sensor_history[4] = leftSensorReading;
-  left_sensor_history[3] = leftSensorReading;
-  left_sensor_history[2] = leftSensorReading;
-  left_sensor_history[1] = leftSensorReading;
-  left_sensor_history[0] = leftSensorReading;
-}
+//void initialise_left_sensor_history() {
+//  left_sensor_history[4] = leftSensorReading;
+//  left_sensor_history[3] = leftSensorReading;
+//  left_sensor_history[2] = leftSensorReading;
+//  left_sensor_history[1] = leftSensorReading;
+//  left_sensor_history[0] = leftSensorReading;
+//}
 
-void initialise_right_sensor_history() {
-  right_sensor_history[4] = rightSensorReading;
-  right_sensor_history[3] = rightSensorReading;
-  right_sensor_history[2] = rightSensorReading;
-  right_sensor_history[1] = rightSensorReading;
-  right_sensor_history[0] = rightSensorReading;
-}
+//void initialise_right_sensor_history() {
+//  right_sensor_history[4] = rightSensorReading;
+//  right_sensor_history[3] = rightSensorReading;
+//  right_sensor_history[2] = rightSensorReading;
+//  right_sensor_history[1] = rightSensorReading;
+//  right_sensor_history[0] = rightSensorReading;
+//}
 
 
 void set_speed(int left_sensor_reading, int right_sensor_reading, int required_speed) {
   int difference = left_sensor_reading - right_sensor_reading;
   Serial.print ("difference = " + String(difference) + "   ");
-  int weighted_difference = static_cast<int>(difference * 0.4);
+  int weighted_difference = static_cast<int>(difference * 5);
   Serial.print ("weighted difference = " + String(weighted_difference) + "   ");
 
   leftStepper.setSpeed(-(required_speed + weighted_difference));
@@ -68,8 +68,8 @@ void set_wall_states() {
       state = FRONT_WALL;
       cur_state = "front wall";
 
-        leftStepper.setSpeed(0);
-        rightStepper.setSpeed(0);
+        leftStepper.stop();
+        rightStepper.stop();
       
     }
     else if (wall_on_left && wall_on_right && !wall_in_front)
@@ -84,14 +84,14 @@ void set_wall_states() {
     {
       state = LEFT_WALL;
       cur_state = "left wall";
-      set_speed(leftSensorReading, sensor_threshold + 40, sensor_threshold + 40);
+      set_speed(leftSensorReading, sensor_setpoint, 70);
       
     }
     else if (!wall_on_left && wall_on_right)
     {
       state = RIGHT_WALL;
       cur_state = "right wall";
-        set_speed(sensor_threshold + 40,rightSensorReading, sensor_threshold + 40);
+        set_speed(sensor_setpoint,rightSensorReading, 70);
     }
     else
     {
@@ -121,21 +121,38 @@ void leave_node(){
    
 }
 
+float read_ultrasound(int trigPin, int echoPin) {
+  //left ultrasound
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+  float duration_left = static_cast<float>(pulseIn(echoPin, HIGH));
+  return float(duration_left * 0.034 / 2);
+}
+
+
 void read_sensors() {
-  leftSensorReading = analogRead(leftSensorPin);
-  rightSensorReading = analogRead(rightSensorPin); //offset since right sensor less sensitive
-  frontSensorReading = analogRead(frontSensorPin);
-  wall_in_front = frontSensorReading > sensor_threshold;
-  wall_on_left = leftSensorReading > sensor_threshold;
-  wall_on_right = rightSensorReading > sensor_threshold;
+//  leftSensorReading = analogRead(leftSensorPin);
+//  rightSensorReading = analogRead(rightSensorPin); //offset since right sensor less sensitive
+//  frontSensorReading = analogRead(frontSensorPin);
+
+  frontSensorReading = read_ultrasound(2, 14); //D13, D10
+  rightSensorReading = read_ultrasound(27,26); //
+  leftSensorReading = read_ultrasound(13,12);
+  
+  wall_in_front = frontSensorReading < sensor_upper_bound;
+  wall_on_left = leftSensorReading < sensor_upper_bound;
+  wall_on_right = rightSensorReading < sensor_upper_bound;
 }
 
 void read_sensors_and_set_speed() {
     read_sensors();
     set_wall_states();
     update_state_history();
-    update_left_sensor_history();
-    update_right_sensor_history();
+//    update_left_sensor_history();
+//    update_right_sensor_history();
         
     Serial.print("left: " + String(leftSensorReading) + "  ");
     Serial.print("right: " + String(rightSensorReading) + "  ");

@@ -95,8 +95,8 @@ void setup()
 void loop()
 {
   int error = 1;
-  int x = counter;
-  int y = counter+1;
+  int x = 10*counter;
+  int y = 10*(counter+1);
   int f= array_count[counter];
   int l= array_count[counter+1];
   int r= array_count[counter+2];
@@ -169,7 +169,7 @@ void loop()
 //   }
 //   delay(500);
 
-  String message1 = "{\"x\":\"" + String(x) + "\",\"y\":\"" + String(y) + "\",\"f\":\"" + String(f) + "\",\"l\":\"" + String(l) + "\",\"r\":\"" + String(r) +  "\",\"alpha\":\"" + String(20) + +  "\",\"beta\":\"" + String(60) + "\"}";
+  String message1 = "{\"x\":\"" + String(x) + "\",\"y\":\"" + String(y) + "\",\"f\":\"" + String(f) + "\",\"l\":\"" + String(l) + "\",\"r\":\"" + String(r) +  "\",\"alpha\":\"" + String(0) + +  "\",\"beta\":\"" + String(0) + "\"}";
   // String message2 = "{\"x\":\"" + String(3) + "\",\"y\":\"" + String(7) + "\",\"f\":\""+ String(0) + "\",\"l\":\""+ String(1)+ "\",\"r\":\""+ String(1) + "\",\"seq_no\":\""+ String(seq_no)+ "\"}";
   String received_data;
   bool connection = client.connected();
@@ -197,7 +197,7 @@ void loop()
     Serial.println("sent message #" + String(message_counter));
     message_counter = message_counter + 1;
     error = false;
-    delay(500);
+    delay(1000);
 
     counter++;
     if (counter == 5)

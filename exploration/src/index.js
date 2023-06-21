@@ -4,9 +4,6 @@ import { Odometry } from "../src/dead_reckoning.js";
 import { triangulation } from "../src/Triangulation.js";
 import * as http from 'http';
 
-
- var start = true; //get from front end
- console.log(start);
  var parent_x;
  var parent_y;
 //  var seq_no = 0;
@@ -17,23 +14,50 @@ import * as http from 'http';
  var x_coord;
  var y_coord;
  var heading = 0;
+ var server;
 
-//display matrix
- 
- var server = http.createServer(function(request, response) {
+
+// const initializePromise = new Promise((resolve, reject) => {
+//     http.createServer(async function(request, response) {
+//       console.log((new Date()) + ' Received request for ' + request.url);
+//       response.writeHead(404);
+//       response.end();
+//       await Initialise();
+//       parent_x = 0;
+//       parent_y = -0.1;
+//       resolve(); // Resolve the promise when initialization is complete
+//     }).listen(5000, function() {
+//       console.log((new Date()) + ' Server is listening on port 5000');
+//     });
+//   });
+  
+//   // Wait for the promise to resolve before continuing
+//   await initializePromise;
+
+ var server = http.createServer(async function(request, response) {
      console.log((new Date()) + ' Received request for ' + request.url);
      response.writeHead(404);
      response.end();
+
  });
+
  server.listen(5000, function() {
      console.log((new Date()) + ' Server is listening on port 5000');
  });
+
+ await Initialise();
+ parent_x = 0;
+ parent_y = -0.1;
  
  const wsServer = new WebSocketServer({
      httpServer: server,
      autoAcceptConnections: false
  });
+
  
+ 
+
+
  function originIsAllowed(origin) {
    return true;
  }
@@ -59,35 +83,7 @@ import * as http from 'http';
              if (received_message != buffer) {
                 var json = JSON.parse(received_message);
                 console.log("message received" + received_message);
-             
-                // console.log("starting? " + start);
 
-                if (start) { //at the beginning
-
-                    var coords_odo = await Odometry(parseInt(json.x) , parseInt(json.y));
-                    console.log(coords_odo);
-                    
-                    x_accurate = coords_odo[0] + x_accurate;
-                    y_accurate = coords_odo[1] + y_accurate;
-    
-                    x_coord = Math.floor(x_accurate/3);
-                    y_coord = Math.floor(y_accurate/3);
-
-                    var left_wall = parseInt(json.l);
-                    var right_wall = parseInt(json.r);
-                    var front_wall = parseInt(json.f);
-
-                    console.log("breakpoint... Initialising");
-                    await Initialise();
-
-                    console.log("x-coord = " + x_coord + " , y-coord = " +y_coord);
-                    directions = await Tremaux(0, 0, 0, -0.1, right_wall, left_wall,front_wall, heading);
-                    start = false;
-                    parent_x = 0;
-                    parent_y = 0;
-                }
-
-                else{
                 console.log("received message!!");
                 console.log("left wheel revolutions = " + json.x);
                 console.log("right wheel revolutions = " + json.y);
@@ -128,7 +124,7 @@ import * as http from 'http';
                 
                 console.log("x-coord = " + x_coord + " , y-coord = " +y_coord);
         
-                directions = await Tremaux(x_coord,y_coord, parent_x, parent_y, right_wall, left_wall,front_wall, coords_odo[2]);
+                directions = await Tremaux(x_coord,y_coord, parent_x, parent_y, right_wall, left_wall,front_wall, heading);
                 parent_x = x_coord;
                 parent_y = y_coord;
 
@@ -137,7 +133,7 @@ import * as http from 'http';
              console.log("sent direction = " + directions);
              connection.sendUTF(directions);
          }
-        }
+        
      });
  
  
