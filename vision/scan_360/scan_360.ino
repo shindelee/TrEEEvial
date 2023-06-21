@@ -15,6 +15,7 @@ const float wheel_diameter = 2.0 * WHEEL_RADIUS;
 const float wheelBase = 0.14;
 const float wheelCircumference = wheel_diameter * PI;
 uint32_t message;
+bool continue_loop = true;
 
 struct WheelTurns
 {
@@ -97,8 +98,7 @@ void setup()
   rightStepper.setMaxSpeed(10);
 }
 
-void loop()
-{
+void loop(){
   leftStepper.setCurrentPosition(0);
   rightStepper.setCurrentPosition(0);
   uint32_t numbers[14];
@@ -160,18 +160,18 @@ void loop()
       }
     
       for (int j = 0; j < 12; j++)
-    {
-       Serial.print("numbers: " + String(numbers[j]));
-       Serial.print(" ");
-    }
+      {
+        Serial.print("numbers: " + String(numbers[j]));
+        Serial.print(" ");
+      }
 
-    bool red_detect = is_in_frame(numbers[0], numbers[1], numbers[2], numbers[3]);
-    bool blue_detect = is_in_frame(numbers[4], numbers[5], numbers[6], numbers[7]);
-    bool yellow_detect = is_in_frame(numbers[8], numbers[9], numbers[10], numbers[11]);
+      bool red_detect = is_in_frame(numbers[0], numbers[1], numbers[2], numbers[3]);
+      bool blue_detect = is_in_frame(numbers[4], numbers[5], numbers[6], numbers[7]);
+      bool yellow_detect = is_in_frame(numbers[8], numbers[9], numbers[10], numbers[11]);
 
-    int left_wheel_revs = leftStepper.currentPosition();
-    int right_wheel_revs = rightStepper.currentPosition();
-
+      int left_wheel_revs = leftStepper.currentPosition();
+      int right_wheel_revs = rightStepper.currentPosition();
+    
     if(yellow_detect && red_detect && yellow_flag)
     {
       yellow.l = left_wheel_revs;
@@ -208,7 +208,9 @@ void loop()
     
     }
 
-    Serial.println("done turning one turn!");
+    Serial.println(red_flag);
+    Serial.println(yellow_flag);
+    Serial.println(blue_flag);
     
   }
  
@@ -274,5 +276,5 @@ void loop()
 
   Serial.println("alpha: " + String(alpha));
   Serial.println("theta: " + String(theta));
-  
+
 }
