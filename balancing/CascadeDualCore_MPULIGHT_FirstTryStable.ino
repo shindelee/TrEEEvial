@@ -1,4 +1,3 @@
-//#include <Adafruit_MPU6050.h>
 #include <Adafruit_MPU6050.h>
 #include "Wire.h"
 #include <math.h>
@@ -12,9 +11,9 @@
 /********** PID **********/
 #include <PID_v1.h>
 
-double angle_kP = 475;  // PID gains for angle control
-double angle_kI = 0.05;
-double angle_kD = 98;
+double angle_kP = 400;  // PID gains for angle control
+double angle_kI = 0;
+double angle_kD = 30.69;
 
 double velocity_kP = 0.1;  // PID gains for velocity control
 double velocity_kI = 0.01;
@@ -41,6 +40,9 @@ PID velocityPid(&velocityInput, &velocityOutput, &velocitySetpoint, velocity_kP,
 #define dirPinRight 4
 #define stepPinRight 27
 
+#define red 2
+#define blue 12
+
 
 MPU6050 mpu(Wire);
 unsigned long timer = 0;
@@ -48,10 +50,6 @@ unsigned long timer = 0;
 unsigned long lastAngleUpdateTime = 0;
 const unsigned long ANGLE_UPDATE_INTERVAL = 500;  // Update angle every 500 milliseconds
 
-
-/*
-Adafruit_MPU6050 mpu;
-*/
 
 int16_t X_accelo, Z_accelo, Y_gyro, gyroRate, mu = 0.991;
 float acceloAngle = 0, compAngle = 0, prevAngle = 0, gyroAngle = 0, StepAngle = 1.8;
@@ -67,7 +65,8 @@ void setup(void) {
 
 
   Serial.begin(115200);
-  pinMode(12, OUTPUT); //setup LED
+  pinMode(blue, OUTPUT); //setup LED
+  pinMode(red, OUTPUT);
   Wire.begin();
 
   byte status = mpu.begin();
@@ -77,34 +76,12 @@ void setup(void) {
 
 
   Serial.println(F("Calculating offsets, do not move MPU6050"));
-  digitalWrite(12, HIGH); //switch on LED
+  digitalWrite(blue, HIGH); //switch on LED
   delay(1000);
   // mpu.upsideDownMounting = true; // uncomment this line if the MPU6050 is mounted upside-down
   mpu.calcOffsets();  // gyro and accelero
   Serial.println("Done!\n");
-  digitalWrite(12, LOW);   //switch off LED
-
-
-  /*
-  Serial.begin(115200);
-  Wire.begin();
-
-  // Initialize MPU6050
-  while (!Serial) {
-    delay(10);
-  }
-  Serial.println("Adafruit MPU6050 test!");
-  if (!mpu.begin()) {
-    Serial.println("Failed to find MPU6050 chip");
-    while (1) {
-      delay(10);
-    }
-  }
-  Serial.println("MPU6050 Found!");
-  mpu.setAccelerometerRange(MPU6050_RANGE_8_G);
-  mpu.setGyroRange(MPU6050_RANGE_500_DEG);
-  mpu.setFilterBandwidth(MPU6050_BAND_21_HZ);
-  */
+  digitalWrite(blue, LOW);   //switch off LED
 
   anglePid.SetMode(AUTOMATIC);
   anglePid.SetOutputLimits(-LIMIT, LIMIT);
@@ -164,28 +141,6 @@ void task2(void *pvParameters) {
 
 void loop() {
 
-  /*
-  CurrTime = millis();
-  dt = CurrTime - PrevTime;
-
-  if (dt >= loopTime) {
-    PrevTime = CurrTime;
-
-    sensors_event_t a, g, temp;
-    mpu.getEvent(&a, &g, &temp);
-
-    Y_gyro = g.gyro.y;
-    gyroRate = map(Y_gyro, -32768, 32767, -250, 250);
-    gyroAngle = gyroAngle + (float)gyroRate * dt / 1000.0;
-
-    X_accelo = a.acceleration.x;
-    Z_accelo = a.acceleration.z;
-    acceloAngle = atan2(X_accelo, Z_accelo) * RAD_TO_DEG;
-   compAngle = (mu * (prevAngle + gyroAngle) + (1 - mu) * (acceloAngle));  // comp filter
-
-    Serial.println compAngle);
-  }
-  */
   unsigned long currentTime = millis();                  // Current timestamp
   unsigned long deltaTime = currentTime - previousTime;  // Time difference since the last iteration
 
@@ -241,6 +196,10 @@ void loop() {
   if (compAngle < CENTRE + 1.5 && compAngle > CENTRE - 1.5) {
     stepperSpeed = 0;
     currentVelocity = 0;
+    digitalWrite(red, HIGH); //switch on LED
+  }
+  else{
+    digitalWrite(red, LOW); //switch on LED
   }
 
   Serial.print("compAngle : ");
