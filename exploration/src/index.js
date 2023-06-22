@@ -67,7 +67,7 @@ import * as http from 'http';
                 console.log("right wheel revolutions = " + json.y);
 
                 var coords_odo = await Odometry(-(parseInt(json.x)) , parseInt(json.y));
-                heading = heading + coords_odo[2] * 180 / Math.PI;
+                heading = heading + coords_odo[2];
                 if (heading < 0 ) {
                     heading = heading + 360;
                 }
