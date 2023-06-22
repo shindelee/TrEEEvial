@@ -31,7 +31,8 @@ void turn_left_90(){
       read_sensors();
       if (frontSensorReading < max_val) {
         max_val = frontSensorReading();
-        
+        left_target_position = leftStepper.currentPosition();
+        right_target_position = rightStepper.currentPosition();
       }
     }
 }
