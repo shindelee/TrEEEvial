@@ -5,6 +5,18 @@
   font-family: 'PT Sans', sans-serif;
 }
 
+.background {
+  background: url('/../polling_frontend/background.jpeg') center center/cover no-repeat;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  box-shadow: inset 0 0 0 1000px rgba(0, 0, 0, 0.2);
+  object-fit: contain;
+}
+
 .App {
   text-align: center;
 }

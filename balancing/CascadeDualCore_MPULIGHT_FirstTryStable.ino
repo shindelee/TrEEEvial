@@ -11,19 +11,19 @@
 /********** PID **********/
 #include <PID_v1.h>
 
-double angle_kP = 400;  // PID gains for angle control
-double angle_kI = 0;
-double angle_kD = 30.69;
+double angle_kP = 392;  //Increase response time but cause overshooting and oscillation
+double angle_kI = 0.0001; // remove bias/offset error but can cause oscillation and instability
+double angle_kD = 32; //Damps the oscillation but too high can cause instability
 
-double velocity_kP = 0.1;  // PID gains for velocity control
-double velocity_kI = 0.01;
+double velocity_kP = 0.001;  // PID gains for velocity control
+double velocity_kI = 0.0001;
 double velocity_kD = 0.3;
-int LIMIT = 12800;
+int LIMIT = 128000;
 
-double CENTRE = 0;          // centre of gravity
+double CENTRE = 0;          // Desired Angle
 unsigned long previousTime;  // Previous timestamp
 
-double maxAcceleration = 12800.0;  // Maximum acceleration in steps/s^2
+double maxAcceleration = 128000.0;  // Maximum acceleration in steps/s^2
 int targetVelocity = 0;           // Target velocity in steps/s
 int currentVelocity = 0;          // Current velocity in steps/s
 int stepperSpeed = 0;             // Stepper motor speed in steps/s
@@ -43,23 +43,13 @@ PID velocityPid(&velocityInput, &velocityOutput, &velocitySetpoint, velocity_kP,
 #define red 2
 #define blue 12
 
-
 MPU6050 mpu(Wire);
 unsigned long timer = 0;
 
-unsigned long lastAngleUpdateTime = 0;
-const unsigned long ANGLE_UPDATE_INTERVAL = 500;  // Update angle every 500 milliseconds
-
-
-int16_t X_accelo, Z_accelo, Y_gyro, gyroRate, mu = 0.991;
-float acceloAngle = 0, compAngle = 0, prevAngle = 0, gyroAngle = 0, StepAngle = 1.8;
-unsigned long CurrTime = 0, PrevTime = 0, dt = 0;
-const unsigned long loopTime = 10;  // Desired loop time in milliseconds
-int anglecontroller = 0;
+float compAngle = 0;
 
 AccelStepper stepper1(AccelStepper::DRIVER, stepPinLeft, dirPinLeft);    // Create an instance of AccelStepper for left motor
 AccelStepper stepper2(AccelStepper::DRIVER, stepPinRight, dirPinRight);  // Create an instance of AccelStepper for right motor
-
 
 void setup(void) {
 
@@ -151,43 +141,19 @@ void loop() {
   
 
   // Velocity PID control
-  // velocitySetpoint = 0;  // Set the target velocity as the output of the angle PID
-  // velocityInput = velocity;
+  velocitySetpoint = 0;  // Set the target velocity as the output of the angle PID
+  velocityInput = velocity;
 
-  // double vErr = velocitySetpoint - velocityInput;
-  // Serial.print("Velocity error:");
-  // Serial.print(vErr);
-  // Serial.print("\t\t");
-
-  // velocityPid.Compute();
+  velocityPid.Compute();
 
   // Angle PID control
-  angleSetpoint = CENTRE;  // Desired angle for 1 PID,  for casecade use output of velocity PID
+  angleSetpoint = velocityOutput;  // Desired angle for 1 PID,  for casecade use output of velocity PID
   angleInput = compAngle;
-
-  // Serial.print("Angle error: ");
-  // double aErr = angleSetpoint - angleInput;
-  // Serial.print(aErr);
-  // Serial.print("\t\t");
 
   anglePid.Compute();
 
   // Update the target velocity based on the output of the velocity PID
   targetVelocity = angleOutput;
-
-  // Gradually adjust the current velocity towards the target velocity
-  // if (currentVelocity < targetVelocity) {
-  //   currentVelocity += maxAcceleration;
-  //   if (currentVelocity > targetVelocity) {
-  //     currentVelocity = targetVelocity;
-  //   }
-  // } else if (currentVelocity > targetVelocity) {
-  //   currentVelocity -= maxAcceleration;
-  //   if (currentVelocity < targetVelocity) {
-  //     currentVelocity = targetVelocity;
-  //   }
-  // }
-
 
   // Update the stepper motor speed based on the current velocity
   stepperSpeed = targetVelocity;

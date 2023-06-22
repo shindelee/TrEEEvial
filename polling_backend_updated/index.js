@@ -1,10 +1,5 @@
 import { newMazeState } from "./newMazeState.js";
 import { aStarAlgorithm } from "./astar.js";
-
-//const express = require("express");
-//const cors = require('cors');
-//const path = require('path');
-
 import express from 'express';
 import cors from 'cors';
 
@@ -62,24 +57,14 @@ app.get("/tableData33", (req, res) => {
 });
 
 app.get("/shortestPath", (req, res) => {
-    aStarAlgorithm(15, 15, 100, 100, State)
+    var coordinates = aStarAlgorithm(20, 20, 150, 155, State);
+    for(let k = 0; k < coordinates.length; k++){
+        State[coordinates[k][0]][coordinates[k][1]] = 4;
+    }
     setTimeout(()=>{
         res.json(
             {
             "shortestPath": State
-            /*
-            [
-            [2,0,0,0,1,0,0,0,0],
-            [4,1,1,1,1,1,0,1,0],
-            [4,4,0,0,0,1,0,1,0],
-            [1,4,1,0,1,1,0,1,0],
-            [1,4,1,0,1,1,0,1,0],
-            [1,4,1,0,0,0,0,1,0],
-            [1,4,1,1,1,1,0,1,0],
-            [1,4,4,4,4,4,4,4,4],
-            [1,1,1,1,1,0,0,0,4]
-            ]
-            */
         })
     }, 1000);
 });
@@ -100,24 +85,7 @@ const widenBy = 6;
 
 app.get("/pollServer", (req, res) => {
     var d = new Date();
-    /*
-    newMazeState(State, [60,0], [[60, 60], 0, 0, 0, 0], Params, 1);
-    newMazeState(State, [60,60], [[4, 60], -90, 1, 1, 1], Params, 0);
-    newMazeState(State, [4,60], [[60, 60], 90, 0, 0, 0], Params, 0);
-    newMazeState(State, [60,60], [[60, 115], 0, 1, 1, 1], Params, 0);
-    newMazeState(State, [60,115], [[60, 60], 180, 0, 0, 0], Params, 0);
-    newMazeState(State, [60,60], [[115, 60], 90, 1, 1, 1], Params, 0);
-    */
-
-    // Large diagonal cross-junction case.
-    /*
-    newMazeState(State, [1,0], [[60, 60], 45, 0, 0, 0], Params, 1);
-    newMazeState(State, [60,60], [[1, 119], -45, 1, 1, 1], Params, 0);
-    newMazeState(State, [1,119], [[60, 60], 135, 0, 0, 0], Params, 0);
-    newMazeState(State, [60,60], [[119, 119], 45, 1, 1, 1], Params, 0);
-    newMazeState(State, [119,119], [[60, 60], -135, 0, 0, 0], Params, 0);
-    newMazeState(State, [60,60], [[119, 1], 135, 0, 0, 0], Params, 0);
-    */
+    
 
     // Instructions from actual maze and Tremaux.
     newMazeState(State, [20,20], [20, 60], widenBy);
@@ -147,10 +115,6 @@ app.get("/pollServer", (req, res) => {
     newMazeState(State, [150,155], [130, 190], widenBy);
     newMazeState(State, [130,190], [130, 155], widenBy);
     newMazeState(State, [130,155], [150, 155], widenBy);
-    var coordinates = aStarAlgorithm(20, 20, 150, 155, State);
-    for(let k = 0; k < coordinates.length; k++){
-        State[coordinates[k][0]][coordinates[k][1]] = 4;
-    }
     var myArray = [];
     for(let i = 0; i < 366; i++){
         myArray.push(State[i]);
