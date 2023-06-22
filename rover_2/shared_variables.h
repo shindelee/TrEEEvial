@@ -64,6 +64,7 @@ extern int sensor_threshold;
 // extern float right_sensor_history[5];
 extern int sensor_setpoint;
 extern int sensor_upper_bound;
+extern int sensor_front;
 
 // ultrasound sensors
 extern const int trigPinLeft;

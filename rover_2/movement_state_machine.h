@@ -14,7 +14,7 @@ void set_speed(int left_sensor_reading, int right_sensor_reading, int required_s
 void set_wall_states();
 void leave_node();
 void read_sensors();
-void read_sensors_and_set_speed();
+//void read_sensors_and_set_speed();
 float read_ultrasound(int trigPin, int echoPin);
 
 #endif

@@ -54,12 +54,14 @@ void initialise_state_history()
 
 void set_speed(int left_sensor_reading, int right_sensor_reading, int required_speed)
 {
+  Serial.print("left sensor" + String(left_sensor_reading));
+  Serial.print("   right sensor" + String(right_sensor_reading));
   int difference = left_sensor_reading - right_sensor_reading;
   Serial.print("difference = " + String(difference) + "   ");
-  int weighted_difference = static_cast<int>(difference * 3);
+  int weighted_difference = static_cast<int>(difference) * 2.5;
   Serial.print("weighted difference = " + String(weighted_difference) + "   ");
 
-  leftStepper.setSpeed(-(required_speed - weighted_difference));
+  leftStepper.setSpeed(required_speed - weighted_difference);
   rightStepper.setSpeed(required_speed + weighted_difference);
 }
 
@@ -72,6 +74,8 @@ void set_wall_states()
 
     leftStepper.stop();
     rightStepper.stop();
+    leftStepper.setSpeed(0);
+    rightStepper.setSpeed(0);
   }
   else if (wall_on_left && wall_on_right && !wall_in_front)
   {
@@ -140,24 +144,24 @@ void read_sensors()
   rightSensorReading = read_ultrasound(trigPinRight, echoPinRight); // A0, A1
   leftSensorReading = read_ultrasound(trigPinLeft, echoPinLeft);
 
-  wall_in_front = frontSensorReading < sensor_upper_bound;
+  wall_in_front = frontSensorReading < sensor_front;
   wall_on_left = leftSensorReading < sensor_upper_bound;
   wall_on_right = rightSensorReading < sensor_upper_bound;
 }
 
-void read_sensors_and_set_speed()
-{
-  read_sensors();
-  set_wall_states();
-  update_state_history();
-  //    update_left_sensor_history();
-  //    update_right_sensor_history();
-
-  Serial.print("left: " + String(leftSensorReading) + "  ");
-  Serial.print("front: " + String(frontSensorReading) + "  ");
-  Serial.print("right: " + String(rightSensorReading) + "  ");
-
-  Serial.print("lw : " + String(wall_on_left) + "   ");
-  Serial.print("fw : " + String(wall_in_front) + "   ");
-  Serial.print("rw : " + String(wall_on_right) + "   ");
-}
+//void read_sensors_and_set_speed()
+//{
+//  read_sensors();
+//  set_wall_states();
+//  update_state_history();
+//  //    update_left_sensor_history();
+//  //    update_right_sensor_history();
+//
+//  Serial.print("left: " + String(leftSensorReading) + "  ");
+//  Serial.print("front: " + String(frontSensorReading) + "  ");
+//  Serial.print("right: " + String(rightSensorReading) + "  ");
+//
+//  Serial.print("lw : " + String(wall_on_left) + "   ");
+//  Serial.print("fw : " + String(wall_in_front) + "   ");
+//  Serial.print("rw : " + String(wall_on_right) + "   ");
+//}

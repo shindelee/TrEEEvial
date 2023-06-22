@@ -13,7 +13,7 @@
 const char *ssid = "iPhone";
 const char *password = "12345678";
 char path[] = "/";
-char host[] = "13.51.172.210:5000";
+char host[] = "35.171.4.40:5000";
 
 WebSocketClient *webSocketClient = new WebSocketClient();
 
@@ -62,6 +62,8 @@ const float wheelDiameter = 2.0 * WHEEL_RADIUS;
 const float wheelBase = 0.14;
 const float wheelCircumference = wheelDiameter * PI;
 
+int last_sent_message;
+
 // motors
 AccelStepper leftStepper(AccelStepper::DRIVER, LEFT_STEP_PIN, LEFT_DIR_PIN);
 AccelStepper rightStepper(AccelStepper::DRIVER, RIGHT_STEP_PIN, RIGHT_DIR_PIN);
@@ -102,6 +104,7 @@ int state_history[5];
 // int right_sensor_history[5];
 int sensor_setpoint = 8;
 int sensor_upper_bound = 12;
+int sensor_front = 10;
 
 // test stuff
 // int test[10] = {204,204,93,93,12,-12,460,-460,274,626};
@@ -112,10 +115,11 @@ void setup()
   Serial.begin(115200);
 
   // EC2 Connection
-  //  initWiFi(ssid, password);
-  //  delay(50);
-  //  initWebSocket("13.51.172.210", 5000, client);
-  //  handshake(path,host, webSocketClient, client);
+    initWiFi(ssid, password);
+    delay(50);
+    initWebSocket("35.171.4.40", 5000, client);
+    handshake(path,host, webSocketClient, client);
+    last_sent_message = millis();
 
   // motor preamble
   leftStepper.setMaxSpeed(400);
@@ -124,7 +128,8 @@ void setup()
   rightStepper.setAcceleration(10);
 
   // get initial sensor reading
-  read_sensors_and_set_speed();
+  read_sensors;
+  set_speed(leftSensorReading, rightSensorReading, 60);
   previous_state = cur_state;
 
   // ultrasound sensor setup
@@ -147,41 +152,107 @@ void loop()
   int time_since_reading_left = abs(leftStepper.currentPosition() - last_sensor_reading_left);
   int time_since_reading_right = abs(rightStepper.currentPosition() - last_sensor_reading_right);
 
+  if(millis() - last_sent_message > 1000) {
+    int left = int(wall_on_left);
+    int right = int(wall_on_right);
+    int front = int(wall_in_front);
+    int hi[3] = {2,0,1};
+    message_received = send_data(leftStepper.currentPosition(), leftStepper.currentPosition(), left, right, front, hi , 0, 0);
+    last_sent_message = millis();
+  }
+
   if ((time_since_reading_left >= 50 || time_since_reading_right >= 50))
   {
-    bool change_state = (state_history[0] == state_history[1]);
-    change_state = change_state && (state_history[1] == state_history[2]);
-    change_state = change_state && (state_history[2] == state_history[3]);
-    change_state = change_state && (state_history[3] != state_history[4]);
+    read_sensors();
+    set_speed(leftSensorReading, rightSensorReading, 150);
 
-    if (state == FRONT_WALL)
-    {
+    if (wall_in_front && wall_on_left && wall_on_right) {
       leftStepper.stop();
       rightStepper.stop();
-      leftStepper.setSpeed(0);
-      rightStepper.setSpeed(0);
-      if (wall_on_left && wall_on_right)
-      {
-        turn_180();
-        edge_out();
-      }
-      else if (!wall_on_left && wall_on_right)
-      {
-        turn_left_90();
-        edge_out();
-      }
 
-      else if (wall_on_left && !wall_on_right)
-      {
-        turn_right_90();
-        edge_out();
-      }
-      else
-      {
-        turn_left_90();
-        edge_out();
-      }
-    }
+      reverse();
+      turn_180();
+    } 
+
+//    if (wall_in_front) {
+//      reverse();
+////      turn_left_90();
+////      read_sensors();
+////      straight();
+////      if(wall_in_front) {
+////        turn_right_90();
+////        turn_right_90();
+////        read_sensors();
+////        straight();
+////        if (wall_in_front) {
+////          turn_right_90();
+////          straight();
+////      }
+//      
+//    }
+    
+//    bool change_state = (state_history[0] == state_history[1]);
+//    change_state = change_state && (state_history[1] == state_history[2]);
+//    change_state = change_state && (state_history[2] == state_history[3]);
+//    change_state = change_state && (state_history[3] != state_history[4]);
+//
+//    if (change_state)
+//    {
+//      leftStepper.stop();
+//      rightStepper.stop();
+//      if (wall_on_left && wall_on_right && state == FRONT_WALL)
+//      {
+//        Serial.println("dead end!");
+//        turn_180();
+//      }
+//
+//      else if (wall_on_left && wall_on_right && state != FRONT_WALL)
+//      {
+//        Serial.println("straight path!");
+//        straight();
+//      }
+//      
+//      else if (!wall_on_left && wall_on_right && state == FRONT_WALL)
+//      {
+//        Serial.println("turn left!");
+//        edge_out();
+//        turn_left_90();
+//        edge_out();
+//      }
+//
+//      else if (!wall_on_left && wall_on_right && state != FRONT_WALL)
+//      {
+//        Serial.println("can go front or left ,go left!");
+//        edge_out();
+//        turn_left_90();
+//        edge_out();
+//      }
+//
+//      else if (wall_on_left && !wall_on_right && state == FRONT_WALL)
+//      {
+//        Serial.println("can only go right!!");
+//        straight();
+//        turn_right_90();
+//        edge_out();
+//      }
+//
+//      else if (wall_on_left && !wall_on_right && state != FRONT_WALL)
+//      {
+//        Serial.println("can go front and right, go front!!");
+//        straight();
+//        edge_out();
+//      }
+//      else if (!wall_on_left && !wall_on_right && state != FRONT_WALL){
+//        Serial.println("cross junction, go front!!");
+//        straight();
+//        edge_out();
+//        }
+//      else {
+//        Serial.println("T junction, go left");
+//        turn_left_90();
+//        edge_out();
+//      }
+//    }
 
     //    if ((change_state)) { //entering a node
     //      // Take readings from the sensors and set states
@@ -258,7 +329,7 @@ void loop()
     //          break;
     //      }
   }
-  read_sensors_and_set_speed();
+//  read_sensors_and_set_speed();
   //}
 
   Serial.print("left speed = " + String(leftStepper.speed()) + "   ");

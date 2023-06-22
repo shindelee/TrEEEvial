@@ -1,5 +1,6 @@
 #include "drive_functions.h"
 #include "shared_variables.h"
+#include "movement_state_machine.h"
 
 void turn_left_90()
 {
@@ -19,6 +20,11 @@ void turn_left_90()
 
   for (int i = 0; i < 5; i++)
   {
+    if(leftSensorReading < 10)
+    {
+      straight_edge();
+    }
+    
     leftStepper.move(108 * 2 / 5); // DO NOT replace 108 *2 with target position
     rightStepper.move(108 * 2 / 5);
     leftStepper.setSpeed(20);
@@ -26,14 +32,14 @@ void turn_left_90()
 
     while (leftStepper.distanceToGo() > 0)
     {
-      leftStepper.runSpeed(20);
-      rightStepper.runSpeed(20);
+      leftStepper.runSpeed();
+      rightStepper.runSpeed();
     }
 
     read_sensors();
     if (frontSensorReading < max_val)
     {
-      max_val = frontSensorReading();
+      max_val = frontSensorReading;
       left_target_position = leftStepper.currentPosition();
       right_target_position = rightStepper.currentPosition();
     }
@@ -48,6 +54,36 @@ void straight()
   rightStepper.move(20 * 2);
   leftStepper.setSpeed(-50 * 2);
   rightStepper.setSpeed(50 * 2);
+  while (rightStepper.distanceToGo() != 0 && leftStepper.distanceToGo() != 0)
+  {
+    rightStepper.runSpeed();
+    leftStepper.runSpeed();
+  }
+}
+
+void straight_edge()
+{
+  leftStepper.setCurrentPosition(0);
+  rightStepper.setCurrentPosition(0);
+  leftStepper.move(-250);
+  rightStepper.move(250);
+  leftStepper.setSpeed(-50 * 2);
+  rightStepper.setSpeed(50 * 2);
+  while (rightStepper.distanceToGo() != 0 && leftStepper.distanceToGo() != 0)
+  {
+    rightStepper.runSpeed();
+    leftStepper.runSpeed();
+  }
+}
+
+void reverse()
+{
+  leftStepper.setCurrentPosition(0);
+  rightStepper.setCurrentPosition(0);
+  leftStepper.move(-80);
+  rightStepper.move(-80);
+  leftStepper.setSpeed(-50 * 2);
+  rightStepper.setSpeed(-50 * 2);
   while (rightStepper.distanceToGo() != 0 && leftStepper.distanceToGo() != 0)
   {
     rightStepper.runSpeed();
@@ -90,7 +126,7 @@ void edge_out()
 
 void turn_right_90()
 {
-  Serial.println("turning 90 to the right!");
+//  Serial.println("turning 90 to the right!");
   leftStepper.setCurrentPosition(0);
   rightStepper.setCurrentPosition(0);
   leftStepper.move(-108 * 2);
@@ -108,7 +144,7 @@ void turn_180()
 {
   leftStepper.setCurrentPosition(0);
   rightStepper.setCurrentPosition(0);
-  leftStepper.move(-216 * 2);
+  leftStepper.move(216 * 2);
   rightStepper.move(-216 * 2);
   while (rightStepper.distanceToGo() != 0 && leftStepper.distanceToGo() != 0)
   {
@@ -130,15 +166,7 @@ void turn_clockwise_360()
   }
 }
 
-void set_speed(int left_sensor_reading, int right_sensor_reading)
-{
-  float difference = leftSensorReading - rightSensorReading;
-  float p = 1;
-  float weighted_difference = difference * p;
 
-  leftStepper.setSpeed(-(50.0 + weighted_difference));
-  rightStepper.setSpeed(50.0 - weighted_difference);
-}
 
 /*
 float get_angle_turnedL(AccelStepper *leftStepper, AccelStepper *rightStepper){
