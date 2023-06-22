@@ -3,42 +3,47 @@
 
 uint32_t numbers[14];
 
-struct WheelTurns {
-  float l;
-  float r;
+struct WheelTurns
+{
+    float l;
+    float r;
 
-  public:
-  WheelTurns(int x_, int y_) {
-    l = x_;
-    r = y_;
-  }
+public:
+    WheelTurns(int x_, int y_)
+    {
+        l = x_;
+        r = y_;
+    }
 };
 
-WheelTurns red(0,0);
-WheelTurns blue(0,0);
-WheelTurns yellow(0,0);
+WheelTurns red(0, 0);
+WheelTurns blue(0, 0);
+WheelTurns yellow(0, 0);
 
-bool is_in_frame(int x_min, int x_max, int y_min, int y_max) {
-  return x_min > 240 && x_max <400 && y_min >180 && y_max < 300;
+bool is_in_frame(int x_min, int x_max, int y_min, int y_max)
+{
+    return x_min > 240 && x_max < 400 && y_min > 180 && y_max < 300;
 }
 
-float size_bb(float min_x, float max_x, float min_y, float max_y){
+float size_bb(float min_x, float max_x, float min_y, float max_y)
+{
     float size = (max_x - min_x) * (max_y - min_y);
     return size;
 }
 
-void beacon_detection(){
+void beacon_detection()
+{
     if (Serial1.available() >= 4)
     {
-        byte m1 = Serial1.read();    // read the bytes into byte variables 'b1' to 'b4'
-        byte m2 = Serial1.read();  
+        byte m1 = Serial1.read(); // read the bytes into byte variables 'b1' to 'b4'
+        byte m2 = Serial1.read();
         byte m3 = Serial1.read();
         byte m4 = Serial1.read();
 
         uint32_t message;
-        message = m1 | (m2 << 8) | (m3 << 16) | (m4 << 24); 
+        message = m1 | (m2 << 8) | (m3 << 16) | (m4 << 24);
 
-        if(message == 5390914)
+        if (message == 5390914)
         {
             if (Serial1.available() >= 24)
             {
@@ -49,13 +54,13 @@ void beacon_detection(){
 
                 for (int i = 0; i < 6; i++)
                 {
-                    b1 = Serial1.read();  // read the bytes into byte variables 'b1' to 'b4'
+                    b1 = Serial1.read(); // read the bytes into byte variables 'b1' to 'b4'
                     b2 = Serial1.read();
                     b3 = Serial1.read();
                     b4 = Serial1.read();
 
-                    hexadeci[i] = b1 | (b2 << 8) | (b3 << 16) | (b4 << 24);  // Combine the bytes into a single 32-bit integer
-                    
+                    hexadeci[i] = b1 | (b2 << 8) | (b3 << 16) | (b4 << 24); // Combine the bytes into a single 32-bit integer
+
                     // char buffer[9];  // Create a character buffer to hold the hexadecimal representation
                     sprintf(terminal[i], "%08X", hexadeci[i]); // Convert the long value to hexadecimal
 
@@ -73,12 +78,12 @@ void beacon_detection(){
                 int left_wheel_revs = leftStepper.currentPosition();
                 int right_wheel_revs = rightStepper.currentPosition();
 
-                if (red_detect || yellow_detect) 
+                if (red_detect || yellow_detect)
                 {
                     float red_size = size_bb(numbers[0], numbers[2], numbers[1], numbers[3]);
                     float yellow_size = size_bb(numbers[8], numbers[10], numbers[9], numbers[11]);
-                  
-                    if (yellow_size > 0.5 * red_size) 
+
+                    if (yellow_size > 0.5 * red_size)
                     {
                         yellow.l = left_wheel_revs;
                         yellow.r = right_wheel_revs;
@@ -86,7 +91,7 @@ void beacon_detection(){
                         Serial.println("left wheel revs = " + String(yellow.l));
                         Serial.println("right wheel revs = " + String(yellow.r));
                     }
-                    else 
+                    else
                     {
                         red.l = left_wheel_revs;
                         red.r = right_wheel_revs;
@@ -94,10 +99,9 @@ void beacon_detection(){
                         Serial.println("left wheel revs = " + String(red.l));
                         Serial.println("right wheel revs = " + String(red.r));
                     }
-                  
                 }
 
-                else if (blue_detect) 
+                else if (blue_detect)
                 {
                     blue.l = left_wheel_revs;
                     blue.r = right_wheel_revs;
@@ -105,10 +109,9 @@ void beacon_detection(){
                     Serial.println("left wheel revs = " + String(blue.l));
                     Serial.println("right wheel revs = " + String(blue.r));
                 }
-                
             }
         }
 
         Serial.println("done turning one turn!");
-   }
+    }
 }

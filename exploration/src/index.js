@@ -79,10 +79,6 @@ app.get("/pollServer", (req, res) => {
     var y = Math.round(parseInt(y_coord));
     var p_x = Math.round(parseInt(parent_x));
     var p_y = Math.round(parseInt(parent_y));
-    console.log(Math.round(x_coord), " type is " + typeof(x_coord) );
-    console.log(Math.round(y_coord))
-    console.log(Math.round(parent_x), " type is " + typeof(parent_x) );
-    console.log(Math.round(parent_y))
     newMazeState(State, [p_y, p_x], [y, x], widenBy);
     // newMazeState(State, [10, 10], [100, 100], widenBy);
     var myArray = [];
@@ -182,14 +178,8 @@ app.get('*', (req, res) => {
                 console.log("x_accurate = " + x_accurate);
                 console.log("y_accurate = " + y_accurate);
 
-                // x_coord = Math.floor(x_accurate/3);
-                // y_coord = Math.floor(y_accurate/3);
-
-                parent_x =0;
-                parent_y = 0;
-
-                x_coord = 89;
-                y_coord = 199;
+                x_coord = Math.floor(x_accurate/3);
+                y_coord = Math.floor(y_accurate/3);
 
 
                 var left_wall = parseInt(json.l);
