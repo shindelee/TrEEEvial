@@ -13,7 +13,7 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  box-shadow: inset 0 0 0 1000px rgba(0, 0, 0, 0.2);
+  box-shadow: inset 0 0 0 10000px rgba(0, 0, 0, 0.2);
   object-fit: contain;
 }
 
@@ -56,19 +56,32 @@
   }
 }
 
-.past-demo {
+.Balancing {
   display: flex;
-  height: 90vh;
-  align-items: center;
   justify-content: center;
+  align-items: center;
+  height: 45vh;
   font-size: 3rem;
+  color: #fff;
 }
 
-.past-demo {
-  background-image: url('../public/images/maze2.jpeg');
-  background-position: center;
-  background-size: cover;
-  background-repeat: no-repeat;
-  color: #fff;
-  font-size: 100px;
+.video-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 90vh;
+}
+
+.video-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+}
+
+.centered-video {
+  width: 100%;
+  height: auto;
 }

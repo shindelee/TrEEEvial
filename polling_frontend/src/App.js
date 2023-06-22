@@ -5,7 +5,8 @@ import styled from 'styled-components';
 import Navbar from './components/Navbar';
 import ReactPolling from "react-polling/lib/ReactPolling";
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import PastDemo from "./components/pages/PastDemo";
+import Balancing from "./components/pages/Balancing";
+
 
 function App() {
 
@@ -67,6 +68,17 @@ function App() {
     return (
         <div className='background'>
         <div className="App">
+            
+            <Router>
+              <Navbar />
+              <Routes>
+                <Route path='/Balancing' element={<Balancing/>} />
+              </Routes>
+            </Router>
+            <TableComp td = {tableData33}/>
+            <Button1 onClick={()=>handleClick2(updateTable33)}>
+                Display shortest path
+            </Button1>
             <ReactPolling
                 url={'http://localhost:3001/pollServer/'}
                 interval= {1000} // in milliseconds(ms)
@@ -79,20 +91,8 @@ function App() {
                     <Button1 onClick={stopPolling}>Stop Polling</Button1>
                 ) : null;
                 }}
-            />
-            <Router>
-              <Navbar />
-              <Routes>
-                <Route path='/past-demo' component={<PastDemo/>} />
-              </Routes>
-            </Router>
-            <TableComp td = {tableData33}/>
-            <Button1 onClick={()=>handleClick(updateTable33)}>
-                New maze state
-            </Button1>
-            <Button1 onClick={()=>handleClick2(updateTable33)}>
-                Display shortest path
-            </Button1>
+             />
+            
         </div>
         </div>
     );

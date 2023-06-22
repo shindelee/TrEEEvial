@@ -1,0 +1,16 @@
+.Balancing {
+  display: flex;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+}
+
+.Balancing {
+  background-image: url('Balancing.jpeg');
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  color: #fff;
+  font-size: 100px;
+}
