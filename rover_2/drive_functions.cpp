@@ -8,14 +8,32 @@ void turn_left_90(){
     
 //    leftStepper.move(108*2);
 //    rightStepper.move(108 *2);
-    leftStepper.setSpeed(40*2);
-    rightStepper.setSpeed(40*2);
     
 //    while(rightStepper.distanceToGo() != 0 && leftStepper.distanceToGo() != 0) {
 //        rightStepper.runSpeed();
 //        leftStepper.runSpeed();
 //    }
-      while()
+    float max_val = leftSensorReading;
+    float left_target_position = 108 * 2;
+    float right_target_position = 108 * 2;
+
+    for (int i = 0; i < 5; i++) {
+      leftStepper.move(108 *2 /5); //DO NOT replace 108 *2 with target position
+      rightStepper.move(108 * 2 / 5);
+      leftStepper.setSpeed(20);
+      rightStepper.setSpeed(20);
+
+      while(leftStepper.distanceToGo() > 0) {
+        leftStepper.runSpeed(20);
+        rightStepper.runSpeed(20);
+      }
+
+      read_sensors();
+      if (frontSensorReading < max_val) {
+        max_val = frontSensorReading();
+        
+      }
+    }
 }
 
 void straight(){

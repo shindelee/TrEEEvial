@@ -11,7 +11,7 @@
 const char *ssid = "Anlan's Galaxy S21 FE 5G";
 const char *password = "qnub5424";
 char path[] = "/";
-char host[] = "192.168.158.229:5000";
+char host[] = "192.168.158.68:5000";
 int seq_no;
 int counter = 0;
 int array_count[7] = {0, 1, 1, 0, 1, 0, 0};
@@ -46,7 +46,7 @@ void initWiFi()
 // create web socket
 void initWebSocket()
 {
-  if (client.connect("192.168.158.229", 5000))
+  if (client.connect("192.168.158.68", 5000))
   {
     Serial.println("Connected");
   }
@@ -96,7 +96,7 @@ void loop()
 {
   int error = 1;
   int x = 100*counter;
-  int y = 100*(counter+1);
+  int y = 100*(counter);
   int f= array_count[counter];
   int l= array_count[counter+1];
   int r= array_count[counter+2];
