@@ -27,9 +27,9 @@ const app = express();
  // Prerequisites for newMazeState polling.
 // 366x225 maze for cross junction large case.
 const State = [];
-for(let j = 0; j < 366; j++){
+for(let j = 0; j < 100; j++){
     let row = []
-    for(let j = 0; j < 225; j++){
+    for(let j = 0; j < 150; j++){
         row.push(1);
     }
     State.push(row);
@@ -82,7 +82,7 @@ app.get("/pollServer", (req, res) => {
     newMazeState(State, [p_y, p_x], [y, x], widenBy);
     // newMazeState(State, [10, 10], [100, 100], widenBy);
     var myArray = [];
-    for(let i = 0; i < 366; i++){
+    for(let i = 0; i < 100; i++){
         myArray.push(State[i]);
     }
     const json_res = {
