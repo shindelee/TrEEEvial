@@ -8,30 +8,30 @@
 
 .maze_wall_cell {
     background-color: black;
-    width: 5px;
-    height: 5px;
+    width: 7px;
+    height: 7px;
 }
 
 .maze_rover_cell {
     background-color: purple;
-    width: 5px;
-    height: 5px;
+    width: 7px;
+    height: 7px;
 }
 
 .maze_empty_cell {
     background-color: lightblue;
-    width: 5px;
-    height: 5px;
+    width: 7px;
+    height: 7px;
 }
 
 .maze_path_cell {
     background-color: greenyellow;
-    width: 5px;
-    height: 5px;
+    width: 7px;
+    height: 7px;
 }
 
 .maze_unexplored_cell {
     background-color: grey;
-    width: 5px;
-    height: 5px;
+    width: 7px;
+    height: 7px;
 }
