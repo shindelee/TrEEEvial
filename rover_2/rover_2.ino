@@ -102,7 +102,7 @@ int state_history[5];
 //int left_sensor_history[5];
 //int right_sensor_history[5];
 int sensor_setpoint = 8;
-int sensor_upper_bound = 10;
+int sensor_upper_bound = 12;
 
 
 //test stuff
@@ -164,17 +164,17 @@ void loop() {
       leftStepper.setSpeed(0);
       rightStepper.setSpeed(0);
 
-      if (state != FRONT_WALL) {
-        leftStepper.move(-30);
-        rightStepper.move(30);
-        leftStepper.setSpeed(-20);
-        rightStepper.setSpeed(20);
-        while (abs(leftStepper.distanceToGo()) >0) {
-          Serial.println(leftStepper.distanceToGo());
-          leftStepper.runSpeed();
-          rightStepper.runSpeed();
-        }
-      }    
+//      if (state != FRONT_WALL) {
+//        leftStepper.move(-30);
+//        rightStepper.move(30);
+//        leftStepper.setSpeed(-20);
+//        rightStepper.setSpeed(20);
+//        while (abs(leftStepper.distanceToGo()) >0) {
+//          Serial.println(leftStepper.distanceToGo());
+//          leftStepper.runSpeed();
+//          rightStepper.runSpeed();
+//        }
+//      }    
       
       read_sensors();
       //for triangulation sequence array, 0- blue, 1-red, 2-yellow
@@ -189,28 +189,31 @@ void loop() {
       rightStepper.setCurrentPosition(0);
       // message_received = send_data(left_pos, right_pos, 1, 1, 0, tri_sequence, 0, 0);
       initialise_state_history();
-//      initialise_left_sensor_history();
-//      initialise_right_sensor_history();
 
-      if (message_received == "left") {
-        turn_left_90(); 
-        message_received = send_data(left_pos, right_pos, left_wall, right_wall, front_wall, tri_sequence, 0, 0);
-        leftStepper.setCurrentPosition(0);
-        rightStepper.setCurrentPosition(0);
-      }
-      else if (message_received == "right") {
-        turn_right_90();
-        message_received = send_data(left_pos, right_pos, left_wall, right_wall, front_wall, tri_sequence, 0, 0);
-        leftStepper.setCurrentPosition(0);
-        rightStepper.setCurrentPosition(0);
+      int combined = (int(wall_on_left) << 2) | (int(wall_in_front) << 1) | int(wall_on_right);
+     Serial.print("combined = " + String(combined) + "   ");
+
+      switch (combined) {
+        case 0: 
+          turn_left_90();
+        case 1:
+          turn_left_90();
+        case 2:
+          turn_left_90();
+        case 3:
+          turn_left_90();
+        case 4: 
+          straight();
+        case 5:
+          straight();
+        case 6:
+          turn_right_90();
+        case 7: 
+          turn_180();
+        default:
+          straight();
       }
 
-      else if (message_received == "u-turn") {
-        turn_180();
-        message_received = send_data(left_pos, right_pos, left_wall, right_wall, front_wall, tri_sequence, 0, 0);
-        leftStepper.setCurrentPosition(0);
-        rightStepper.setCurrentPosition(0);
-      }
     }
     read_sensors_and_set_speed();
   }

@@ -4,11 +4,26 @@
 void turn_left_90(){
     leftStepper.setCurrentPosition(0);
     rightStepper.setCurrentPosition(0);
-    leftStepper.move(-108);
-    rightStepper.move(-108);
+    leftStepper.move(108);
+    rightStepper.move(108);
+    leftStepper.setSpeed(40);
+    rightStepper.setSpeed(40);
     while(rightStepper.distanceToGo() != 0 && leftStepper.distanceToGo() != 0) {
-        rightStepper.run();
-        leftStepper.run();
+        rightStepper.runSpeed();
+        leftStepper.runSpeed();
+    }
+}
+
+void straight(){
+    leftStepper.setCurrentPosition(0);
+    rightStepper.setCurrentPosition(0);
+    leftStepper.move(-20);
+    rightStepper.move(20);
+    leftStepper.setSpeed(-50);
+    rightStepper.setSpeed(50);
+    while(rightStepper.distanceToGo() != 0 && leftStepper.distanceToGo() != 0) {
+        rightStepper.runSpeed();
+        leftStepper.runSpeed();
     }
 }
 
@@ -16,10 +31,10 @@ void turn_right_90(){
   Serial.println("turning 90 to the right!");
   leftStepper.setCurrentPosition(0);
   rightStepper.setCurrentPosition(0);
-  leftStepper.move(108);
-  rightStepper.move(108);
-  leftStepper.setSpeed(50);
-  rightStepper.setSpeed(50);
+  leftStepper.move(-108);
+  rightStepper.move(-108);
+  leftStepper.setSpeed(-50);
+    rightStepper.setSpeed(50);
   while(rightStepper.distanceToGo() != 0 && leftStepper.distanceToGo() != 0) {
     rightStepper.runSpeed();
     leftStepper.runSpeed();

@@ -104,22 +104,22 @@ void set_wall_states() {
 }
 
 
-void leave_node(){
-  Serial.println("turning 90 to the right!");
-  leftStepper.setCurrentPosition(0);
-  rightStepper.setCurrentPosition(0);
-  for (int i =0; i < 5; i++) {
-    leftStepper.move(-20);
-    rightStepper.move(20);
-    leftStepper.setSpeed(-20);
-    rightStepper.setSpeed(20);
-    while(rightStepper.distanceToGo() != 0 && leftStepper.distanceToGo() != 0) {
-    rightStepper.runSpeed();
-    leftStepper.runSpeed();
-  }
-  }
-   
-}
+//void leave_node(){
+//  Serial.println("turning 90 to the right!");
+//  leftStepper.setCurrentPosition(0);
+//  rightStepper.setCurrentPosition(0);
+//  for (int i =0; i < 5; i++) {
+//    leftStepper.move(-20);
+//    rightStepper.move(20);
+//    leftStepper.setSpeed(-20);
+//    rightStepper.setSpeed(20);
+//    while(rightStepper.distanceToGo() != 0 && leftStepper.distanceToGo() != 0) {
+//    rightStepper.runSpeed();
+//    leftStepper.runSpeed();
+//  }
+//  }
+//   
+//}
 
 float read_ultrasound(int trigPin, int echoPin) {
   //left ultrasound

@@ -7,6 +7,7 @@
 #include "shared_variables.h"
 
 void turn_left_90();
+void straight();
 void turn_180();
 void turn_clockwise_360();
 void set_speed(int left_sensor_reading, int right_sensor_reading);
