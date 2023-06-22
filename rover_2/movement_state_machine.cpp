@@ -54,11 +54,11 @@ void initialise_state_history() {
 void set_speed(int left_sensor_reading, int right_sensor_reading, int required_speed) {
   int difference = left_sensor_reading - right_sensor_reading;
   Serial.print ("difference = " + String(difference) + "   ");
-  int weighted_difference = static_cast<int>(difference * 5);
+  int weighted_difference = static_cast<int>(difference * 3);
   Serial.print ("weighted difference = " + String(weighted_difference) + "   ");
 
-  leftStepper.setSpeed(-(required_speed + weighted_difference));
-  rightStepper.setSpeed(required_speed - weighted_difference);
+  leftStepper.setSpeed(-(required_speed - weighted_difference));
+  rightStepper.setSpeed(required_speed + weighted_difference);
 }
 
 
@@ -76,7 +76,7 @@ void set_wall_states() {
     {
       state = TWO_WALLS;
       cur_state = "two wall";
-        set_speed(leftSensorReading,rightSensorReading, 70); //sensor needs to be at 70 on track!
+        set_speed(leftSensorReading,rightSensorReading, 70*2); //sensor needs to be at 70 on track!
       
     }
   
@@ -84,14 +84,14 @@ void set_wall_states() {
     {
       state = LEFT_WALL;
       cur_state = "left wall";
-      set_speed(leftSensorReading, sensor_setpoint, 70);
+      set_speed(leftSensorReading, sensor_setpoint, 70*2);
       
     }
     else if (!wall_on_left && wall_on_right)
     {
       state = RIGHT_WALL;
       cur_state = "right wall";
-        set_speed(sensor_setpoint,rightSensorReading, 70);
+        set_speed(sensor_setpoint,rightSensorReading, 70*2);
     }
     else
     {
@@ -155,6 +155,11 @@ void read_sensors_and_set_speed() {
 //    update_right_sensor_history();
         
     Serial.print("left: " + String(leftSensorReading) + "  ");
-    Serial.print("right: " + String(rightSensorReading) + "  ");
     Serial.print("front: " + String(frontSensorReading) + "  ");
+    Serial.print("right: " + String(rightSensorReading) + "  ");
+
+    Serial.print("lw : " +  String(wall_on_left) + "   ");
+    Serial.print("fw : " +  String(wall_in_front) + "   ");
+    Serial.print("rw : " +  String(wall_on_right) + "   ");
+    
 }

@@ -54,15 +54,6 @@ app.get("/initial", (req, res) => {
         res.json(
             {
             "tableData33":[
-            [0,2,0,0,1,0,0,0,0],
-            [0,0,1,1,1,1,0,1,0],
-            [0,0,0,0,0,1,0,1,0],
-            [1,0,1,0,1,1,0,1,0],
-            [1,0,1,0,1,1,0,1,0],
-            [1,0,1,0,0,0,0,1,0],
-            [1,0,1,1,1,1,0,1,0],
-            [1,0,0,0,0,0,0,0,0],
-            [1,1,1,1,1,0,0,0,0]
             ]
         })
     }, 1000);
@@ -83,36 +74,17 @@ app.get("/shortestPath", (req, res) => {
 
 app.get("/pollServer", (req, res) => {
     var d = new Date();
-    
 
-    // Instructions from actual maze and Tremaux.
-    newMazeState(State, [20,20], [20, 60], widenBy);
-    newMazeState(State, [20,60], [57, 60], widenBy);
-    // Backtracking shouldn't update map. Rover position needs to be handled.
-    newMazeState(State, [20,20], [92, 20], widenBy);
-    newMazeState(State, [92,20], [92, 98], widenBy);
-    newMazeState(State, [92,98], [20, 98], widenBy);
-    newMazeState(State, [20,98], [20, 205], widenBy);
-    newMazeState(State, [20,205], [92, 205], widenBy);
-    newMazeState(State, [92,205], [280, 205], widenBy);
-    newMazeState(State, [280,205], [311, 205], widenBy);
-    newMazeState(State, [311,205], [346, 205], widenBy);
-    newMazeState(State, [346,205], [346, 20], widenBy);
-    newMazeState(State, [346,20], [290, 20], widenBy);
-    // Backtrack.
-    newMazeState(State, [311,205], [238, 60], widenBy);
-    newMazeState(State, [238,60], [228, 20], widenBy);
-    newMazeState(State, [228,20], [248, 20], widenBy);
-    // Backtrack.
-    newMazeState(State, [228,20], [208, 20], widenBy);
-    // Backtrack.
-    newMazeState(State, [238,60], [92, 98], widenBy);
-    // Backtrack.
-    newMazeState(State, [280,205], [208, 105], widenBy);
-    newMazeState(State, [208,105], [150, 155], widenBy);
-    newMazeState(State, [150,155], [130, 190], widenBy);
-    newMazeState(State, [130,190], [130, 155], widenBy);
-    newMazeState(State, [130,155], [150, 155], widenBy);
+    var x = Math.round(parseInt(x_coord));
+    var y = Math.round(parseInt(y_coord));
+    var p_x = Math.round(parseInt(parent_x));
+    var p_y = Math.round(parseInt(parent_y));
+    console.log(Math.round(x_coord), " type is " + typeof(x_coord) );
+    console.log(Math.round(y_coord))
+    console.log(Math.round(parent_x), " type is " + typeof(parent_x) );
+    console.log(Math.round(parent_y))
+    newMazeState(State, [p_y, p_x], [y, x], widenBy);
+    // newMazeState(State, [10, 10], [100, 100], widenBy);
     var myArray = [];
     for(let i = 0; i < 366; i++){
         myArray.push(State[i]);
@@ -182,8 +154,9 @@ app.get('*', (req, res) => {
                 console.log("left wheel revolutions = " + json.x);
                 console.log("right wheel revolutions = " + json.y);
 
-                var coords_odo = await Odometry(-(parseInt(json.x)) , parseInt(json.y));
-                heading = heading + coords_odo[2] * 180 / Math.PI;
+                // var coords_odo = await Odometry(-(parseInt(json.x)) , parseInt(json.y));
+                var coords_odo = await Odometry((parseInt(json.x)) , parseInt(json.y));
+                heading = heading + coords_odo[2];
                 if (heading < 0 ) {
                     heading = heading + 360;
                 }
@@ -209,8 +182,14 @@ app.get('*', (req, res) => {
                 console.log("x_accurate = " + x_accurate);
                 console.log("y_accurate = " + y_accurate);
 
-                x_coord = Math.floor(x_accurate/3);
-                y_coord = Math.floor(y_accurate/3);
+                // x_coord = Math.floor(x_accurate/3);
+                // y_coord = Math.floor(y_accurate/3);
+
+                parent_x =0;
+                parent_y = 0;
+
+                x_coord = 89;
+                y_coord = 199;
 
 
                 var left_wall = parseInt(json.l);
@@ -224,6 +203,9 @@ app.get('*', (req, res) => {
                 //directions = await Tremaux(x_coord,y_coord, parent_x, parent_y, right_wall, left_wall,front_wall, heading);
                 parent_x = x_coord;
                 parent_y = y_coord;
+
+                parent_x =0;
+                parent_y = 0;
 
              }
 

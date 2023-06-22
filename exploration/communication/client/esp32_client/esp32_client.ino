@@ -8,10 +8,10 @@
 // Define the baud rate
 // #define BAUD_RATE 115200
 
-const char *ssid = "iPhone";
-const char *password = "12345678";
+const char *ssid = "Anlan's Galaxy S21 FE 5G";
+const char *password = "qnub5424";
 char path[] = "/";
-char host[] = "13.51.172.210:5000";
+char host[] = "192.168.158.229:5000";
 int seq_no;
 int counter = 0;
 int array_count[7] = {0, 1, 1, 0, 1, 0, 0};
@@ -46,7 +46,7 @@ void initWiFi()
 // create web socket
 void initWebSocket()
 {
-  if (client.connect("13.51.172.210", 5000))
+  if (client.connect("192.168.158.229", 5000))
   {
     Serial.println("Connected");
   }
@@ -95,8 +95,8 @@ void setup()
 void loop()
 {
   int error = 1;
-  int x = 100*counter;
-  int y = 100*(counter+1);
+  int x = 50*counter;
+  int y = 50*(counter);
   int f= array_count[counter];
   int l= array_count[counter+1];
   int r= array_count[counter+2];
@@ -176,28 +176,28 @@ void loop()
   Serial.println("Is there an error? "+ String(error));
   if (connection)
   {
-    webSocketClient.getData(received_data);
-    while (start == false && received_data.length() <= 0)
-    { // handle disconnection
-      initWebSocket();
-      handshake();
-      delay(500);
-      webSocketClient.sendData(message1);
-      Serial.println("Resending message #" + String(message_counter));
-      delay(1000);
-      webSocketClient.getData(received_data);
-    }
-
-    Serial.print("Received data: ");
-    Serial.println(received_data);
-    delay(2000);
-
     webSocketClient.sendData(message1); // todo: see if can send bytes
     start = false;
     Serial.println("sent message #" + String(message_counter));
     message_counter = message_counter + 1;
     error = false;
-    delay(1000);
+    delay(2000);
+    
+    webSocketClient.getData(received_data);
+//    while (start == false && received_data.length() <= 0)
+//    { // handle disconnection
+//      initWebSocket();
+//      handshake();
+//      delay(500);
+//      webSocketClient.sendData(message1);
+//      Serial.println("Resending message #" + String(message_counter));
+//      delay(1000);
+//      webSocketClient.getData(received_data);
+//    }
+
+    Serial.print("Received data: ");
+    Serial.println(received_data);
+    delay(2000);
 
     counter++;
     if (counter == 5)

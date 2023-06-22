@@ -2,6 +2,7 @@ const g = 9.81;
 const R_wheel = 0.035;
 const d_width = 0.165;
 const N = 200;
+//const N = 400; //microsteps
 
 // Used to calculate the initial orientaion from the outputs of the inertial sensors when the rover is stationary
 // Assuming starting point is origin
@@ -111,9 +112,12 @@ export async function Odometry(Ml, Mr){
 
     console.log("y-axis:", PN[k+1]);
     console.log("x-axis:", PE[k+1]);
+    console.log("angle = ", phi[k+1] * 180 / Math.PI);
     const y_val = PN[k+1];
     const x_val = PE[k+1];
-    const return_array = [x_val, y_val,phi[k+1]];
+    const return_array = [x_val, y_val,phi[k+1]* 180 / Math.PI];
     return return_array;
 }
+
+Odometry(-100,100);
 
