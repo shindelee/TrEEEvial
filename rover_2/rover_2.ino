@@ -152,6 +152,7 @@ void loop() {
 
   int time_since_reading_left = abs(leftStepper.currentPosition() - last_sensor_reading_left);
   int time_since_reading_right = abs(rightStepper.currentPosition() - last_sensor_reading_right);
+  
   if ((time_since_reading_left >=50 || time_since_reading_right >= 50))
   { 
     bool change_state = (state_history[0] == state_history[1]);

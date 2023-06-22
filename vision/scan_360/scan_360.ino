@@ -3,8 +3,8 @@
 #define RX_PIN 16
 #define TX_PIN 17
 
-#define LEFT_STEP_PIN 32 // A4, does not work
-#define LEFT_DIR_PIN 15  // D12
+#define LEFT_STEP_PIN 32  // A4, does not work
+#define LEFT_DIR_PIN 15   // D12
 
 #define RIGHT_STEP_PIN 33 // A3
 #define RIGHT_DIR_PIN 4   // D11
@@ -168,7 +168,7 @@ void loop(){
       bool red_detect = is_in_frame(numbers[0], numbers[1], numbers[2], numbers[3]);
       bool blue_detect = is_in_frame(numbers[4], numbers[5], numbers[6], numbers[7]);
       bool yellow_detect = is_in_frame(numbers[8], numbers[9], numbers[10], numbers[11]);
-
+      /*
       int left_wheel_revs = leftStepper.currentPosition();
       int right_wheel_revs = rightStepper.currentPosition();
     
@@ -205,9 +205,9 @@ void loop(){
       sequence[count] = bluenom;
       count += 1;
     }
-    
+    */
     }
-
+  
     Serial.println(red_flag);
     Serial.println(yellow_flag);
     Serial.println(blue_flag);
@@ -215,7 +215,7 @@ void loop(){
   }
  
   Serial.println("done 360 turning!");
-
+  /*
   switch(sequence[0]){
     case 10: // red
       first_beacon.l = red.l;
@@ -276,5 +276,6 @@ void loop(){
 
   Serial.println("alpha: " + String(alpha));
   Serial.println("theta: " + String(theta));
-
+  */
 }
+ 
