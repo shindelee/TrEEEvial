@@ -8,10 +8,10 @@
 // Define the baud rate
 // #define BAUD_RATE 115200
 
-const char *ssid = "iPhone";
-const char *password = "12345678";
+const char *ssid = "Anlan's Galaxy S21 FE 5G";
+const char *password = "qnub5424";
 char path[] = "/";
-char host[] = "13.51.172.210:5000";
+char host[] = "192.168.158.229:5000";
 int seq_no;
 int counter = 0;
 int array_count[7] = {0, 1, 1, 0, 1, 0, 0};
@@ -46,7 +46,7 @@ void initWiFi()
 // create web socket
 void initWebSocket()
 {
-  if (client.connect("13.51.172.210", 5000))
+  if (client.connect("192.168.158.229", 5000))
   {
     Serial.println("Connected");
   }
