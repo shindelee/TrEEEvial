@@ -65,6 +65,7 @@ function App() {
     `
 
     return (
+        <div className='background'>
         <div className="App">
             <ReactPolling
                 url={'http://localhost:3001/pollServer/'}
@@ -92,6 +93,7 @@ function App() {
             <Button1 onClick={()=>handleClick2(updateTable33)}>
                 Display shortest path
             </Button1>
+        </div>
         </div>
     );
 }
