@@ -74,12 +74,16 @@ const int RIGHT_WALL = 4;
 const int NO_WALL = 5;
 const int STATE_CHANGE = 6;
 
-//ultrasound state machine
-const int ULTRA_TWO_WALLS = 1;
-const int ULTRA_FRONT_WALL = 2;
-const int ULTRA_LEFT_WALL = 3;
-const int ULTRA_RIGHT_WALL = 4;
-const int ULTRA_NO_WALL = 5;
+//ultrasound pins
+const int trigPinLeft = 13; //sda
+const int echoPinLeft = 12; //scl
+
+const int trigPinRight = 27; 
+const int echoPinRight = 26;
+
+const int trigPinFront = 2;
+const int echoPinFront = 14;
+
 
 //state variables
 int state;
@@ -102,8 +106,8 @@ int sensor_upper_bound = 10;
 
 
 //test stuff
-int test[10] = {204,204,93,93,,12,-12,460,-460,274,626};
-int test2[10] = {1,0,1,1,1,0,1,1,0,0};
+//int test[10] = {204,204,93,93,12,-12,460,-460,274,626};
+//int test2[10] = {1,0,1,1,1,0,1,1,0,0};
 
 void setup() {
   Serial.begin(115200);
@@ -125,6 +129,16 @@ void setup() {
   read_sensors_and_set_speed();
   previous_state = cur_state;
 
+  //ultrasound sensor setup
+  pinMode(trigPinLeft, OUTPUT); 
+  pinMode(echoPinLeft, INPUT); 
+
+  pinMode(trigPinRight, OUTPUT); 
+  pinMode(echoPinRight, INPUT); 
+
+  pinMode(trigPinFront, OUTPUT); 
+  pinMode(echoPinFront, INPUT); 
+
 //  initialise_left_sensor_history();
 //  initialise_right_sensor_history();
   
@@ -135,7 +149,7 @@ void loop() {
 
   int time_since_reading_left = abs(leftStepper.currentPosition() - last_sensor_reading_left);
   int time_since_reading_right = abs(rightStepper.currentPosition() - last_sensor_reading_right);
-  if (state == FRONT_WALL || (time_since_reading_left >=20 || time_since_reading_right >=20))
+  if (state == FRONT_WALL || (time_since_reading_left >=100 || time_since_reading_right >=100))
   { 
     bool change_state = (state_history[0] == state_history[1]);
     change_state = change_state && (state_history[1]== state_history[2]);

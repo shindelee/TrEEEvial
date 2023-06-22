@@ -138,9 +138,9 @@ void read_sensors() {
 //  rightSensorReading = analogRead(rightSensorPin); //offset since right sensor less sensitive
 //  frontSensorReading = analogRead(frontSensorPin);
 
-  frontSensorReading = read_ultrasound(2, 14); //D13, D10
-  rightSensorReading = read_ultrasound(27,26); //
-  leftSensorReading = read_ultrasound(13,12);
+  frontSensorReading = read_ultrasound(trigPinFront, echoPinFront); //D13, D10
+  rightSensorReading = read_ultrasound(trigPinRight, echoPinRight); //A0, A1
+  leftSensorReading = read_ultrasound(trigPinLeft, echoPinLeft); 
   
   wall_in_front = frontSensorReading < sensor_upper_bound;
   wall_on_left = leftSensorReading < sensor_upper_bound;
