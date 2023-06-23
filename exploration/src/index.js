@@ -167,10 +167,10 @@ app.get('*', (req, res) => {
                     
                 // if (parseInt(json.alpha) == 0 || parseInt(json.beta) == 0){
                     var hyp = Math.sqrt(Math.pow(coords_odo[0], 2) + Math.pow(coords_odo[1], 2));
-                    console.log(coords_odo[0]*100*Math.sin(heading*Math.PI/180));
-                    console.log(coords_odo[1]*100*Math.cos(heading*Math.PI/180));
-                    x_accurate = coords_odo[0]*100*Math.sin(heading*Math.PI/180) + x_accurate;
-                    y_accurate = coords_odo[1]*100*Math.cos(heading*Math.PI/180) + y_accurate;
+                    console.log(hyp*100*Math.sin(heading*Math.PI/180));
+                    console.log(hyp*100*Math.cos(heading*Math.PI/180));
+                    x_accurate = hyp*100*Math.sin(heading*Math.PI/180) + x_accurate;
+                    y_accurate = hyp*100*Math.cos(heading*Math.PI/180) + y_accurate;
                 // }
                 // else{
                 //     // weighted median average filter, need to update triangulation
