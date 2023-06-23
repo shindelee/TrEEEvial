@@ -141,9 +141,12 @@ always @(*) begin
 	end 
 
 	else begin
-		gauss_red = (red_gauss_stage_1 + 4 * red_gauss_stage_2 + 6 * red_gauss_stage_3 + 4 * red_gauss_stage_4 + red_gauss_stage_5) >> 4; 
-		gauss_green = (green_gauss_stage_1 + 4 * green_gauss_stage_2 + 6 * green_gauss_stage_3 + 4 * green_gauss_stage_4 + green_gauss_stage_5) >> 4;
-		gauss_blue = (blue_gauss_stage_1 + 4 * blue_gauss_stage_2 + 6 * blue_gauss_stage_3 + 4 * blue_gauss_stage_4 + blue_gauss_stage_5) >> 4;
+		gauss_red = (red_gauss_stage_1 + 4 * red_gauss_stage_2 + 6 * red_gauss_stage_3 
+		+ 4 * red_gauss_stage_4 + red_gauss_stage_5) >> 4; 
+		gauss_green = (green_gauss_stage_1 + 4 * green_gauss_stage_2 + 6 * green_gauss_stage_3 
+		+ 4 * green_gauss_stage_4 + green_gauss_stage_5) >> 4;
+		gauss_blue = (blue_gauss_stage_1 + 4 * blue_gauss_stage_2 + 6 * blue_gauss_stage_3 
+		+ 4 * blue_gauss_stage_4 + blue_gauss_stage_5) >> 4;
 	end 
 end
 
