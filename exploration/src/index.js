@@ -165,8 +165,8 @@ app.get('*', (req, res) => {
                 //need to remember previous x, y and theta, and add together
                     
                 // if (parseInt(json.alpha) == 0 || parseInt(json.beta) == 0){
-                    x_accurate = coords_odo[0]*100 + x_accurate;
-                    y_accurate = coords_odo[1]*100 + y_accurate;
+                    x_accurate = coords_odo[0]*100*Math.sin(coords_odo[2]*Math.PI/180) + x_accurate;
+                    y_accurate = coords_odo[1]*100*Math.cos(coords_odo[2]*Math.PI/180) + y_accurate;
                 // }
                 // else{
                 //     // weighted median average filter, need to update triangulation
