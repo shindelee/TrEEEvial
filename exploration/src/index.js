@@ -8,6 +8,7 @@ import { newMazeState } from "./newMazeState.js";
 import { aStarAlgorithm } from "./astar.js";
 import express from 'express';
 import cors from 'cors';
+import { Console } from "console";
 
 const PORT = process.env.PORT || 3001;
 const app = express();
@@ -75,9 +76,9 @@ app.get("/shortestPath", (req, res) => {
 app.get("/pollServer", (req, res) => {
     var d = new Date();
 
-    var x = Math.round(parseInt(x_coord));
+    var x = Math.round(parseInt(x_coord)) + 75;
     var y = Math.round(parseInt(y_coord));
-    var p_x = Math.round(parseInt(parent_x));
+    var p_x = Math.round(parseInt(parent_x)) + 75;
     var p_y = Math.round(parseInt(parent_y));
     newMazeState(State, [p_y, p_x], [y, x], widenBy);
     // newMazeState(State, [10, 10], [100, 100], widenBy);
@@ -165,8 +166,11 @@ app.get('*', (req, res) => {
                 //need to remember previous x, y and theta, and add together
                     
                 // if (parseInt(json.alpha) == 0 || parseInt(json.beta) == 0){
-                    x_accurate = coords_odo[0]*100*Math.sin(coords_odo[2]*Math.PI/180) + x_accurate;
-                    y_accurate = coords_odo[1]*100*Math.cos(coords_odo[2]*Math.PI/180) + y_accurate;
+                    var hyp = Math.sqrt(Math.pow(coords_odo[0], 2) + Math.pow(coords_odo[1], 2));
+                    console.log(coords_odo[0]*100*Math.sin(heading*Math.PI/180));
+                    console.log(coords_odo[1]*100*Math.cos(heading*Math.PI/180));
+                    x_accurate = coords_odo[0]*100*Math.sin(heading*Math.PI/180) + x_accurate;
+                    y_accurate = coords_odo[1]*100*Math.cos(heading*Math.PI/180) + y_accurate;
                 // }
                 // else{
                 //     // weighted median average filter, need to update triangulation
