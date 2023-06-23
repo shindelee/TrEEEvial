@@ -13,7 +13,7 @@ function App() {
     const [tableData33, updateTable33] = useState([[]]);
 
     const fetchData = () => {
-        return fetch("http://35.171.4.40:3001/pollServer/");
+        return fetch("http://54.144.255.182:3001/pollServer/");
         }
 
     const pollingSuccess = (jsonResponse) => {
@@ -28,7 +28,7 @@ function App() {
 
     React.useEffect(() => {
         ///See CORS
-        fetch("http://35.171.4.40:3001/initial/")
+        fetch("http://54.144.255.182:3001/initial/")
         .then((res) => res.json())
         .then((data) => updateTable33(data.tableData33))
         .catch((err) => alert(err)
@@ -36,7 +36,7 @@ function App() {
     }, [updateTable33]);
 
     const handleClick = (updateMethod) => {
-        fetch("http://35.171.4.40:3001/tableData33/")
+        fetch("http://54.144.255.182:3001/tableData33/")
         .then((res) => res.json())
         .then((data) => updateMethod(data.tableData33))
         .catch((err) => alert(err)
@@ -44,7 +44,7 @@ function App() {
         };
 
     const handleClick2 = (updateMethod) => {
-        fetch("http://35.171.4.40:3001/shortestPath/")
+        fetch("http://54.144.255.182:3001/shortestPath/")
         .then((res) => res.json())
         .then((data) => updateMethod(data.shortestPath))
         .catch((err) => alert(err)
@@ -80,7 +80,7 @@ function App() {
                 Display shortest path
             </Button1>
             <ReactPolling
-                url={'http://35.171.4.40:3001/pollServer/'}
+                url={'http://54.144.255.182:3001/pollServer/'}
                 interval= {1000} // in milliseconds(ms)
                 retryCount={3} // this is optional
                 onSuccess = {pollingSuccess}
