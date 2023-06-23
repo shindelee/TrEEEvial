@@ -41,36 +41,3 @@ void loop() {
     delay(1000);
   }
 }
-
-  
-
-/*
-//Recieve location of ping pong ball (if found on camera) and send to database
-if(Serial2.available() && !Turning){
- char *byteBuff;
- String VStatus;
- VStatus = Serial2.readStringUntil('\n');
- Serial.print(VStatus);
- VisionStatus = VStatus.c_str();
- unsigned int Vbuff[7];
- if (VisionStatus.size()>=56){
- VisionStatus = VisionStatus.substr(0,56);
- for(int i = 0;i<7;i++){
-   std::stringstream ss;
-   ss << std::hex << VisionStatus.substr(i*8,8);
-   ss >> Vbuff[i];
-   Serial.print(Vbuff[i]);
-   Serial.print("\n");
- }
- }
- if((Vbuff[0]>>24)=='R'){ // Verify Sync
-  processVision(Vbuff);
- }
-}
-//Pathfinding (Obstacle avoidance)
-if(Warning && Pathfinding){
-  Serial.println("Obstacle Detected! Pathfinding automatically.");
-  HandleWarning();
-  Warning = false;
-}
-*/

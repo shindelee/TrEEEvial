@@ -11,22 +11,6 @@ void update_state_history()
   state_history[0] = state;
 }
 
-// void update_left_sensor_history() {
-//   left_sensor_history[4] = left_sensor_history[3];
-//   left_sensor_history[3] = left_sensor_history[2];
-//   left_sensor_history[2] = left_sensor_history[1];
-//   left_sensor_history[1] = left_sensor_history[0];
-//   left_sensor_history[0] = leftSensorReading;
-// }
-//
-// void update_right_sensor_history() {
-//   right_sensor_history[4] = right_sensor_history[3];
-//   right_sensor_history[3] = right_sensor_history[2];
-//   right_sensor_history[2] = right_sensor_history[1];
-//   right_sensor_history[1] = right_sensor_history[0];
-//   right_sensor_history[0] = rightSensorReading;
-// }
-
 void initialise_state_history()
 {
   state_history[0] = state;
@@ -36,35 +20,20 @@ void initialise_state_history()
   state_history[4] = state;
 }
 
-// void initialise_left_sensor_history() {
-//   left_sensor_history[4] = leftSensorReading;
-//   left_sensor_history[3] = leftSensorReading;
-//   left_sensor_history[2] = leftSensorReading;
-//   left_sensor_history[1] = leftSensorReading;
-//   left_sensor_history[0] = leftSensorReading;
-// }
-
-// void initialise_right_sensor_history() {
-//   right_sensor_history[4] = rightSensorReading;
-//   right_sensor_history[3] = rightSensorReading;
-//   right_sensor_history[2] = rightSensorReading;
-//   right_sensor_history[1] = rightSensorReading;
-//   right_sensor_history[0] = rightSensorReading;
-// }
-
 void set_speed(int left_sensor_reading, int right_sensor_reading, int required_speed)
 {
-  Serial.print("left sensor" + String(left_sensor_reading));
-  Serial.print("   right sensor" + String(right_sensor_reading));
+  // Serial.print("left sensor" + String(left_sensor_reading));
+  // Serial.print("   right sensor" + String(right_sensor_reading));
   int difference = left_sensor_reading - right_sensor_reading;
-  Serial.print("difference = " + String(difference) + "   ");
-  int weighted_difference = static_cast<int>(difference) * 2.5;
-  Serial.print("weighted difference = " + String(weighted_difference) + "   ");
+  // Serial.print("difference = " + String(difference) + "   ");
+  int weighted_difference = static_cast<int>(difference) * 3;
+  // Serial.print("weighted difference = " + String(weighted_difference) + "   ");
 
   leftStepper.setSpeed(required_speed - weighted_difference);
   rightStepper.setSpeed(required_speed + weighted_difference);
 }
 
+/*
 void set_wall_states()
 {
   if (wall_in_front)
@@ -104,24 +73,7 @@ void set_wall_states()
     rightStepper.setSpeed(50);
   }
 }
-
-// void leave_node(){
-//   Serial.println("turning 90 to the right!");
-//   leftStepper.setCurrentPosition(0);
-//   rightStepper.setCurrentPosition(0);
-//   for (int i =0; i < 5; i++) {
-//     leftStepper.move(-20);
-//     rightStepper.move(20);
-//     leftStepper.setSpeed(-20);
-//     rightStepper.setSpeed(20);
-//     while(rightStepper.distanceToGo() != 0 && leftStepper.distanceToGo() != 0) {
-//     rightStepper.runSpeed();
-//     leftStepper.runSpeed();
-//   }
-//   }
-//
-// }
-
+*/
 float read_ultrasound(int trigPin, int echoPin)
 {
   // left ultrasound

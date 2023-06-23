@@ -4,14 +4,26 @@
 // Include all the libraries we need here!
 #include <Arduino.h>
 #include <AccelStepper.h>
+#include "shared_variables.h"
 
-void turn_right_90();
 void turn_left_90();
+void straight();
+void turn_180();
 void turn_clockwise_360();
-float get_angle_turnedL();
-float get_angle_turnedR();
 void set_speed(int left_sensor_reading, int right_sensor_reading);
-void set_wall_states();
-void read_sensors_and_set_speed();
+void turn_right_90();
+void edge_out();
+void straight_edge();
+void reverse();
+// void set_wall_states();
+
+void turn_right();
+void turn_right_20();
+void turn_left();
+void turn_left_20();
+void adjust();
+
+// float get_angle_turnedL();
+// float get_angle_turnedR();
 
 #endif
