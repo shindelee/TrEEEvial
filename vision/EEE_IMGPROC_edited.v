@@ -134,25 +134,16 @@ reg [14:0] temp_sum_r, temp_sum_g, temp_sum_b;
 
 always @(*) begin
 
-	if (x < 2) begin
+	if (x < 5) begin
 		gauss_red = red;
 		gauss_green = green;
 		gauss_blue = blue;
 	end 
 
-	// 11'h2
-	if (x % IMAGE_W > IMAGE_W - 2 ) begin
-		gauss_red = red_gauss_stage_5;
-		gauss_green = green_gauss_stage_5;
-		gauss_blue = blue_gauss_stage_5;
-	end 
-
 	else begin
-
-		gauss_red = (8 * red_gauss_stage_1 + 31 * red_gauss_stage_2 + 49 * red_gauss_stage_3 + 31 * red_gauss_stage_4 + 8 * red_gauss_stage_5) >> 7; 
-		gauss_green = (8 * green_gauss_stage_1 + 31 * green_gauss_stage_2 + 49 * green_gauss_stage_3 + 31 * green_gauss_stage_4 + 8 * green_gauss_stage_5) >> 7;
-		gauss_blue = (8 * blue_gauss_stage_1 + 31 * blue_gauss_stage_2 + 49 * blue_gauss_stage_3 + 31 * blue_gauss_stage_4 + 8 * blue_gauss_stage_5) >> 7;
-
+		gauss_red = (red_gauss_stage_1 + 4 * red_gauss_stage_2 + 6 * red_gauss_stage_3 + 4 * red_gauss_stage_4 + red_gauss_stage_5) >> 4; 
+		gauss_green = (green_gauss_stage_1 + 4 * green_gauss_stage_2 + 6 * green_gauss_stage_3 + 4 * green_gauss_stage_4 + green_gauss_stage_5) >> 4;
+		gauss_blue = (blue_gauss_stage_1 + 4 * blue_gauss_stage_2 + 6 * blue_gauss_stage_3 + 4 * blue_gauss_stage_4 + blue_gauss_stage_5) >> 4;
 	end 
 end
 
@@ -201,69 +192,29 @@ always @(posedge clk)begin
 	yellow_detect_5 <= yellow_detect_4;
 end
 
-
-/*
-wire[9:0] hue;
-wire[7:0] saturation, value, min;
-
-///Conversion from RGB to HSV
-assign value = (red > green) ? ((red > blue) ? red[7:0] : blue[7:0]) : (green > blue) ? green[7:0] : blue[7:0];						
-assign min = (red < green)? ((red<blue) ? red[7:0] : blue[7:0]) : (green < blue) ? green [7:0] : blue[7:0];
-assign saturation = (value - min)* 255 / value;
-assign hue = (red == green && red == blue) ? 0 :((value != red)? (value != green) ? (((240*((value - min))+ (60* (red - green)))/(value-min))>>1):
-                ((120*(value-min)+60*(blue - red))/(value - min)>>1): 
-                (blue < green) ? ((60*(green - blue)/(value - min))>>1): (((360*(value-min) +(60*(green - blue)))/(value - min))>>1));
-					 
-wire red_detect, blue_detect, yellow_detect;
-			 
-assign yellow_detect = (22 < hue && hue < 31) && (130 < saturation && saturation < 244 ) && (value > 151);
-assign red_detect = ((hue > 7 && hue <= 18) && (saturation > 160 && saturation < 237) && (value > 160 && value < 240));
-assign blue_detect = ( hue > 80 && hue < 156) && (saturation > 16 && saturation < 145) && (30 < value && value < 100);
-*/
-
 // RGB -> HSV conversion:
 // H: 0 - 360, S: 0 - 255, V: 0 - 255
-
-
-// wire [7:0] r, g, b;
 
 wire [7:0] cmax, cmin, delta, sat, val, min;
 wire [8:0] hue_temp, hue;
 
-/*
-assign r = red / 255; 
-assign b = blue / 255;
-assign g = green / 255;
-*/
-
-assign min = (red < green)? ((red<blue) ? red[7:0] : blue[7:0]) : (green < blue) ? green [7:0] : blue[7:0];
-
-/*
-assign cmax = ((r >= g) & (r >= b)) ? r : ((g >= b) & (g >= r)) ? g : b;
-assign cmin = ((r <= g) & (r <= b)) ? r : ((g <= b) & (g <= r)) ? g : b;
+assign cmin = ((red <= green) & (red <= blue)) ? red : ((green <= blue) & (green <= red)) ? green : blue;
+assign cmax = ((red >= green) & (red >= blue)) ? red : ((green >= blue) & (green >= red)) ? green : blue;
 assign delta = cmax - cmin;
 
-assign hue_temp = (delta == 0) ? 0 : (cmax == r) ? (60 * ((g - b) / delta))
-                                   : (cmax == g) ? (120 + 60 * ((b - r) / delta))
-                                   : (240 + 60 * ((r - g) / delta));
+assign hue_temp = (delta == 0) ? 0 : (cmax == red) ? (60 * ((green - blue) / delta))
+                                   : (cmax == green) ? (120 + 60 * ((blue - red) / delta))
+                                   : (240 + 60 * ((red - green) / delta));
 
 assign hue = (hue_temp < 0) ? hue_temp + 360 : hue_temp;
-*/
-
-assign val = (red > green) ? ((red > blue) ? red[7:0] : blue[7:0]) : (green > blue) ? green[7:0] : blue[7:0];
-assign hue = (red == green && red == blue) ? 0 :((val != red)? (val != green) ? (((240 * ((val - min))+ (60 * (red - green)))/(val-min)) >> 1):
-                ((120 * (val-min) + 60 * (blue - red))/(val - min) >> 1): 
-                (blue < green) ? ((60 * (green - blue)/(val - min)) >> 1): (((360 * (val-min) +(60 * (green - blue)))/(val - min)) >> 1));
-
-assign sat = (val - min)* 255 / val;
+assign val = cmax;
+assign sat = (cmax - cmin) * 255 / cmax;
 
 // HSV
 wire red_detect, blue_detect, yellow_detect;
-assign red_detect = red[7] && ~blue[7] && ~green[7] && red[6];
-// assign red_detect = ((hue > 0 && hue < 15) || (hue > 340 && hue < 360)) && sat > 150 && sat < 250 && val < 240 && val > 155;
+assign red_detect = ((hue > 0 && hue < 15) || (hue > 340 && hue < 360)) && sat > 150 && sat < 250 && val < 240 && val > 155;
 assign yellow_detect = (hue > 10) && (hue < 30) && sat > 150 && sat < 240 && val < 240 && val > 155;
-// assign blue_detect = (hue > 185) && (hue < 260) && sat > 20 && val > 20 && sat < 150 && val < 120;
-assign blue_detect = ~red[7] && blue[7] && ~green[7] && blue[6];
+assign blue_detect = (hue > 185) && (hue < 260) && sat > 20 && val > 20 && sat < 150 && val < 120;
 
 // Find boundary of cursor box
 
@@ -298,9 +249,9 @@ assign bb_active_yellow = ((x == left_yellow | x == right_yellow) & (y <= bottom
 // assign bb_active_yellow = (x == left_yellow) | (x == right_yellow) | (y == top_yellow) | (y == bottom_yellow);
 
 assign new_image = bb_active_red ? {8'hff, 8'h0, 8'h0} 
-						: bb_active_blue ? {8'h0, 8'h0, 8'hff} 
-						: bb_active_yellow ? {8'hff, 8'hff, 8'h0} 
-						: detectedAreaRGB;
+				: bb_active_blue ? {8'h0, 8'h0, 8'hff} 
+				: bb_active_yellow ? {8'hff, 8'hff, 8'h0} 
+				: detectedAreaRGB;
 
 // Switch output pixels depending on mode switch
 // Don't modify the start-of-packet word - it's a packet discriptor
@@ -425,13 +376,6 @@ always@(posedge clk) begin
 		right_yellow <= yellow_x_max;
 		top_yellow <= yellow_y_min;
 		bottom_yellow <= yellow_y_max;
-		
-		/*
-		left <= x_min;
-		right <= x_max;
-		top <= y_min;
-		bottom <= y_max;
-		*/
 		
 		// Start message writer FSM once every MSG_INTERVAL frames, if there is room in the FIFO
 		frame_count <= frame_count - 1;
