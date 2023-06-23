@@ -75,6 +75,7 @@ function App() {
                 <Route path='/Balancing' element={<Balancing/>} />
               </Routes>
             </Router>
+            <h1 className='Maze'>MAZE MAPPING</h1>
             <TableComp td = {tableData33}/>
             <Button1 onClick={()=>handleClick2(updateTable33)}>
                 Display shortest path

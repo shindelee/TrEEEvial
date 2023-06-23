@@ -56,6 +56,15 @@
   }
 }
 
+.Maze {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 10vh;
+  font-size: 3rem;
+  color: #fff;
+}
+
 .Balancing {
   display: flex;
   justify-content: center;
